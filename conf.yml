@@ -1,23 +1,26 @@
 server :
-    server_name : mmoumani.42.fr
-    port: 80
-    root: /var/www/html
+    server_name : mmoumani.42.fr1
+    port: 801
+    root: /var/www/html1
 
     location :
-        path:  \.php$
+        path:  \.php$1
 
 server :
-    server_name : mmoumani.42.fr
-    port: 80
-    root: /var/www/html
-
-    location :
-        path:  \.php$
+    server_name : haja
 
 server :
-    server_name : mmoumani.42.fr
-    port: 80
-    root: /var/www/html
+    server_name       : mmoumani.42.fr2
+    port: 802
+    root: /var/www/html2
 
     location :
-        path:  \.php$
+        path:  \.php$2
+
+server :
+    server_name : mmoumani.42.fr3
+    port: 803
+    root: /var/www/html3
+
+    location :
+        path:  \.php$3
