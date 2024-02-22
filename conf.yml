@@ -1,0 +1,23 @@
+server :
+    server_name : mmoumani.42.fr
+    port: 80
+    root: /var/www/html
+
+    location :
+        path:  \.php$
+
+server :
+    server_name : mmoumani.42.fr
+    port: 80
+    root: /var/www/html
+
+    location :
+        path:  \.php$
+
+server :
+    server_name : mmoumani.42.fr
+    port: 80
+    root: /var/www/html
+
+    location :
+        path:  \.php$
