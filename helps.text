@@ -1,0 +1,12 @@
+server :
+    server_names : mmoumani.42.fr1 localhost #vector
+    port: 801
+    root: /var/www/html1
+    host: sdfsdf #ipaddress
+    maxbodysize: 54 #size things to Post
+
+    location :
+        path:  hsf
+        cgi_path : extantion(python | php ...) /path #map
+        methods: post / get / delete #vector 
+

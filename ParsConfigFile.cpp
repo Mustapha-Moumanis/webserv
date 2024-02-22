@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/22 14:45:24 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/22 19:37:45 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,16 @@ ParsConfigFile::ParsConfigFile(std::string fileName) {
 			newServer();
 		}
 	}
+	for (std::vector<Server>::iterator it1 = servers.begin(); it1 != servers.end(); it1++) {
+		it1->checkArg();
+		// check doublicate 
+		for (std::vector<Server>::iterator it2 = it1 + 1; it2 < servers.end(); it2++) {
+			if (it1->getPort() == it2->getPort())
+				throw std::runtime_error("doublicate post");
+		}
+	}
 	for (std::vector<Server>::iterator i = servers.begin(); i != servers.end(); i++) {
-    	std::cout << "server : " << std::endl;
+		std::cout << "server : " << std::endl;
 		i->printArg();
 	}
 }
@@ -62,6 +70,7 @@ void ParsConfigFile::getKeyValue(std::string line) {
 	getline(ss, key, ':');
 	key = key.substr(0, key.find(" "));
 	getline(ss, value, '\0');
+	
 }
 
 void ParsConfigFile::newServer() {
@@ -97,11 +106,20 @@ void ParsConfigFile::newServer() {
 				throw std::runtime_error("invalid line : " + line);
 			newLocation(serv);
 		}
-		else
-			serv.addArg(key, value);
-		
-		// if (pos != spaces)
-		// 	throw std::runtime_error("invalid line : " + line);
+		else {
+			if (key == "root")
+				serv.setRoot(value);
+			else if (key == "port")
+				serv.setPort(value);
+			else if (key == "host")
+				serv.setHost(value);
+			else if (key == "server_names")
+				serv.setServNames(value);
+			else if (key == "client_max_body_size")
+				serv.setClientMaxBodySize(value);
+			else
+				std::cout << "invalide key : " << key << std::endl;
+		}
 	}
 }
 
@@ -136,7 +154,6 @@ void ParsConfigFile::newLocation(Server &serv) {
 			
 			serv.addLocat(locat);
 			servers.push_back(serv);
-			// spaces = 0;
 			newServer();
 			return;
 		}

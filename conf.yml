@@ -1,25 +1,31 @@
 server :
-    server_name : mmoumani.42.fr1
     port: 801
+    host: 
+    server_names :    mmoumani.42.fr1      hello #test1 
     root: /var/www/html1
+    client_max_body_size: 200M
 
     location :
-        path:  \.php$1
+        path:  hsf
+        # cgi_path : extantion(python | php ...) /path 
+        # methods: post / get / delete
+
 
 server :
-    server_name : haja
+    server_names       : mmoumani.42.fr2
+    host: sdfsdf2
 
-server :
-    server_name       : mmoumani.42.fr2
-    port: 802
+    port: 805
     root: /var/www/html2
 
     location :
         path:  \.php$2
 
 server :
-    server_name : mmoumani.42.fr3
-    port: 803
+    server_names : mmoumani.42.fr3
+    host: sdfsdf3
+
+    port: 80
     root: /var/www/html3
 
     location :

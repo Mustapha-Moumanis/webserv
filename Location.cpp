@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/22 14:42:52 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/22 18:17:55 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "Server.hpp"
 
 Location::Location(Server &serv){
-    arg.insert(std::pair<std::string, std::string>("root", serv.getValue("root")));
+    arg.insert(std::pair<std::string, std::string>("root", serv.getRoot()));
     arg.insert(std::pair<std::string, std::string>("path", ""));
 }
 
@@ -27,6 +27,13 @@ void Location::addArg(std::string key, std::string value){
     }
     else {
         it->second = value;
+    }
+}
+
+void Location::checkLocation(){
+    for (std::map<std::string, std::string>::iterator it = arg.begin() ; it != arg.end(); it++) {
+        if (it->second.empty())
+            throw std::runtime_error("location importent data : path ...");
     }
 }
 
