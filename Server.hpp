@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 15:25:33 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/23 18:46:37 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Server {
 		std::string getValue(std::string key);
 		// void addArg(std::string key, std::string value);
 		
+		void setLocValue(Location &locat, std::string key, std::string value);
 		void addLocat(Location &Locat);
 		
 		

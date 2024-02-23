@@ -1,13 +1,13 @@
 /* ************************************************************************** */
-/*																			*/
-/*														:::	  ::::::::   */
-/*   Server.cpp										 :+:	  :+:	:+:   */
-/*													+:+ +:+		 +:+	 */
-/*   By: mmoumani <mmoumani@student.42.fr>		  +#+  +:+	   +#+		*/
-/*												+#+#+#+#+#+   +#+		   */
-/*   Created: 2024/02/21 13:50:49 by mmoumani		  #+#	#+#			 */
-/*   Updated: 2024/02/22 18:38:27 by mmoumani		 ###   ########.fr	   */
-/*																			*/
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
+/*   Updated: 2024/02/23 21:40:54 by mmoumani         ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
@@ -43,8 +43,9 @@ void Server::setServNames(std::string value) {
 	std::stringstream ss(value);
 	std::string var;
 	while (ss >> var) {
-		if (var[0] == '#')
+		if (var[0] == '#'){
 			break;
+		}
 		serverName.push_back(var);
 	}
 }
@@ -77,6 +78,48 @@ void Server::checkArg() {
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
 		it->checkLocation();
 	}
+}
+
+
+void Server::setLocValue(Location &locat, std::string key, std::string value) {
+	std::stringstream ss(value);
+	std::string validValue;
+	std::string checkMultValue;
+
+	if (key == "methods") {
+		std::string var;
+		validValue = "";
+		while (1337) {
+			if (ss.eof())
+				break;
+			ss >> var;
+			// std::cout << "*" << var << "*" << std::endl;
+			if (var[0] == '#')
+				break;
+			else if (var.empty())
+				throw std::runtime_error(key + " : undifind value");
+			else if (var != "POST" && var != "GET" && var != "DELETE")
+				throw std::runtime_error("methode : " + var + " not valide");
+			else if (!validValue.empty() && validValue.find(var) != std::string::npos)
+				throw std::runtime_error("methode : " + var + " allready seted");
+			else
+				validValue = validValue + var + " ";
+		}
+		if (validValue.empty())
+			throw std::runtime_error(key + " : undifind value");
+		locat.setmethods(validValue);
+		return ;
+	}
+	ss >> validValue;
+	ss >> checkMultValue;
+	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue[0] != '#'))
+		throw std::runtime_error(key + " : invalide value");
+	if (key == "root")
+		locat.setRoot(validValue);
+	else if (key == "path")
+		locat.setPath(validValue);
+	else
+		std::cout << "invalide key : " << key << std::endl;
 }
 
 void Server::addLocat(Location &locat) {

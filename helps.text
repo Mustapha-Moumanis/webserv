@@ -8,5 +8,5 @@ server :
     location :
         path:  hsf
         cgi_path : extantion(python | php ...) /path #map
-        methods: post / get / delete #vector 
+        methodss: post / get / delete #vector 
 
