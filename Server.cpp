@@ -13,12 +13,10 @@
 #include "Server.hpp"
 
 Server::Server(){
-	// arg.insert(std::pair<std::string, std::string>("server_names", ""));
-	// arg.insert(std::pair<std::string, std::string>("root", "/var/www/")); 
-	// arg.insert(std::pair<std::string, std::string>("port", ""));
-	root = "/var/www/";
 	port = "";
 	host = "";
+	root = "/var/www/";
+	clientMaxBodySize = "200M";
 }
 
 Server::~Server(){}
@@ -43,12 +41,11 @@ void Server::setClientMaxBodySize(std::string value) {
 
 void Server::setServNames(std::string value) {
 	std::stringstream ss(value);
-	std::string test;
-	while (ss >> test) {
-		if (test[0] == '#')
+	std::string var;
+	while (ss >> var) {
+		if (var[0] == '#')
 			break;
-		serverName.push_back(test);
-		// std::cout << "*" << test << "*" << std::endl;
+		serverName.push_back(var);
 	}
 }
 
@@ -77,28 +74,10 @@ std::vector<std::string> Server::getServNames() {
 void Server::checkArg() {
 	if (port.empty() || host.empty())
 		throw std::runtime_error("importent data : port | host ...");
-	// for (std::map<std::string, std::string>::iterator it = arg.begin() ; it != arg.end(); it++) {
-	// 	if (it->second.empty())
-	// 		throw std::runtime_error("importent data : port | servername ...");
-	// }
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
 		it->checkLocation();
 	}
 }
-
-// sdsdfsdf
-
-// std::string Server::getValue(std::string key) {
-//	 return arg.find(key)->second;
-// }
-// void Server::addArg(std::string key, std::string value)
-// {
-//	 std::map<std::string, std::string>::iterator it = arg.find(key);
-//	 if (it == arg.end())
-//		 throw std::runtime_error("unknow arg : " + key);
-//	 else
-//		 it->second = value;
-// }
 
 void Server::addLocat(Location &locat) {
 	locations.push_back(locat);
@@ -115,27 +94,17 @@ void Server::addLocat(Location &locat) {
 // }
 
 void Server::printArg() {
-	// std::vector<std::string> vec = getServNames();
 	std::cout << "	port : " << getPort() << std::endl;
 	std::cout << "	host : " << getHost() << std::endl;
 	std::cout << "	server_names : ";
 	for (std::vector<std::string>::iterator it = serverName.begin(); it != serverName.end(); it++) {
 		std::cout << *it << " ";
 	}
-	std::cout << " " << std::endl;
+	std::cout << std::endl;
 	std::cout << "	root : " << getRoot() << std::endl;
 	std::cout << "	client_max_body_size : " << getClientMaxBodySize() << std::endl;
-	std::cout << "		Location : " << std::endl;
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
+		std::cout << "	location : " << std::endl;
 		it->printArg();
 	}
 }
-// void Server::printArg() {
-//	 // for (std::map<std::string, std::string>::iterator it = arg.begin(); it != arg.end(); it++) {
-//	 //	 std::cout << "	" << it->first << " : " << it->second << std::endl;
-//	 // }
-//	 std::cout << "		Location : " << std::endl;
-//	 for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
-//		 it->printArg();
-//	 }
-// }

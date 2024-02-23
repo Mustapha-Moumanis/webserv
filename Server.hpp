@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/22 18:37:45 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:25:33 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,7 @@
 #include "Location.hpp"
 
 class Server {
-	private :
-		// std::map<std::string, std::string> arg;
-		
+	private :		
 		std::vector<std::string> serverName;
 		std::string port;
 		std::string host;

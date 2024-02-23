@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/22 19:37:45 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:45:08 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,21 @@ ParsConfigFile::ParsConfigFile(std::string fileName) {
 
 		getKeyValue(line);
 		
-		if (key == "server" && value.empty()) {
+		// if (key != "server")
+		// 	throw std::runtime_error("invalid line : " + key);
+
+		if (key == "server") {
+			std::stringstream ss(value);
+			std::string tmp;
+			ss >> tmp;
+			if (!tmp.empty() || pos != 0)
+				throw std::runtime_error("invalid line : " + line);
 			newServer();
+			break;
 		}
+		else
+			throw std::runtime_error("invalid line : ");
+			
 	}
 	for (std::vector<Server>::iterator it1 = servers.begin(); it1 != servers.end(); it1++) {
 		it1->checkArg();
@@ -73,6 +85,31 @@ void ParsConfigFile::getKeyValue(std::string line) {
 	
 }
 
+void ParsConfigFile::setServValue(Server &serv, std::string key, std::string value) {
+	std::stringstream ss(value);
+	std::string validValue;
+	std::string checkMultValue;
+
+	if (key == "server_names") {
+		serv.setServNames(value);
+		return ;
+	}
+	ss >> validValue;
+	ss >> checkMultValue;
+	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue[0] != '#'))
+		throw std::runtime_error(key + " : invalide value");
+	if (key == "root")
+		serv.setRoot(validValue);
+	else if (key == "port")
+		serv.setPort(validValue);
+	else if (key == "host")
+		serv.setHost(validValue);
+	else if (key == "client_max_body_size")
+		serv.setClientMaxBodySize(validValue);
+	else
+		std::cout << "invalide key : " << key << std::endl;
+}
+
 void ParsConfigFile::newServer() {
 	Server serv;
 	spaces = 4;
@@ -95,7 +132,10 @@ void ParsConfigFile::newServer() {
 			throw std::runtime_error("invalid line : " + line);
 		
 		if (key == "server") {
-			if (!value.empty() || pos != 0)
+			std::stringstream ss(value);
+			std::string tmp;
+			ss >> tmp;
+			if (!tmp.empty() || pos != 0)
 				throw std::runtime_error("invalid line : " + line);
 			servers.push_back(serv);
 			newServer();
@@ -107,18 +147,19 @@ void ParsConfigFile::newServer() {
 			newLocation(serv);
 		}
 		else {
-			if (key == "root")
-				serv.setRoot(value);
-			else if (key == "port")
-				serv.setPort(value);
-			else if (key == "host")
-				serv.setHost(value);
-			else if (key == "server_names")
-				serv.setServNames(value);
-			else if (key == "client_max_body_size")
-				serv.setClientMaxBodySize(value);
-			else
-				std::cout << "invalide key : " << key << std::endl;
+			setServValue(serv, key, value);
+			// if (key == "root")
+			// 	serv.setRoot(value);
+			// else if (key == "port")
+			// 	serv.setPort(value);
+			// else if (key == "host")
+			// 	serv.setHost(value);
+			// else if (key == "server_names")
+			// 	serv.setServNames(value);
+			// else if (key == "client_max_body_size")
+			// 	serv.setClientMaxBodySize(value);
+			// else
+			// 	std::cout << "invalide key : " << key << std::endl;
 		}
 	}
 }
@@ -141,15 +182,16 @@ void ParsConfigFile::newLocation(Server &serv) {
 		if (line.empty() || line[0] == '#')
 			continue ;
 
-		
 		getKeyValue(line);
 		
-		if (pos != spaces && key != "server") {
-			throw std::runtime_error("2 = invalid .line : " + line);
-		}
-		
+		// if (key != "server" && key != "location" && pos != spaces) {
+		// 	throw std::runtime_error("3 = invalid .line : " + line);
+		// }
+		std::stringstream ss(value);
+		std::string tmp;
+		ss >> tmp;
 		if (key == "server") {
-			if (!value.empty() || pos != 0)
+			if (!tmp.empty() || pos != 0)
 				throw std::runtime_error("invalid line : " + line);
 			
 			serv.addLocat(locat);
@@ -158,10 +200,14 @@ void ParsConfigFile::newLocation(Server &serv) {
 			return;
 		}
 		else if (key == "location") {
-			if (!value.empty())
+			if (!value.empty() || pos != 4)
 				throw std::runtime_error("invalid line : " + line);
 			serv.addLocat(locat);
 			newLocation(serv);
+			return;
+		}
+		else if (pos != spaces) {
+			throw std::runtime_error("3 = invalid .line : " + line);
 		}
 		else
 			locat.addArg(key, value);

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:15:19 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/22 19:33:56 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/23 13:19:49 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class ParsConfigFile {
 
 		bool isRegFile(std::string path);
 		void getKeyValue(std::string line);
+		void setServValue(Server &serv, std::string key, std::string value);
 		void newServer();
 		void newLocation(Server &serv);
 };
