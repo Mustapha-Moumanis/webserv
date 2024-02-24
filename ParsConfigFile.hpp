@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:15:19 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 13:19:49 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/24 12:15:11 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class ParsConfigFile {
 		std::string line;
 		std::string key;
 		std::string value;
+		size_t AutoSpaces;
 		size_t spaces;
 		size_t pos;
 	public :

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 18:46:37 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/24 16:30:24 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,12 @@
 
 class Server {
 	private :		
-		std::vector<std::string> serverName;
+		// std::vector<std::string> serverName;
+		std::string serverName;
 		std::string port;
 		std::string host;
 		std::string root;
-		std::string clientMaxBodySize;
+		double clientMaxBodySize;
 		
 		std::vector<Location> locations;
 	public :
@@ -36,19 +37,19 @@ class Server {
 		void setRoot(std::string value);
 		void setPort(std::string value);
 		void setHost(std::string value);
-		void setClientMaxBodySize(std::string value);
 		void setServNames(std::string value);
+		void setClientMaxBodySize(std::string value);
 		
 		std::string getRoot();
 		std::string getPort();
 		std::string getHost();
-		std::string getClientMaxBodySize();
-		std::vector<std::string> getServNames();
+		std::string getServNames();
+		double getClientMaxBodySize();
 		
 		void checkArg();
 		
 		// remove
-		std::string getValue(std::string key);
+		// std::string getValue(std::string key);
 		// void addArg(std::string key, std::string value);
 		
 		void setLocValue(Location &locat, std::string key, std::string value);

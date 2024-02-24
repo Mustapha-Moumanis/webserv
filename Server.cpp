@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 21:40:54 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/24 16:26:46 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 Server::Server(){
 	port = "";
 	host = "";
+	serverName = "";
 	root = "/var/www/";
-	clientMaxBodySize = "200M";
+	clientMaxBodySize = 2147483648;
+	// errorPage = kkjsgdfjsd;
 }
 
 Server::~Server(){}
@@ -35,19 +37,28 @@ void Server::setHost(std::string value) {
 	host = value;
 }
 
-void Server::setClientMaxBodySize(std::string value) {
-	clientMaxBodySize = value;
+void Server::setServNames(std::string value) {
+	serverName = value;
 }
 
-void Server::setServNames(std::string value) {
-	std::stringstream ss(value);
-	std::string var;
-	while (ss >> var) {
-		if (var[0] == '#'){
-			break;
-		}
-		serverName.push_back(var);
-	}
+void Server::setClientMaxBodySize(std::string value) {
+	size_t myPos;
+	std::string sUnit;
+
+	myPos = value.find_first_not_of("0123456789");
+	if (myPos == std::string::npos || myPos == 0)
+		throw std::runtime_error("client_max_body_size invalide specify values in units");
+	sUnit = value.substr(myPos, value.length() - myPos);
+	if (sUnit.length() != 1 || sUnit.find_first_of("BKMG") == std::string::npos)
+		throw std::runtime_error("client_max_body_size units [B, K, M, G]");
+	
+	std::stringstream ss(value.substr(0, myPos));
+	ss >> clientMaxBodySize;
+	// had l3iba fchkel
+	if (clientMaxBodySize > 2147483648)
+		throw std::runtime_error("client_max_body_size too long maximum 2G");
+		
+	
 }
 
 // get variables
@@ -64,12 +75,12 @@ std::string Server::getHost() {
 	return host;
 }
 
-std::string Server::getClientMaxBodySize() {
-	return clientMaxBodySize;
+std::string Server::getServNames() {
+	return serverName;
 }
 
-std::vector<std::string> Server::getServNames() {
-	return serverName;
+double Server::getClientMaxBodySize() {
+	return clientMaxBodySize;
 }
 
 void Server::checkArg() {
@@ -139,11 +150,11 @@ void Server::addLocat(Location &locat) {
 void Server::printArg() {
 	std::cout << "	port : " << getPort() << std::endl;
 	std::cout << "	host : " << getHost() << std::endl;
-	std::cout << "	server_names : ";
-	for (std::vector<std::string>::iterator it = serverName.begin(); it != serverName.end(); it++) {
-		std::cout << *it << " ";
-	}
-	std::cout << std::endl;
+	std::cout << "	server_name : " << getServNames() << std::endl;
+	// for (std::vector<std::string>::iterator it = serverName.begin(); it != serverName.end(); it++) {
+	// 	std::cout << *it << " ";
+	// }
+	// std::cout << std::endl;
 	std::cout << "	root : " << getRoot() << std::endl;
 	std::cout << "	client_max_body_size : " << getClientMaxBodySize() << std::endl;
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {

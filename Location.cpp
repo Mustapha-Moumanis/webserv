@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 19:24:18 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/24 16:31:46 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 Location::Location(Server &serv){
     arg.insert(std::pair<std::string, std::string>("root", serv.getRoot()));
     arg.insert(std::pair<std::string, std::string>("path", ""));
+    arg.insert(std::pair<std::string, std::string>("methods", ""));
     
     root = serv.getRoot();
     path = "";
@@ -50,18 +51,16 @@ std::string Location::getmethods() {
 
 void Location::addArg(std::string key, std::string value){
     std::map<std::string, std::string>::iterator it = arg.find(key);
-    if (it == arg.end()) {
+    if (it == arg.end())
         std::cout << "key *"<< key << "* not found " << std::endl;
-    }
-    else {
+    else
         it->second = value;
-    }
 }
 
 void Location::checkLocation(){
     for (std::map<std::string, std::string>::iterator it = arg.begin() ; it != arg.end(); it++) {
         if (it->second.empty())
-            throw std::runtime_error("location importent data : path ...");
+            throw std::runtime_error("location importent data : path | methods ...");
     }
 }
 
@@ -69,7 +68,9 @@ void Location::printArg() {
     for (std::map<std::string, std::string>::iterator it = arg.begin(); it != arg.end(); it++) {
         std::cout << "            "<< it->first << " : " << it->second << std::endl;
     }
+
+    std::cout << "            path : *" << path << "*" << std::endl;
+    std::cout << "            root : *" << root << "*" << std::endl;
     std::cout << "            methods : *" << methods << "*" << std::endl;
-    
 }
 
