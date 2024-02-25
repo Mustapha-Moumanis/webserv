@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/24 16:16:38 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/25 11:05:05 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,30 @@ void ParsConfigFile::getKeyValue(std::string line) {
 	}
 }
 
+// void ParsConfigFile::getLocaKeyValue(std::string line) {
+// 	std::stringstream ss;
+// 	std::string s1;
+// 	key = "";
+// 	value = "";
+	
+// 	if (line.find(":") == std::string::npos || line[0] != '-')
+// 		throw std::runtime_error("invalid line : " + line);
+	
+// 	ss << ;
+// 	getline(ss, key, ':');
+// 	key = key.substr(0, key.find(" "));
+// 	ss >> s1;
+// 	if (s1[0] == '#')
+// 		value = "";
+// 	else {
+// 		getline(ss, value, '\0');
+// 		if (!value.empty())
+// 			value = s1 + " " + value;
+// 		else
+// 			value = s1;
+// 	}
+// }
+
 void ParsConfigFile::setServValue(Server &serv, std::string key, std::string value) {
 	std::stringstream ss(value);
 	std::string validValue;
@@ -117,6 +141,8 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 		serv.setHost(validValue);
 	else if (key == "client_max_body_size")
 		serv.setClientMaxBodySize(validValue);
+	else if (key == "-")
+		throw std::runtime_error("Bad format " + key);
 	else
 		throw std::runtime_error(key + " : invalide value");
 }
@@ -174,7 +200,8 @@ void ParsConfigFile::newServer() {
 }
 
 void ParsConfigFile::newLocation(Server &serv) {
-	Location locat(serv);
+	Location	locat(serv);
+	bool		check = 0;
 	spaces = AutoSpaces * 2;
 	
 	while (1337) {
@@ -190,6 +217,15 @@ void ParsConfigFile::newLocation(Server &serv) {
 		if (line.empty() || line[0] == '#')
 			continue ;
 
+		check = 0;
+		if (line[0] == '-') {
+			size_t p = line.find_first_not_of("- ");
+			if (p == std::string::npos)
+				throw std::runtime_error("Empty line : " + line);
+			line = line.substr(p, line.length() - 1);
+			check = 1;
+		}
+
 		getKeyValue(line);
 
 		std::stringstream ss(value);
@@ -197,7 +233,7 @@ void ParsConfigFile::newLocation(Server &serv) {
 		ss >> tmp;
 	
 		if (key == "server") {
-			if ((!tmp.empty() && tmp[0] != '#') || pos != 0)
+			if ((!tmp.empty() && tmp[0] != '#') || pos != 0 || check == 1)
 				throw std::runtime_error("invalid line : " + line);
 			serv.addLocat(locat);
 			servers.push_back(serv);
@@ -205,7 +241,7 @@ void ParsConfigFile::newLocation(Server &serv) {
 			return;
 		}
 		else if (key == "location") {
-			if ((!tmp.empty() && tmp[0] != '#') || pos != spaces / 2)
+			if ((!tmp.empty() && tmp[0] != '#') || pos != spaces / 2 || check == 1)
 				throw std::runtime_error("Error : Bad spaces or empty value : " + line);
 			serv.addLocat(locat);
 			newLocation(serv);
@@ -213,6 +249,8 @@ void ParsConfigFile::newLocation(Server &serv) {
 		}
 		else if (pos != spaces)
 			throw std::runtime_error("Error : Bad spaces : " + line);
+		else if (check != 1)
+			throw std::runtime_error("Error : Bad format : " + line);
 		else {
 			serv.setLocValue(locat, key, value);
 			locat.addArg(key, value);

@@ -7,12 +7,12 @@ server :
     # error_page : 404       /404.html
 
     location :  
-        path:  dfs #hsf1 
-        methods: DELETE
+        - path:  dfs #hsf1 
+        - methods: DELETE
     location :     
-        path:  hsf2 
+        - path:  hsf2 
       # cgi_path : extantion(python | php ...) /path 
-        methods:  POST
+        - methods:  POST
     # location :   
     #     path:  hsf3 
     #     # cgi_path : extantion(python | php ...) /path 
@@ -30,9 +30,13 @@ server :
     root: /var/www/html2
 
     location :
-        path:  \.php$1
+        - path:  \.php$2
+        - methods: DELETE
+        
     location :  
-        path:  \.php$2
+        - path:  \.php$2
+        - methods: DELETE
+
 
 server : 
     server_name : mmoumani.42.fr3
