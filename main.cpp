@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/21 14:43:01 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/25 15:37:10 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ParsConfigFile.hpp"
+#include "parse/ParsConfigFile.hpp"
 
 int main(int ac, char **av) {
     if (ac == 2) {

@@ -1,29 +1,69 @@
+# NAME = webserv
+
+# CFILES = main.cpp ParsConfigFile.cpp Server.cpp Location.cpp
+
+# HFILES = ParsConfigFile.hpp Server.hpp Location.hpp
+
+# CC = c++
+
+# FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
+
+# OBJS = $(CFILES:.cpp=.o)
+
+# all: $(NAME)
+
+# $(OBJS) : $(CFILES)
+# 	$(CC) $(FLAGS) -c $(CFILES)
+
+# $(NAME): $(OBJS) $(HFILES)
+# 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
+
+# clean:
+# 	@echo "cleaning OBJS files"
+# 	@rm -f $(OBJS)
+
+# fclean: clean
+# 	@echo "cleaning btc file"
+# 	@rm -f $(NAME)
+
+# re: fclean all
+
 NAME = webserv
 
-CFILES = main.cpp ParsConfigFile.cpp Server.cpp Location.cpp
+CFILES = main.cpp 
+
+PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
+PFILES := $(addprefix parse/, $(PFILES))
 
 HFILES = ParsConfigFile.hpp Server.hpp Location.hpp
+HFILES := $(addprefix parse/, $(HFILES))
 
 CC = c++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
 
-OBJS = $(CFILES:.cpp=.o)
+OBJ_DIR = obj
 
-all: $(NAME)
+OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(notdir $(CFILES) $(PFILES)))
 
-$(OBJS) : $(CFILES)
-	$(CC) $(FLAGS) -c $(CFILES)
+all: $(OBJ_DIR) $(NAME)
+
+$(OBJ_DIR)/%.o : %.cpp $(HFILES)
+	$(CC) $(FLAGS) -c $< -o $@
+	@echo $@;
 
 $(NAME): $(OBJS) $(HFILES)
 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
 clean:
-	@echo "cleaning OBJS files"
-	@rm -f $(OBJS)
+	@echo "Cleaning OBJ files"
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@echo "cleaning btc file"
+	@echo "Cleaning executable file"
 	@rm -f $(NAME)
 
 re: fclean all
