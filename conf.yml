@@ -1,9 +1,9 @@
 server :
-    port:  804
-    host:   10.12.5.11
+    port:  804 # min 1 max 65535
+    host:   10.12.5.11 # 4 nunmbers 3 . 
     server_name :  mmoumani.42.fr1   # test1 
-    root: /var/www/html1 
-    client_max_body_size: 545456M
+    root: /var/www/html1 #path
+    client_max_body_size: 564564M
     # error_page : 404       /404.html
 
     location :  
@@ -11,6 +11,8 @@ server :
         - methods: DELETE
     location :     
         - path:  hsf2 
+        # - cgi_path : [.py, /usr/bin/python3]
+        # - cgi_path : [.php, /usr/bin/php-cgi]
       # cgi_path : extantion(python | php ...) /path 
         - methods:  POST
     # location :   

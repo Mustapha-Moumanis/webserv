@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/24 16:30:24 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:35:45 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Server {
 		std::string port;
 		std::string host;
 		std::string root;
-		double clientMaxBodySize;
+		long long clientMaxBodySize;
 		
 		std::vector<Location> locations;
 	public :
@@ -44,7 +44,7 @@ class Server {
 		std::string getPort();
 		std::string getHost();
 		std::string getServNames();
-		double getClientMaxBodySize();
+		long long getClientMaxBodySize();
 		
 		void checkArg();
 		

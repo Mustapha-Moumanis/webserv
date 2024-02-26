@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/23 18:35:02 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/25 19:17:56 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,12 @@ class Server;
 
 class Location {
 	private :
-		std::map<std::string, std::string> arg;
+		// std::map<std::string, std::string> arg;
 		
 		std::string root;
 		std::string path;
 		std::string methods;
+		std::map<std::string, std::string> cgipath;
 	public :
 		Location(Server &serv);
 		~Location();
@@ -37,8 +38,6 @@ class Location {
 		std::string getRoot();
 		std::string getPath();
 		std::string getmethods();
-		
-		void addArg(std::string key, std::string value);
 		
 		void checkLocation();
 		void printArg();

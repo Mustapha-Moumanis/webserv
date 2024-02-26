@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/25 11:05:05 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/25 19:18:22 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,10 +251,8 @@ void ParsConfigFile::newLocation(Server &serv) {
 			throw std::runtime_error("Error : Bad spaces : " + line);
 		else if (check != 1)
 			throw std::runtime_error("Error : Bad format : " + line);
-		else {
+		else
 			serv.setLocValue(locat, key, value);
-			locat.addArg(key, value);
-		}
 	}
 	serv.addLocat(locat);
 	servers.push_back(serv);

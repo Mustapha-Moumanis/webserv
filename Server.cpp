@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/24 16:26:46 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:35:35 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ std::string Server::getServNames() {
 	return serverName;
 }
 
-double Server::getClientMaxBodySize() {
+long long Server::getClientMaxBodySize() {
 	return clientMaxBodySize;
 }
 
