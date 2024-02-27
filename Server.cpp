@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/27 13:05:31 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 18:43:10 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void Server::setRoot(std::string value) {
 	// ifs.open(value);
 	// if (!ifs.is_open())
 	// 	throw std::runtime_error("Unable to open \"" + value + "\"");
+	// ifs.close();
 
 	root = value;
 }
@@ -111,6 +112,10 @@ std::string Server::getServNames() {
 
 long long Server::getClientMaxBodySize() {
 	return clientMaxBodySize;
+}
+
+std::vector<Location> Server::getLocation() {
+    return locations;
 }
 
 void Server::checkArg() {

@@ -1,8 +1,8 @@
 NAME = webserv
 
-CFILES = main.cpp ParsConfigFile.cpp Server.cpp Location.cpp
+CFILES = main.cpp Webserv.cpp ParsConfigFile.cpp Server.cpp Location.cpp 
 
-HFILES = ParsConfigFile.hpp Server.hpp Location.hpp
+HFILES = Webserv.hpp ParsConfigFile.hpp Server.hpp Location.hpp
 
 CC = c++
 

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:15:19 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/25 19:16:07 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 17:23:50 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 
 class ParsConfigFile {
 	private :
-		std::vector<Server> servers;
+		std::vector<Server> &dataServers;
 		std::ifstream ifs;
 		std::string line;
 		std::string key;
@@ -32,8 +32,9 @@ class ParsConfigFile {
 		size_t AutoSpaces;
 		size_t spaces;
 		size_t pos;
+
 	public :
-		ParsConfigFile(std::string fileName);
+		ParsConfigFile(std::string fileName, std::vector<Server> &serv);
 		~ParsConfigFile();
 
 		bool isRegFile(std::string path);

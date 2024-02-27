@@ -6,18 +6,18 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/25 19:18:22 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 18:46:17 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParsConfigFile.hpp"
 
-ParsConfigFile::ParsConfigFile(std::string fileName) {
-	if (!isRegFile(fileName))
-		throw std::runtime_error(fileName + " is not a regular file");
+ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server> &serv) : dataServers(serv) {
 	ifs.open(fileName);
 	if (!ifs.is_open())
 		throw std::runtime_error("Unable to open \"" + fileName + "\"");
+	if (!isRegFile(fileName))
+		throw std::runtime_error(fileName + " is not a regular file");
 	spaces = 0;
 	AutoSpaces = 0;
 	while (1337) {
@@ -48,20 +48,21 @@ ParsConfigFile::ParsConfigFile(std::string fileName) {
 			throw std::runtime_error("invalid line : " + line);
 			
 	}
-	for (std::vector<Server>::iterator it1 = servers.begin(); it1 != servers.end(); it1++) {
+	for (std::vector<Server>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
 		it1->checkArg();
 		// check doublicate 
-		for (std::vector<Server>::iterator it2 = it1 + 1; it2 < servers.end(); it2++) {
+		for (std::vector<Server>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
 			if (it1->getPort() == it2->getPort())
 				throw std::runtime_error("doublicate post");
 		}
 	}
-	if (servers.empty())
+	if (dataServers.empty())
 		throw std::runtime_error("No server available");
-	for (std::vector<Server>::iterator i = servers.begin(); i != servers.end(); i++) {
-		std::cout << "server : " << std::endl;
-		i->printArg();
-	}
+	// for (std::vector<Server>::iterator i = dataServers.begin(); i != dataServers.end(); i++) {
+	// 	std::cout << "server : " << std::endl;
+	// 	i->printArg();
+	// }
+	ifs.close();
 }
 
 ParsConfigFile::~ParsConfigFile() {}
@@ -178,7 +179,7 @@ void ParsConfigFile::newServer() {
 		if (key == "server:") {
 			if ((!tmp.empty() && tmp[0] != '#') || pos != 0)
 				throw std::runtime_error("invalid line : " + line);
-			servers.push_back(serv);
+			dataServers.push_back(serv);
 			newServer();
 			return;
 		}
@@ -196,7 +197,7 @@ void ParsConfigFile::newServer() {
 			setServValue(serv, key, value);
 		}
 	}
-	servers.push_back(serv);
+	dataServers.push_back(serv);
 }
 
 void ParsConfigFile::newLocation(Server &serv) {
@@ -236,7 +237,7 @@ void ParsConfigFile::newLocation(Server &serv) {
 			if ((!tmp.empty() && tmp[0] != '#') || pos != 0 || check == 1)
 				throw std::runtime_error("invalid line : " + line);
 			serv.addLocat(locat);
-			servers.push_back(serv);
+			dataServers.push_back(serv);
 			newServer();
 			return;
 		}
@@ -255,5 +256,5 @@ void ParsConfigFile::newLocation(Server &serv) {
 			serv.setLocValue(locat, key, value);
 	}
 	serv.addLocat(locat);
-	servers.push_back(serv);
+	dataServers.push_back(serv);
 }

@@ -6,20 +6,18 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/27 12:24:45 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 18:42:31 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <iostream>
+#include "Location.hpp"
 #include <sstream>
 #include <vector>
-// #include <map>
 #include <sys/stat.h>
 
-#include "Location.hpp"
 
 class Server {
 	private :		
@@ -46,6 +44,7 @@ class Server {
 		std::string getHost();
 		std::string getServNames();
 		long long getClientMaxBodySize();
+		std::vector<Location> getLocation();
 		
 		void checkArg();
 		
