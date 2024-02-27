@@ -1,14 +1,14 @@
 server :
-    port:  804 # min 1 max 65535
-    host:   10.12.5.11 # 4 nunmbers 3 . 
+    port:  800 # min 1 max 65535
+    host:   255.009.12.11 # 4 nunmbers 3 . 
     server_name :  mmoumani.42.fr1   # test1 
-    root: /var/www/html1 #path
+    root: /var/www/html #path
     client_max_body_size: 564564M
     # error_page : 404       /404.html
 
     location :  
         - path:  dfs #hsf1 
-        - methods: DELETE
+        - methods: DELETE POST GET
     location :     
         - path:  hsf2 
         # - cgi_path : [.py, /usr/bin/python3]
@@ -26,7 +26,7 @@ server :
 
 server : 
     server_name     : mmoumani.42.fr2
-    host: sdfsdf2
+    host: 10.12.5.11
 
     port: 805
     root: /var/www/html2
@@ -42,7 +42,7 @@ server :
 
 server : 
     server_name : mmoumani.42.fr3
-    host: sdfsdf3
+    host: 10.12.5.11
 
     port: 80
     root: /var/www/html3

@@ -6,14 +6,14 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/26 14:35:35 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 13:05:31 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(){
-	port = "";
+	port = 0;
 	host = "";
 	serverName = "";
 	root = "/var/www/";
@@ -26,14 +26,44 @@ Server::~Server(){}
 // set variables
 
 void Server::setRoot(std::string value) {
+	// std::ifstream ifs;
+	// if (!isDir(value))
+	// 	throw std::runtime_error(value + " is not a Directory");
+	// ifs.open(value);
+	// if (!ifs.is_open())
+	// 	throw std::runtime_error("Unable to open \"" + value + "\"");
+
 	root = value;
 }
 
 void Server::setPort(std::string value) {
-	port = value;
+	if (value.length() > 5 || value.find_first_not_of("0123456789") != std::string::npos)
+		throw std::runtime_error("port : invalid value " + value);
+	
+	port = atoi(value.c_str());
+	
+	if (port < 1 || port > 65535)
+		throw std::runtime_error("port : invalid value " + value);
 }
 
 void Server::setHost(std::string value) {
+	if (value.find_first_not_of(".0123456789") != std::string::npos)
+		throw std::runtime_error("port : invalid value " + value);
+	std::stringstream ss(value);
+	std::string tmp;
+	int nb;
+	int i = 0;
+	while (1337) {
+		if (ss.eof())
+			break;
+		getline(ss, tmp, '.');
+		nb = atoi(tmp.c_str());
+		if (nb > 255 || nb < 0 || tmp.length() > 3 || tmp.length() < 1)
+			throw std::runtime_error("port : invalid value " + value);
+		i++;
+	}
+	if (i != 4)
+		throw std::runtime_error("port : invalid value " + value);
 	host = value;
 }
 
@@ -67,7 +97,7 @@ std::string Server::getRoot() {
 	return root;
 }
 
-std::string Server::getPort() {
+int Server::getPort() {
 	return port;
 }
 
@@ -84,7 +114,7 @@ long long Server::getClientMaxBodySize() {
 }
 
 void Server::checkArg() {
-	if (port.empty() || host.empty())
+	if (port == 0 || host.empty())
 		throw std::runtime_error("importent data : port | host ...");
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
 		it->checkLocation();
@@ -161,4 +191,12 @@ void Server::printArg() {
 		std::cout << "	location : " << std::endl;
 		it->printArg();
 	}
+}
+
+bool Server::isDir(std::string path) {
+	struct stat s;
+
+	if (stat(path.c_str(), &s) != 0)
+		return 0;
+	return S_ISDIR(s.st_mode);
 }

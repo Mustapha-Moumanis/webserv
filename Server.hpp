@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/26 14:35:45 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 12:24:45 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <map>
+// #include <map>
+#include <sys/stat.h>
 
 #include "Location.hpp"
 
@@ -24,7 +25,7 @@ class Server {
 	private :		
 		// std::vector<std::string> serverName;
 		std::string serverName;
-		std::string port;
+		int port;
 		std::string host;
 		std::string root;
 		long long clientMaxBodySize;
@@ -41,7 +42,7 @@ class Server {
 		void setClientMaxBodySize(std::string value);
 		
 		std::string getRoot();
-		std::string getPort();
+		int getPort();
 		std::string getHost();
 		std::string getServNames();
 		long long getClientMaxBodySize();
@@ -55,6 +56,7 @@ class Server {
 		void setLocValue(Location &locat, std::string key, std::string value);
 		void addLocat(Location &Locat);
 		
+		bool isDir(std::string path);
 		
 		void printArg();
 };

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/25 19:17:56 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/27 12:21:23 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 #define LOCATION_HPP
 
 #include <iostream>
-#include <vector>
+// #include <vector>
 #include <map>
+#include <fstream>
 
 class Server;
 
