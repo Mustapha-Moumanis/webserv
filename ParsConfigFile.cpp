@@ -6,14 +6,14 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/27 18:46:17 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/29 13:52:29 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParsConfigFile.hpp"
 
 ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server> &serv) : dataServers(serv) {
-	ifs.open(fileName);
+	ifs.open(fileName.c_str());
 	if (!ifs.is_open())
 		throw std::runtime_error("Unable to open \"" + fileName + "\"");
 	if (!isRegFile(fileName))

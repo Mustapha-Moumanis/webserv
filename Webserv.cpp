@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/27 20:55:25 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/02/29 14:17:31 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void Webserv::exec() {
 		addr.sin_addr.s_addr = htons(INADDR_ANY);
 		addr.sin_port = htons(it->getPort());
 		if (bind(sfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
-			throw std::runtime_error("bind faild");
+			throw std::runtime_error("bind faild : ");
 		if (listen(sfd, 3) == -1)
 			throw std::runtime_error("listen faild");
 		int newSocket;
