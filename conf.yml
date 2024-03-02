@@ -26,9 +26,9 @@ server :
 
 server : 
     server_name     : mmoumani.42.fr2
-    host: 10.12.5.11
+    host: 127.0.3.1
 
-    port: 805
+    port: 8081
     root: /var/www/html2
 
     location :
@@ -42,7 +42,7 @@ server :
 
 server : 
     server_name : mmoumani.42.fr3
-    host: 10.12.5.11
+    host: 127.0.3.1
 
-    port: 80
+    port: 8082
     root: /var/www/html3

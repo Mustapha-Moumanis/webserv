@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/02 16:42:42 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/02 16:54:18 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,12 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <string.h>
+#include <algorithm>
+#include <sys/epoll.h>
 #include <arpa/inet.h>
+
+#define MAX_EVENTS 64
+
 class Webserv {
 	private :
 		std::vector<Server> dataServers;
@@ -29,6 +34,7 @@ class Webserv {
 		~Webserv();
 		
 		void exec();
+		void multiplixing();
 };
 
 #endif
