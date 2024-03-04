@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/02 23:17:27 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/04 22:09:26 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ void Webserv::exec() {
 	// 	throw std::runtime_error("Invalid IP address!!");
 	addr.sin_addr.s_addr = inet_addr(dataServers.begin()->getHost().c_str());
 	addr.sin_port = htons(dataServers.begin()->getPort());
+	int level = 1;
+	setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));	
 	if (bind(sfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 		throw std::runtime_error("bind faild : ");
 	if (listen(sfd, 3) == -1)
@@ -55,21 +57,21 @@ void Webserv::exec() {
 
 
 void Webserv::multiplixing() {
-	std::cout << "multiplixing part" << std::endl;
+	std::cout << "--------- Multiplixing part ---------" << std::endl;
 
-	// Structures for handling internet addresses
-	struct epoll_event event, events[MAX_EVENTS];
-	
 	// Open an epoll fd
 	int epfd = epoll_create(1);
-	std::vector<int> AllFD;
-	int fd;
-
+	struct epoll_event event, events[MAX_EVENTS];
+	
 	if (epfd == -1)
 		throw std::runtime_error("cannot create an epoll");
+
+	std::vector<int> ServsFD;
+	int tmpFD;
+
 	for(std::vector<Server>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
-		fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (fd == -1)
+		tmpFD = socket(AF_INET, SOCK_STREAM, 0);
+		if (tmpFD == -1)
 			throw std::runtime_error("cannot create a socket");
 		
 		
@@ -83,35 +85,33 @@ void Webserv::multiplixing() {
 		addr.sin_port = htons(it->getPort());
 		
 		int level = 1;
-		// setsockopt(fd, level, SO_REUSEADDR, &level, sizeof(addr));
-		setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));
+		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));
 		
-		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+		if (bind(tmpFD, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 			throw std::runtime_error("bind faild : ");
 		
-		if (listen(fd, 3) == -1)
+		if (listen(tmpFD, 3) == -1)
 			throw std::runtime_error("listen faild");
 		
 		// end TCP Socket //
-		event.events = EPOLLIN;
-		event.data.fd = fd;
 		
-		if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
+		event.events = EPOLLIN;
+		event.data.fd = tmpFD;
+		
+		if (epoll_ctl(epfd, EPOLL_CTL_ADD, tmpFD, &event) == -1)
 			throw std::runtime_error("epoll_ctl field");
 		
-		AllFD.push_back(fd);
+		ServsFD.push_back(tmpFD);
 	}
-	
-	// int newSocket;
-	// ssize_t valueRead;
-	std::string respons = "HTTP/1.x 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello World!";
-	int evfd;
+
+	// std::string respons = "HTTP/1.x 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello World!";
+	int numEvents;
 	while (404) {
-		if ((evfd = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
+		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
 			throw std::runtime_error("epoll wait field");
-		for (int i = 0; i < evfd; i++) {
+		for (int i = 0; i < numEvents; i++) {
 			
-			if (std::find(AllFD.begin(), AllFD.end(), events[i].data.fd) != AllFD.end()){
+			if (std::find(ServsFD.begin(), ServsFD.end(), events[i].data.fd) != ServsFD.end()){
 				int newSocket = accept(events[i].data.fd, NULL, NULL);
 				if (newSocket == -1) {
 					perror("accept");
@@ -128,26 +128,18 @@ void Webserv::multiplixing() {
 			}
 			else {
 				if (events[i].events & EPOLLIN) {
-					std::cout << "sdfsdsdsdfsdf : \n";
+					// request
 					char buffer[1024] = {0};
-					ssize_t valueRead = read (events[i].data.fd, buffer, 1024);
-					std::cout << "Bytes read: " << valueRead << std::endl;
-					if (valueRead < 0)
-						perror("Read field!!");
-					else if (valueRead == 0)
-					{
-						std::cout << "test\n";	
-						close(events[i].data.fd);
+					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
+					if (valueRead == 0 || (valueRead == -1 && errno != EAGAIN)) {
+						epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].events, &event);
 					}
-					else 
-						std::cout << buffer << std::endl;
+					std::cout << buffer << std::endl;
+					close(events[i].data.fd);
 				}
-				// else if (events[i].events & EPOLLOUT) {
-				// 	std::cout << "dddd" << std::endl;
-				// 	// if (write(events[i].data.fd, respons.c_str(), respons.length()) == -1)
-				// 	// 	perror("write field!!");
-				// 	// close(events[i].data.fd);
-				// }
+				else if (events[i].events & EPOLLOUT) {
+					// response
+				}
 			}
 		}
 	}
