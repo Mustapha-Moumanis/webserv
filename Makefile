@@ -1,12 +1,12 @@
 NAME = webserv
 
-CFILES = main.cpp Webserv.cpp ParsConfigFile.cpp Server.cpp Location.cpp 
+CFILES = main.cpp Webserv.cpp ParsConfigFile.cpp Server.cpp Location.cpp Client.cpp
 
-HFILES = Webserv.hpp ParsConfigFile.hpp Server.hpp Location.hpp
+HFILES = Webserv.hpp ParsConfigFile.hpp Server.hpp Location.hpp Client.hpp
 
 CC = c++
 
-FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
+FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
 
 OBJS = $(CFILES:.cpp=.o)
 

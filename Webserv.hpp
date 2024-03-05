@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/02 16:54:18 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/05 19:38:35 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define WEBSERV_HPP
 
 #include "ParsConfigFile.hpp"
+#include "Client.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -21,6 +22,7 @@
 #include <algorithm>
 #include <sys/epoll.h>
 #include <arpa/inet.h>
+#include <map>
 
 #define MAX_EVENTS 64
 
@@ -28,6 +30,8 @@ class Webserv {
 	private :
 		std::vector<Server> dataServers;
 		std::vector<int> fds;
+		std::map<int, Client> Clients;
+		std::map<int, int> indexFD;
 
 	public :
 		Webserv(std::string file);

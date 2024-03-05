@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/04 22:09:26 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/05 21:10:59 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 Webserv::Webserv(std::string file){
 	ParsConfigFile PCF(file, dataServers);
-	exec();
-	// multiplixing();
+	// exec();
+	multiplixing();
 }
 
 Webserv::~Webserv(){}
@@ -69,7 +69,9 @@ void Webserv::multiplixing() {
 	std::vector<int> ServsFD;
 	int tmpFD;
 
-	for(std::vector<Server>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+	// for(std::vector<Server>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+	for(size_t i = 0; i != dataServers.size(); i++) {
+		
 		tmpFD = socket(AF_INET, SOCK_STREAM, 0);
 		if (tmpFD == -1)
 			throw std::runtime_error("cannot create a socket");
@@ -81,14 +83,14 @@ void Webserv::multiplixing() {
 		memset((char *)&addr, 0, sizeof(addr));
 		
 		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = inet_addr(it->getHost().c_str());
-		addr.sin_port = htons(it->getPort());
+		addr.sin_addr.s_addr = inet_addr(dataServers[i].getHost().c_str());
+		addr.sin_port = htons(dataServers[i].getPort());
 		
 		int level = 1;
 		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));
 		
 		if (bind(tmpFD, (struct sockaddr *)&addr, sizeof(addr)) == -1)
-			throw std::runtime_error("bind faild : ");
+			throw std::runtime_error("bind faild");
 		
 		if (listen(tmpFD, 3) == -1)
 			throw std::runtime_error("listen faild");
@@ -102,6 +104,7 @@ void Webserv::multiplixing() {
 			throw std::runtime_error("epoll_ctl field");
 		
 		ServsFD.push_back(tmpFD);
+		indexFD[tmpFD] = i;
 	}
 
 	// std::string respons = "HTTP/1.x 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello World!";
@@ -110,7 +113,6 @@ void Webserv::multiplixing() {
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
 			throw std::runtime_error("epoll wait field");
 		for (int i = 0; i < numEvents; i++) {
-			
 			if (std::find(ServsFD.begin(), ServsFD.end(), events[i].data.fd) != ServsFD.end()){
 				int newSocket = accept(events[i].data.fd, NULL, NULL);
 				if (newSocket == -1) {
@@ -125,20 +127,37 @@ void Webserv::multiplixing() {
 					perror("epoll_ctl");
 					close(newSocket);
 				}
+				std::cout << newSocket << std::endl;
+				Client client;
+				client.setServ(dataServers[indexFD[events[i].data.fd]]);
+				Clients.insert(std::make_pair(newSocket, client));
 			}
 			else {
-				if (events[i].events & EPOLLIN) {
+				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd].getStatus()) {
+					// client.printPost();
 					// request
+					// if (Clients.find(events[i].data.fd))
 					char buffer[1024] = {0};
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
 					if (valueRead == 0 || (valueRead == -1 && errno != EAGAIN)) {
+						Clients[events[i].data.fd].setStatus(0);
+						close(events[i].data.fd);
 						epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].events, &event);
+						continue ;
 					}
-					std::cout << buffer << std::endl;
-					close(events[i].data.fd);
+					
+					// std::ofstream kk("hh.txt");
+					std::string tmp(buffer, valueRead);
+					Clients[events[i].data.fd].setRequest(tmp);
+					// kk << temp;
+					// if (kk.tellp() > 591133){
+					// 	kk.close();
+					// 	close(events[i].data.fd);
+					// }
 				}
-				else if (events[i].events & EPOLLOUT) {
+				else if ((events[i].events & EPOLLOUT) && !Clients[events[i].data.fd].getStatus()) {
 					// response
+					close(events[i].data.fd);
 				}
 			}
 		}
