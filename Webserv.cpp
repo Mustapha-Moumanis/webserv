@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/07 16:13:37 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/07 19:29:57 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void Webserv::multiplixing() {
 					}
 					std::string tmp(buffer, valueRead);
 
-					Clients[events[i].data.fd]->setRequest(tmp);
+					Clients[events[i].data.fd]->SentRequest(tmp);
 					
 					// std::ofstream kk("hh.txt");
 					// kk << temp;
