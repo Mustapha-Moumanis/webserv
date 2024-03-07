@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/07 16:14:40 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/07 18:17:21 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@
 class Webserv {
 	private :
 		std::vector<Server> dataServers;
-		std::vector<int> fds;
 		std::map<int, Client *> Clients;
+		std::vector<int> fds;
 		std::map<int, int> indexFD;
 
 	public :
