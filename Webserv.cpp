@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/05 21:10:59 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/07 16:13:37 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,36 +128,46 @@ void Webserv::multiplixing() {
 					close(newSocket);
 				}
 				std::cout << newSocket << std::endl;
-				Client client;
-				client.setServ(dataServers[indexFD[events[i].data.fd]]);
-				Clients.insert(std::make_pair(newSocket, client));
+				// Client *client = new Client();
+				Clients.insert(std::make_pair(newSocket, new Client()));
+				Clients[newSocket]->setServ(dataServers[indexFD[events[i].data.fd]]);
+				// client.setServ(dataServers[indexFD[events[i].data.fd]]);
+				// std::cout << newSocket << std::endl;
+				
+			
 			}
 			else {
-				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd].getStatus()) {
-					// client.printPost();
+				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus()) {
 					// request
-					// if (Clients.find(events[i].data.fd))
+					std::cout << "request 1" << std::endl;
 					char buffer[1024] = {0};
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
 					if (valueRead == 0 || (valueRead == -1 && errno != EAGAIN)) {
-						Clients[events[i].data.fd].setStatus(0);
-						close(events[i].data.fd);
+						Clients[events[i].data.fd]->setStatus(0);
+						// close(events[i].data.fd);
+						// Clients.erase(events[i].data.fd);
 						epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].events, &event);
 						continue ;
 					}
+					std::string tmp(buffer, valueRead);
+
+					Clients[events[i].data.fd]->setRequest(tmp);
 					
 					// std::ofstream kk("hh.txt");
-					std::string tmp(buffer, valueRead);
-					Clients[events[i].data.fd].setRequest(tmp);
 					// kk << temp;
 					// if (kk.tellp() > 591133){
 					// 	kk.close();
 					// 	close(events[i].data.fd);
 					// }
 				}
-				else if ((events[i].events & EPOLLOUT) && !Clients[events[i].data.fd].getStatus()) {
+				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0) {
 					// response
+					std::cout << "response" << std::endl;
+					std::cout << events[i].data.fd << std::endl;
+
 					close(events[i].data.fd);
+					delete Clients[events[i].data.fd];
+					Clients.erase(events[i].data.fd);
 				}
 			}
 		}
