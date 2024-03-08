@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/07 19:29:57 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/08 11:07:25 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,45 +128,44 @@ void Webserv::multiplixing() {
 					close(newSocket);
 				}
 				std::cout << newSocket << std::endl;
-				// Client *client = new Client();
-				Clients.insert(std::make_pair(newSocket, new Client()));
-				Clients[newSocket]->setServ(dataServers[indexFD[events[i].data.fd]]);
+				// const Client client();
+				// // Clients.insert(std::make_pair(newSocket, client));
+				// std::pair<int, Client const > pair1(newSocket, client);
+				// Clients.insert(pair1);
+				const Client client; // Declaring a const Client object, not a function
+
+				std::pair<int, Client const> pair1(newSocket, client);
+				Clients.insert(pair1);
+				Clients[newSocket].setServ(dataServers[indexFD[events[i].data.fd]]);
 				// client.setServ(dataServers[indexFD[events[i].data.fd]]);
 				// std::cout << newSocket << std::endl;
 				
 			
 			}
 			else {
-				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus()) {
+				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd].getStatus()) {
 					// request
-					std::cout << "request 1" << std::endl;
+					// std::cout << "request 1" << std::endl;
 					char buffer[1024] = {0};
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
-					if (valueRead == 0 || (valueRead == -1 && errno != EAGAIN)) {
-						Clients[events[i].data.fd]->setStatus(0);
+					if (valueRead == 0 || valueRead == -1) {
+						close(events[i].data.fd);
+						Clients.erase(events[i].data.fd);
 						// close(events[i].data.fd);
 						// Clients.erase(events[i].data.fd);
-						epoll_ctl(epfd, EPOLL_CTL_DEL, events[i].events, &event);
+						// events[i].events = EPOLLOUT;
+						// epoll_ctl(epfd, EPOLL_CTL_MOD, events[i].events, &event);
 						continue ;
 					}
 					std::string tmp(buffer, valueRead);
-
-					Clients[events[i].data.fd]->SentRequest(tmp);
-					
-					// std::ofstream kk("hh.txt");
-					// kk << temp;
-					// if (kk.tellp() > 591133){
-					// 	kk.close();
-					// 	close(events[i].data.fd);
-					// }
+					Clients[events[i].data.fd].SentRequest(tmp);
 				}
-				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0) {
+				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd].getStatus() == 0) {
 					// response
 					std::cout << "response" << std::endl;
 					std::cout << events[i].data.fd << std::endl;
 
 					close(events[i].data.fd);
-					delete Clients[events[i].data.fd];
 					Clients.erase(events[i].data.fd);
 				}
 			}

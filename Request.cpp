@@ -22,15 +22,15 @@ void Request::CheckFirstLine(std::string Fline){
     // this is when u can parss uri 
     if (b.length() > 2048)
 		throw::std::runtime_error("414 URI Too Long");
-    else
-	    HeadReq.insert(std::pair<std::string,std::string>("Location",b));
+    else if (matchingURL(b))
+		throw::std::runtime_error("414 no matchin data");
+	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
     
 	if (version != "HTTP/1.1")
 		throw("Error in HTTP/1.1");
 }
 
 void Request::setRequest(std::string req) {
-
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -72,6 +72,16 @@ void Request::CheckRequest(){
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;
-    std::cout << "request serv port" << this->server->getPort() << std::endl;
+    std::cout << "request serv port " << this->server->getPort() << std::endl;
 
+}
+
+bool Request::matchingURL(std::string b) {
+	std::cout << "location " << b << std::endl;
+	if (server->getLocation().size() < 1)
+		return 1;
+	for (std::vector<Location>::iterator it = server->getLocation().begin(); it != server->getLocation().end(); it++) {
+		std::cout << "path : " << it->getPath() << std::endl;
+	}
+	return 0;
 }

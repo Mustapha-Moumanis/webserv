@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/07 19:43:34 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/08 11:03:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,25 @@ Client::Client() : status(1) {
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
 
+Client::Client(Client const &other) {
+    *this = other;
+}
+
+Client &Client::operator=(Client const &other) {
+    if (this != &other) {
+        this->serv = getServ();
+        this->status = getStatus();
+        this->request = getRequest();
+    }
+    return *this;
+}
+
 Client::~Client() {
     // fsBody.close();
     //remove(fileName.c_str());
 }
+
+
 
 void Client::setServ(Server &serv) {
     request.setServ(serv);
@@ -53,6 +68,14 @@ void Client::setServ(Server &serv) {
 
 bool Client::getStatus() {
     return status;
+}
+
+Server *Client::getServ() {
+    return serv;
+}
+
+Request &Client::getRequest() {
+    return request;
 }
 
 void Client::setStatus(bool status) {

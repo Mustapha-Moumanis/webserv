@@ -19,6 +19,7 @@ class Request {
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
 		void CheckRequest();
+		bool matchingURL(std::string b);
 };
 
 #endif

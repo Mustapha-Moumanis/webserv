@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/07 19:42:09 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/08 11:04:41 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,19 @@ class Client {
 
 	public :
 		Client();
+		Client(Client const &other);
+		Client &operator=(Client const &other);
 		~Client();
 		
 		void setServ(Server &serv);
 		void setStatus(bool status);
-		bool getStatus();
 		void SentRequest(std::string);
-		std::string getNewName();
+		
+		Server *getServ();
+		bool getStatus();
+		Request &getRequest();
+
+		// std::string getNewName();
 };
 
 #endif
