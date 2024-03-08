@@ -6,6 +6,12 @@ Request::Request() : HeaderIsDone(0), body("") {}
 
 Request::~Request() {}
 
+void Request::setServ(Server &serv) {
+	this->server = &serv;
+    std::cout << "request serv port " << this->server->getPort() << std::endl;
+
+}
+
 void Request::CheckFirstLine(std::string Fline){
 
 	std::stringstream ss(Fline);
@@ -31,6 +37,8 @@ void Request::CheckFirstLine(std::string Fline){
 }
 
 void Request::setRequest(std::string req) {
+
+		std::cout << "hello" <<"\n";
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -49,10 +57,15 @@ void Request::setRequest(std::string req) {
         HeaderIsDone = 1;
         CheckRequest();
 	}
-	else if (HeaderIsDone == 1 && HeadReq.find("Methode")->second == "POST")
-        body += req;
-    else
-        return;
+	if (HeaderIsDone == 1){
+		if (HeadReq.find("Methode")->second == "POST")
+        	body += req;
+    	else if (HeaderIsDone == 1 && HeadReq.find("Methode")->second == "GET"){
+			Get();
+		}
+		else
+			return ;
+	}
 }
 
 void Request::CheckRequest(){
@@ -70,18 +83,36 @@ void Request::CheckRequest(){
 	}
 }
 
-void Request::setServ(Server &serv) {
-	this->server = &serv;
-    std::cout << "request serv port " << this->server->getPort() << std::endl;
-
-}
-
 bool Request::matchingURL(std::string b) {
 	std::cout << "location " << b << std::endl;
-	if (server->getLocation().size() < 1)
+	if (server->getLocation().empty())
 		return 1;
 	for (std::vector<Location>::iterator it = server->getLocation().begin(); it != server->getLocation().end(); it++) {
 		std::cout << "path : " << it->getPath() << std::endl;
 	}
 	return 0;
+}
+
+void Request::checkUrl(std::string url){
+	std::cout << url << std::endl;
+	struct stat buffer;
+	int st;
+
+	st = stat(url.c_str(), &buffer);
+	if (st == -1)
+		throw::std::runtime_error("404 Not Found");
+	
+	std::cout << url << std::endl;
+}
+
+void Request::Get(){
+
+	std::string url;
+	if (server->getRoot().empty())
+		url = HeadReq.find("Location")->second;
+	else
+		url = server->getRoot() + HeadReq.find("Location")->second;
+
+	checkUrl(url);
+	std::cout << "The methode is get" << std::endl;
 }

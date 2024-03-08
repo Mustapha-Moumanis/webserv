@@ -15,11 +15,18 @@ class Request {
 	public :
 		Request();
 		~Request();
+	
 		void setServ(Server&);
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
 		void CheckRequest();
 		bool matchingURL(std::string b);
+
+		void Get(void);
+		// Post();
+		// Delete();
+
+		void checkUrl(std::string);
 };
 
 #endif

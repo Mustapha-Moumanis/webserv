@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/02 16:40:47 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/08 11:26:46 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server {
 		std::string getHost();
 		std::string getServNames();
 		long long getClientMaxBodySize();
-		std::vector<Location> getLocation();
+		std::vector<Location> &getLocation();
 		
 		void checkArg();
 		

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/02 16:41:02 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/08 11:26:21 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ long long Server::getClientMaxBodySize() {
 	return clientMaxBodySize;
 }
 
-std::vector<Location> Server::getLocation() {
+std::vector<Location> &Server::getLocation() {
     return locations;
 }
 
