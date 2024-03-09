@@ -2,6 +2,7 @@
 #define REQUEST_HPP
 
 #include "Server.hpp"
+#include "Utils.hpp"
 #include <fstream>
 
 class Request {
@@ -9,8 +10,10 @@ class Request {
     private :
 		std::map<std::string, std::string> HeadReq;
 		Server *server;
+		Location *location;
 		int HeaderIsDone;
 		std::string body;
+		std::string url;
 
 	public :
 		Request();
@@ -21,7 +24,7 @@ class Request {
 		void CheckFirstLine(std::string);
 		void CheckRequest();
 		bool matchingURL(std::string b);
-
+		bool CompareURL(std::string s1, std::string s2);
 		void Get(void);
 		// Post();
 		// Delete();

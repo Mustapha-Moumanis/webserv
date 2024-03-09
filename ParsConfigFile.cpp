@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/29 13:52:29 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/09 09:36:49 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ void ParsConfigFile::newServer() {
 		std::string tmp;
 		ss >> tmp;
 
-		if (key == "server:") {
+		if (key == "server") {
 			if ((!tmp.empty() && tmp[0] != '#') || pos != 0)
 				throw std::runtime_error("invalid line : " + line);
 			dataServers.push_back(serv);

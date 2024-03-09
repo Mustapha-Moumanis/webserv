@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 11:07:25 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/08 14:48:58 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,15 +132,10 @@ void Webserv::multiplixing() {
 				// // Clients.insert(std::make_pair(newSocket, client));
 				// std::pair<int, Client const > pair1(newSocket, client);
 				// Clients.insert(pair1);
-				const Client client; // Declaring a const Client object, not a function
+				const Client client;
 
-				std::pair<int, Client const> pair1(newSocket, client);
-				Clients.insert(pair1);
+				Clients.insert(std::make_pair(newSocket, client));
 				Clients[newSocket].setServ(dataServers[indexFD[events[i].data.fd]]);
-				// client.setServ(dataServers[indexFD[events[i].data.fd]]);
-				// std::cout << newSocket << std::endl;
-				
-			
 			}
 			else {
 				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd].getStatus()) {

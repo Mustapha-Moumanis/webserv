@@ -1,8 +1,10 @@
 #include "Request.hpp"
 #include <fstream>
 #include <cctype>
+#include <algorithm>
+#include <cstring>
 
-Request::Request() : HeaderIsDone(0), body("") {}
+Request::Request() : HeaderIsDone(0), body(""), url("") {}
 
 Request::~Request() {}
 
@@ -38,7 +40,7 @@ void Request::CheckFirstLine(std::string Fline){
 
 void Request::setRequest(std::string req) {
 
-		std::cout << "hello" <<"\n";
+		// std::cout << req <<"\n";
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -83,13 +85,42 @@ void Request::CheckRequest(){
 	}
 }
 
-bool Request::matchingURL(std::string b) {
-	std::cout << "location " << b << std::endl;
-	if (server->getLocation().empty())
-		return 1;
-	for (std::vector<Location>::iterator it = server->getLocation().begin(); it != server->getLocation().end(); it++) {
-		std::cout << "path : " << it->getPath() << std::endl;
+bool Request::CompareURL(std::string s1, std::string s2) {
+	size_t len1 = s1.length();
+	size_t len2 = s2.length();
+	if (len2 > len1)
+		len2 = len1;
+	for (size_t i = len2; i > 0; --i)
+		if (s2.substr(0, i) == s1)
+			return i;
+    return 0;
+}
+
+bool Request::matchingURL(std::string url) {
+	std::cout << "location " << url << std::endl;
+	size_t i = 0;
+	std::string res;
+	std::string root = server->getRoot();
+	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
+		if ((i = CompareURL(it1->getPath(), url))) {
+			if (it1->getPath().length() > res.length()) {
+				res = it1->getPath();
+				location = &(*it1);
+			}
+		}
 	}
+	if (!res.empty()) {
+
+		if (!root.empty() && root[root.length() - 1] != '/')
+			root += '/';
+		if (url[res.length()] == '/')
+			res += '/';
+
+		this->url = url.replace(0, res.length(), root);
+		std::cout << "mix 1 >> "<< this->url << std::endl;
+	}
+	else
+		std::cout << "no mutching so empty url >> " << std::endl;
 	return 0;
 }
 
@@ -106,7 +137,6 @@ void Request::checkUrl(std::string url){
 }
 
 void Request::Get(){
-
 	std::string url;
 	if (server->getRoot().empty())
 		url = HeadReq.find("Location")->second;
