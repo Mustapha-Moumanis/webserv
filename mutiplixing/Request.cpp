@@ -30,8 +30,13 @@ void Request::CheckFirstLine(std::string Fline){
     // this is when u can parss uri 
     if (b.length() > 2048)
 		throw::std::runtime_error("414 URI Too Long");
-    else if (matchingURL(b))
-		throw::std::runtime_error("414 no matchin data");
+    else {
+		size_t pos = b.find("?");
+		if (pos != std::string::npos)
+			matchingURL(b.substr(0, pos));
+		else
+			matchingURL(b);
+	}
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
     
 	if (version != "HTTP/1.1")
@@ -96,7 +101,7 @@ bool Request::CompareURL(std::string s1, std::string s2) {
     return 0;
 }
 
-bool Request::matchingURL(std::string url) {
+void Request::matchingURL(std::string url) {
 	std::cout << "location " << url << std::endl;
 	size_t i = 0;
 	std::string res;
@@ -110,18 +115,22 @@ bool Request::matchingURL(std::string url) {
 		}
 	}
 	if (!res.empty()) {
-
 		if (!root.empty() && root[root.length() - 1] != '/')
 			root += '/';
 		if (url[res.length()] == '/')
 			res += '/';
-
+		else {
+			size_t pos = url.find("/", res.length());
+			if (pos != std::string::npos)
+				res = url.substr(0, pos + 1);
+			else
+				res = url;
+		}
 		this->url = url.replace(0, res.length(), root);
-		std::cout << "mix 1 >> "<< this->url << std::endl;
+		std::cout << "mutching >> "<< this->url << std::endl;
 	}
 	else
-		std::cout << "no mutching so empty url >> " << std::endl;
-	return 0;
+		throw::std::runtime_error("414 no matchin data");
 }
 
 void Request::checkUrl(std::string url){
@@ -143,6 +152,6 @@ void Request::Get(){
 	else
 		url = server->getRoot() + HeadReq.find("Location")->second;
 
-	checkUrl(url);
-	std::cout << "The methode is get" << std::endl;
+	//checkUrl(url);
+	// std::cout << "The methode is get" << std::endl;
 }

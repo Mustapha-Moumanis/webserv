@@ -23,7 +23,7 @@ class Request {
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
 		void CheckRequest();
-		bool matchingURL(std::string b);
+		void matchingURL(std::string b);
 		bool CompareURL(std::string s1, std::string s2);
 		void Get(void);
 		// Post();
