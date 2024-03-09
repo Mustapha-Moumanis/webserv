@@ -44,8 +44,9 @@ void Request::CheckFirstLine(std::string Fline){
 }
 
 void Request::setRequest(std::string req) {
+	// std::cout << "lole" <<"\n";
+	// throw::std::runtime_error(HttpStatus::reasonPhrase(HttpStatus::OK));
 
-		// std::cout << req <<"\n";
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -130,7 +131,7 @@ void Request::matchingURL(std::string url) {
 		std::cout << "mutching >> "<< this->url << std::endl;
 	}
 	else
-		throw::std::runtime_error("414 no matchin data");
+		throw::std::runtime_error(HttpStatus::reasonPhrase(HttpStatus::BadRequest));
 }
 
 void Request::checkUrl(std::string url){

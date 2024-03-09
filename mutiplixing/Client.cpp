@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 14:00:42 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/09 17:30:19 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,5 +83,12 @@ void Client::setStatus(bool status) {
 }
 
 void Client::SentRequest(std::string tmp){
-    request.setRequest(tmp);
+    try {
+        request.setRequest(tmp);
+    }
+    catch (const std::exception &e) {
+        // HttpStatus::StatusCode st;
+        std::cout << e.what() << std::endl;
+        setStatus(0);
+    }
 }

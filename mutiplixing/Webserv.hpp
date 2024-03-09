@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/09 14:59:01 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/09 16:31:07 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include <sys/epoll.h>
 #include <arpa/inet.h>
