@@ -1,7 +1,7 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include "Server.hpp"
+#include "../parse/Server.hpp"
 #include "Utils.hpp"
 #include <fstream>
 

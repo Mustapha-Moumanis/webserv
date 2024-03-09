@@ -6,14 +6,14 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 11:04:41 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/09 14:59:19 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "Server.hpp"
+#include "../parse/Server.hpp"
 #include "Request.hpp"
 #include <fstream>
 

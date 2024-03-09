@@ -6,14 +6,14 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 10:35:16 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/09 14:59:01 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
 
-#include "ParsConfigFile.hpp"
+#include "../parse/ParsConfigFile.hpp"
 #include "Client.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
