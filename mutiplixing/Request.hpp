@@ -4,7 +4,8 @@
 #include "../parse/Server.hpp"
 #include "Utils.hpp"
 #include <fstream>
-#include "../StatusCode.hpp"
+// #include "../StatusCode.hpp"
+#include "StatusCodeExcept.hpp"
 
 class Request {
 	

@@ -6,7 +6,8 @@ server :
     client_max_body_size: 564564M
     # error_page : 404       /404.html
 
-    location :  
+    location : 
+        - path : /ho
         - methods: DELETE POST GET
         - retrun : koko sdfsf
         - autoindex : off

@@ -86,6 +86,10 @@ void Client::SentRequest(std::string tmp){
     try {
         request.setRequest(tmp);
     }
+    catch (const StatusCodeExcept &e) {
+        std::cout << "StatusCodeExcept : " << e.what() << std::endl;
+        setStatus(0);
+    }
     catch (const std::exception &e) {
         // HttpStatus::StatusCode st;
         std::cout << e.what() << std::endl;

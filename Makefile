@@ -6,7 +6,7 @@ PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
 PHFILES = ParsConfigFile.hpp Server.hpp Location.hpp
 
 MFILES = Webserv.cpp Client.cpp Request.cpp Utils.cpp
-MHFILES = Webserv.hpp Client.hpp Request.hpp Utils.hpp
+MHFILES = Webserv.hpp Client.hpp Request.hpp Utils.hpp StatusCodeExcept.hpp
 
 PFILES := $(addprefix parse/, $(PFILES))
 PHFILES := $(addprefix parse/, $(PHFILES))

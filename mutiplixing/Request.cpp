@@ -45,7 +45,7 @@ void Request::CheckFirstLine(std::string Fline){
 }
 
 void Request::setRequest(std::string req) {
-
+	throw StatusCodeExcept(HttpStatus::OK);
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
