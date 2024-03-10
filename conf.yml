@@ -7,8 +7,9 @@ server :
     # error_page : 404       /404.html
 
     location :  
-        - path: /h
         - methods: DELETE POST GET
+        - retrun : koko sdfsf
+        - autoindex : off
     location :     
         - path:  /home/user/index.html 
         # - cgi_path : [.py, /usr/bin/python3]

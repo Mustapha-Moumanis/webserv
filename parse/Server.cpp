@@ -156,6 +156,10 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setmethods(validValue);
 		return ;
 	}
+	else if (key == "retrun") {
+		locat.setRediraction(value);
+		return ;
+	}
 	ss >> validValue;
 	ss >> checkMultValue;
 	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue[0] != '#'))
@@ -164,8 +168,14 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setRoot(validValue);
 	else if (key == "path")
 		locat.setPath(validValue);
+	else if (key == "autoindex") {
+		if (value != "on" && value != "off")
+			throw std::runtime_error(key + " : invalide value");
+		else
+			locat.setAutoIndex(validValue);
+	}
 	else
-		std::cout << "invalide key : " << key << std::endl;
+		throw std::runtime_error("invalide key : " + key);
 }
 
 void Server::addLocat(Location &locat) {

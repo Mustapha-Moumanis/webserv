@@ -17,6 +17,8 @@ Location::Location(Server &serv){
     root = serv.getRoot();
     path = "";
     methods = "";
+	rediraction = "";
+    autoIndex = "off";
 }
 
 Location::~Location(){}
@@ -31,6 +33,21 @@ void Location::setPath(std::string value) {
 
 void Location::setmethods(std::string value) {
 	methods = value;
+}
+void Location::setRediraction(std::string value) {
+    rediraction = value;
+}
+
+void Location::setAutoIndex(std::string value) {
+    autoIndex = value;
+}
+
+std::string Location::getRediraction() {
+    return rediraction;
+}
+
+std::string Location::getAutoIndex() {
+    return autoIndex;
 }
 
 std::string Location::getRoot() {
