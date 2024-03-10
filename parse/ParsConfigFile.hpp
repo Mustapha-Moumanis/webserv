@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "Server.hpp"
+#include "../include/Utils.hpp"
 
 class ParsConfigFile {
 	private :
@@ -37,7 +38,7 @@ class ParsConfigFile {
 		ParsConfigFile(std::string fileName, std::vector<Server> &serv);
 		~ParsConfigFile();
 
-		bool isRegFile(std::string path);
+		// bool isRegFile(std::string path);
 		void getKeyValue(std::string line);
 		void setServValue(Server &serv, std::string key, std::string value);
 		void newServer();

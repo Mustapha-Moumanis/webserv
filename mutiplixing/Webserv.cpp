@@ -20,42 +20,6 @@ Webserv::Webserv(std::string file){
 
 Webserv::~Webserv(){}
 
-void Webserv::exec() {
-	std::cout << "Execution part" << std::endl;
-	int sfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sfd == -1)
-		throw std::runtime_error("cannot create a socket");
-	struct sockaddr_in addr;
-	int addrLen = sizeof(addr);
-	memset((char *)&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	// if (inet_pton(AF_INET, dataServers.begin()->getHost().c_str(), &addr.sin_addr) != 1)
-	// 	throw std::runtime_error("Invalid IP address!!");
-	addr.sin_addr.s_addr = inet_addr(dataServers.begin()->getHost().c_str());
-	addr.sin_port = htons(dataServers.begin()->getPort());
-	int level = 1;
-	setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));	
-	if (bind(sfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
-		throw std::runtime_error("bind faild : ");
-	if (listen(sfd, 3) == -1)
-		throw std::runtime_error("listen faild");
-	int newSocket;
-	long valueRead;
-	while (1337) {
-		std::cout << "\n------  wait for new connection  ------\n\n";
-		if ((newSocket = accept(sfd, (struct sockaddr *)&addr, (socklen_t *)&addrLen)) == -1)
-			throw std::runtime_error("not accepted");
-		char buffer[1024] = {0};
-		valueRead = read (newSocket, buffer, 1024);
-		if (valueRead < 0)
-			std::cout << "no bytes are there to read" << std::endl;
-		std::cout << buffer << std::endl;
-		close(newSocket);
-	}
-	fds.push_back(sfd);
-}
-
-
 void Webserv::multiplixing() {
 	std::cout << "--------- Multiplixing part ---------" << std::endl;
 
@@ -112,7 +76,6 @@ void Webserv::multiplixing() {
 	while (404) {
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
 			throw std::runtime_error("epoll wait field");
-		// std::cout << numEvents << std::endl;
 		for (int i = 0; i < numEvents; i++) {
 			if (std::find(ServsFD.begin(), ServsFD.end(), events[i].data.fd) != ServsFD.end()){
 				int newSocket = accept(events[i].data.fd, NULL, NULL);
@@ -128,7 +91,6 @@ void Webserv::multiplixing() {
 					perror("epoll_ctl");
 					close(newSocket);
 				}
-				std::cout << newSocket << std::endl;
 				// const Client client();
 				// // Clients.insert(std::make_pair(newSocket, client));
 				// std::pair<int, Client const > pair1(newSocket, client);
@@ -159,7 +121,6 @@ void Webserv::multiplixing() {
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd].getStatus() == 0) {
 					// response
 					std::cout << "response" << std::endl;
-					std::cout << events[i].data.fd << std::endl;
 					write (events[i].data.fd, respons.c_str(), respons.length());
 					close(events[i].data.fd);
 					Clients.erase(events[i].data.fd);

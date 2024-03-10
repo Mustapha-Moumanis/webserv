@@ -15,6 +15,7 @@
 
 #include "../parse/Server.hpp"
 #include "Request.hpp"
+#include "StatusCodeExcept.hpp"
 #include <fstream>
 
 class Client {

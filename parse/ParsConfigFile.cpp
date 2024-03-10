@@ -67,14 +67,6 @@ ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server> &serv) 
 
 ParsConfigFile::~ParsConfigFile() {}
 
-bool ParsConfigFile::isRegFile(std::string path) {
-	struct stat s;
-
-	if (stat(path.c_str(), &s) != 0)
-		return 0;
-	return S_ISREG(s.st_mode);
-}
-
 void ParsConfigFile::getKeyValue(std::string line) {
 	std::stringstream ss(line);
 	std::string s1;
@@ -126,6 +118,10 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 	std::string validValue;
 	std::string checkMultValue;
 
+	if (key == "error_page") {
+		serv.setErrorPages(value);	
+		return ;
+	}
 	ss >> validValue;
 	ss >> checkMultValue;
 	

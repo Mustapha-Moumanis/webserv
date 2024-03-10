@@ -32,10 +32,7 @@ Client &Client::operator=(Client const &other) {
     return *this;
 }
 
-Client::~Client() {
-    // fsBody.close();
-    //remove(fileName.c_str());
-}
+Client::~Client() {}
 
 
 
@@ -87,7 +84,7 @@ void Client::SentRequest(std::string tmp){
         request.setRequest(tmp);
     }
     catch (const StatusCodeExcept &e) {
-        std::cout << "StatusCodeExcept : " << e.what() << std::endl;
+        std::cout << "StatusCodeExcept : " << e.getStatusCode() << " " << e.what() << std::endl;
         setStatus(0);
     }
     catch (const std::exception &e) {

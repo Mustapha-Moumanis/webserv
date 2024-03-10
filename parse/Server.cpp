@@ -126,6 +126,38 @@ void Server::checkArg() {
 	}
 }
 
+void Server::setErrorPages(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	std::string path;
+	size_t pos = value.find_last_not_of(" ");
+	path = value.substr(0, pos + 1);
+	pos = path.find_last_of(" ");
+	if (pos == std::string::npos)
+		throw std::runtime_error("invalid value " + value);
+	
+	path = path.substr(pos + 1, value.length() - pos);
+	if (!isRegFile(path))
+		throw std::runtime_error("invalid value " + value);
+
+	value = value.substr(0, pos);
+
+	ss << value;
+	std::map<std::string, std::string>::iterator it;
+	
+	while (ss >> token) {
+		it = errorPages.find(token);
+		std::cout << token << std::endl;
+		if (it != errorPages.end())
+			errorPages[token] = path;
+		else
+			errorPages.insert(std::make_pair(token, path));
+	}
+}
+
+std::string Server::getErrorPages(std::string code) {
+	return "path of error pages " + code;
+}
 
 void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	std::stringstream ss(value);

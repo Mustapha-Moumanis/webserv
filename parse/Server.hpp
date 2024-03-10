@@ -18,7 +18,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <stdlib.h>
-
+#include "../include/Utils.hpp"
 
 class Server {
 	private :		
@@ -28,7 +28,7 @@ class Server {
 		std::string host;
 		std::string root;
 		long long clientMaxBodySize;
-		
+		std::map<std::string, std::string> errorPages;
 		std::vector<Location> locations;
 	public :
 		Server();
@@ -39,12 +39,14 @@ class Server {
 		void setHost(std::string value);
 		void setServNames(std::string value);
 		void setClientMaxBodySize(std::string value);
+		void setErrorPages(std::string value);
 		
 		std::string getRoot();
 		int getPort();
 		std::string getHost();
 		std::string getServNames();
 		long long getClientMaxBodySize();
+		std::string getErrorPages(std::string code);
 		std::vector<Location> &getLocation();
 		
 		void checkArg();

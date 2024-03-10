@@ -2,11 +2,17 @@ NAME = webserv
 
 FILES = main.cpp
 
+IFILES = Utils.cpp
+IHFILES = Utils.hpp
+
 PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
 PHFILES = ParsConfigFile.hpp Server.hpp Location.hpp
 
-MFILES = Webserv.cpp Client.cpp Request.cpp Utils.cpp
-MHFILES = Webserv.hpp Client.hpp Request.hpp Utils.hpp StatusCodeExcept.hpp
+MFILES = Webserv.cpp Client.cpp Request.cpp
+MHFILES = Webserv.hpp Client.hpp Request.hpp StatusCodeExcept.hpp
+
+IFILES := $(addprefix include/, $(IFILES))
+IHFILES := $(addprefix include/, $(IHFILES))
 
 PFILES := $(addprefix parse/, $(PFILES))
 PHFILES := $(addprefix parse/, $(PHFILES))
@@ -18,14 +24,14 @@ CC = c++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 
-OBJS = $(FILES:.cpp=.o) $(PFILES:.cpp=.o) $(MFILES:.cpp=.o)
+OBJS = $(FILES:.cpp=.o) $(IFILES:.cpp=.o) $(PFILES:.cpp=.o) $(MFILES:.cpp=.o)
 
 all: $(NAME)
 
 %.o: %.cpp
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(NAME): $(OBJS) $(PHFILES) $(MHFILES)
+$(NAME): $(OBJS) $(PHFILES) $(MHFILES) $(IHFILES)
 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 
 clean:

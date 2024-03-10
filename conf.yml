@@ -4,18 +4,17 @@ server :
     server_name :  mmoumani.42.fr1   # test1 
     root: www #path
     client_max_body_size: 564564M
-    # error_page : 404       /404.html
-
+    # error_page : 500 502 503 504 /custom_50x.html;
     location : 
         - path : /ho
         - methods: DELETE POST GET
         - retrun : koko sdfsf
-        - autoindex : off
+        - autoindex : on
     location :     
         - path:  /home/user/index.html 
         # - cgi_path : [.py, /usr/bin/python3]
         # - cgi_path : [.php, /usr/bin/php-cgi]
-      # cgi_path : extantion(python | php ...) /path 
+        # cgi_path : extantion(python | php ...) /path 
         - methods:  POST
     # location :   
     #     path:  hsf3 

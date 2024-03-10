@@ -10,8 +10,6 @@ Request::~Request() {}
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;
-    std::cout << "request serv port " << this->server->getPort() << std::endl;
-
 }
 
 void Request::CheckFirstLine(std::string Fline){
