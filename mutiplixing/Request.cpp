@@ -22,15 +22,11 @@ void Request::CheckFirstLine(std::string Fline){
 	std::string a;
 	std::string b;
 	ss >> a >> b >> version;
-	if (a != "GET" && a != "DELETE" && a != "POST")
-		throw::std::runtime_error("Error Methode not emplemented");
-	else
-		HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
-    
-    // this is when u can parss uri 
+
     if (b.length() > 2048)
 		throw::std::runtime_error("414 URI Too Long");
     else {
+		// separate url from query "?key=value&..."
 		size_t pos = b.find("?");
 		if (pos != std::string::npos)
 			matchingURL(b.substr(0, pos));
@@ -38,14 +34,17 @@ void Request::CheckFirstLine(std::string Fline){
 			matchingURL(b);
 	}
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
-    
+
+	if ((a != "GET" && a != "DELETE" && a != "POST") 
+		|| this->location->getmethods().find(a) == std::string::npos)
+		throw::std::runtime_error("405 Method Not Allowed");
+	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
+
 	if (version != "HTTP/1.1")
 		throw("Error in HTTP/1.1");
 }
 
 void Request::setRequest(std::string req) {
-	// std::cout << "lole" <<"\n";
-	// throw::std::runtime_error(HttpStatus::reasonPhrase(HttpStatus::OK));
 
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
@@ -68,15 +67,15 @@ void Request::setRequest(std::string req) {
 	if (HeaderIsDone == 1){
 		if (HeadReq.find("Methode")->second == "POST")
         	body += req;
-    	else if (HeaderIsDone == 1 && HeadReq.find("Methode")->second == "GET"){
+    	else if (HeaderIsDone == 1 && HeadReq.find("Methode")->second == "GET")
 			Get();
-		}
 		else
 			return ;
 	}
 }
 
 void Request::CheckRequest(){
+
 	std::map<std::string, std::string>::iterator it;
 	if (HeadReq.find("Methode")->second == "POST"){
 		if ((it = HeadReq.find("Content-Length")) != HeadReq.end())
@@ -103,7 +102,6 @@ bool Request::CompareURL(std::string s1, std::string s2) {
 }
 
 void Request::matchingURL(std::string url) {
-	std::cout << "location " << url << std::endl;
 	size_t i = 0;
 	std::string res;
 	std::string root = server->getRoot();
@@ -128,31 +126,30 @@ void Request::matchingURL(std::string url) {
 				res = url;
 		}
 		this->url = url.replace(0, res.length(), root);
-		std::cout << "mutching >> "<< this->url << std::endl;
 	}
 	else
-		throw::std::runtime_error(HttpStatus::reasonPhrase(HttpStatus::BadRequest));
+		throw::std::runtime_error("404 Not Found");
 }
 
-void Request::checkUrl(std::string url){
-	std::cout << url << std::endl;
+void Request::Get(){
+
 	struct stat buffer;
 	int st;
 
 	st = stat(url.c_str(), &buffer);
 	if (st == -1)
 		throw::std::runtime_error("404 Not Found");
-	
-	std::cout << url << std::endl;
-}
 
-void Request::Get(){
-	std::string url;
-	if (server->getRoot().empty())
-		url = HeadReq.find("Location")->second;
-	else
-		url = server->getRoot() + HeadReq.find("Location")->second;
-
-	//checkUrl(url);
-	// std::cout << "The methode is get" << std::endl;
+	if (S_ISDIR(buffer.st_mode)){
+		std::cout << "is Dir" << std::endl;
+		std::string index = url + "index.html";
+		if(stat(index.c_str(), &buffer) != -1){
+			throw::std::runtime_error("200 OK");
+		}
+		std::cout << "No index" << std::endl;
+	}
+	else {
+		std::cout << "is file" << std::endl;
+		throw::std::runtime_error("200 OK");
+	}
 }
