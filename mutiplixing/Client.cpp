@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 15:56:56 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:15:40 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,9 @@ Client::~Client() {}
 
 
 
-void Client::setServ(Server &serv) {
-    request.setServ(serv);
-    this->serv = &serv;
+void Client::setServ(Server *serv) {
+    request.setServ(*serv);
+    this->serv = serv;
     // std::cout << this->serv->getPort() << std::endl;
 }
 

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 15:34:18 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:34:49 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,12 @@ Webserv::Webserv(std::string file){
 	multiplixing();
 }
 
-Webserv::~Webserv(){}
+Webserv::~Webserv(){
+	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+		delete *it;
+	}
+		
+}
 
 void Webserv::multiplixing() {
 	std::cout << "--------- Multiplixing part ---------" << std::endl;
@@ -33,7 +38,7 @@ void Webserv::multiplixing() {
 	std::vector<int> ServsFD;
 	int tmpFD;
 
-	// for(std::vector<Server>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+	// for(std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
 	for(size_t i = 0; i != dataServers.size(); i++) {
 		
 		tmpFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,8 +52,8 @@ void Webserv::multiplixing() {
 		memset((char *)&addr, 0, sizeof(addr));
 		
 		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = inet_addr(dataServers[i].getHost().c_str());
-		addr.sin_port = htons(dataServers[i].getPort());
+		addr.sin_addr.s_addr = inet_addr(dataServers[i]->getHost().c_str());
+		addr.sin_port = htons(dataServers[i]->getPort());
 		
 		int level = 1;
 		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));

@@ -6,13 +6,13 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/09 09:36:49 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:30:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParsConfigFile.hpp"
 
-ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server> &serv) : dataServers(serv) {
+ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server *> &serv) : dataServers(serv) {
 	ifs.open(fileName.c_str());
 	if (!ifs.is_open())
 		throw std::runtime_error("Unable to open \"" + fileName + "\"");
@@ -48,17 +48,17 @@ ParsConfigFile::ParsConfigFile(std::string fileName, std::vector<Server> &serv) 
 			throw std::runtime_error("invalid line : " + line);
 			
 	}
-	for (std::vector<Server>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
-		it1->checkArg();
+	for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
+		(*it1)->checkArg();
 		// check doublicate 
-		for (std::vector<Server>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
-			if (it1->getPort() == it2->getPort())
+		for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
+			if ((*it1)->getPort() == (*it2)->getPort())
 				throw std::runtime_error("doublicate post");
 		}
 	}
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
-	// for (std::vector<Server>::iterator i = dataServers.begin(); i != dataServers.end(); i++) {
+	// for (std::vector<Server *>::iterator i = dataServers.begin(); i != dataServers.end(); i++) {
 	// 	std::cout << "server : " << std::endl;
 	// 	i->printArg();
 	// }
@@ -145,7 +145,7 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 }
 
 void ParsConfigFile::newServer() {
-	Server serv;
+	Server *serv = new Server;
 	spaces = 0;
 	
 	while (1337) {
@@ -182,7 +182,7 @@ void ParsConfigFile::newServer() {
 		else if (key == "location") {
 			if ((!tmp.empty() && tmp[0] != '#') || pos != spaces)
 				throw std::runtime_error("Error : Bad spaces or empty value : " + line);
-			newLocation(serv);
+			newLocation(*serv);
 			return ;
 		}
 		else if (pos != spaces)
@@ -190,7 +190,7 @@ void ParsConfigFile::newServer() {
 		else {
 			if (value.empty())
 				throw std::runtime_error(key + " : empty value");
-			setServValue(serv, key, value);
+			setServValue(*serv, key, value);
 		}
 	}
 	dataServers.push_back(serv);
@@ -233,7 +233,7 @@ void ParsConfigFile::newLocation(Server &serv) {
 			if ((!tmp.empty() && tmp[0] != '#') || pos != 0 || check == 1)
 				throw std::runtime_error("invalid line : " + line);
 			serv.addLocat(locat);
-			dataServers.push_back(serv);
+			dataServers.push_back(&serv);
 			newServer();
 			return;
 		}
@@ -252,5 +252,5 @@ void ParsConfigFile::newLocation(Server &serv) {
 			serv.setLocValue(locat, key, value);
 	}
 	serv.addLocat(locat);
-	dataServers.push_back(serv);
+	dataServers.push_back(&serv);
 }

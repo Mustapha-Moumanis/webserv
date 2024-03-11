@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 15:32:43 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 18:14:54 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class Client {
 		Client &operator=(Client const &other);
 		~Client();
 		
-		void setServ(Server &serv);
+		void setServ(Server *serv);
 		void setStatus(bool status);
 		void SentRequest(std::string);
 		
