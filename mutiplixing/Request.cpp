@@ -39,11 +39,11 @@ void Request::CheckFirstLine(std::string Fline){
 	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
 
 	if (version != "HTTP/1.1")
-		throw("Error in HTTP/1.1");
+		throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
 }
 
 void Request::setRequest(std::string req) {
-	throw StatusCodeExcept(HttpStatus::OK);
+	throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);

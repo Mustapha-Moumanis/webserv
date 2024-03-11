@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/09 16:50:23 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:32:43 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ class Client {
 		bool status;
 		Request request;
 		// response atribuite
-		// std::string fileName;
-		// std::fstream fsBody;
+		std::string Response;
+		// std::fstream Response;
 
 	public :
 		Client();
@@ -40,7 +40,10 @@ class Client {
 		Server *getServ();
 		bool getStatus();
 		Request &getRequest();
-
+		std::string getResponse();
+		
+		std::string generateResponse(HttpStatus::StatusCode Code, std::string const Msg, std::string mimeType);
+		
 		// std::string getNewName();
 };
 

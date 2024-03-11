@@ -1,10 +1,9 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
+#include <fstream>
 #include "../parse/Server.hpp"
 #include "../include/Utils.hpp"
-#include <fstream>
-// #include "../StatusCode.hpp"
 #include "StatusCodeExcept.hpp"
 
 class Request {

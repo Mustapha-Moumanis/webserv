@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/10 11:39:23 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/11 15:34:18 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void Webserv::multiplixing() {
 		indexFD[tmpFD] = i;
 	}
 
-	std::string respons = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>404 Not Found</title>\n</head>\n<body>\n<div class='container'>\n<h1>404 Not Found</h1>\n</div>\n</body>\n</html>";
+	// std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>404 Not Found</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>404 Not Found</h1>\n</div>\n</body>\n</html>";
 	int numEvents;
 	while (404) {
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
@@ -108,11 +108,7 @@ void Webserv::multiplixing() {
 					if (valueRead == 0 || valueRead == -1) {
 						close(events[i].data.fd);
 						Clients.erase(events[i].data.fd);
-						// close(events[i].data.fd);
-
-						// Clients.erase(events[i].data.fd);
 						// events[i].events = EPOLLOUT;
-						// epoll_ctl(epfd, EPOLL_CTL_MOD, events[i].events, &event);
 						continue ;
 					}
 					std::string tmp(buffer, valueRead);
@@ -121,7 +117,7 @@ void Webserv::multiplixing() {
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd].getStatus() == 0) {
 					// response
 					std::cout << "response" << std::endl;
-					write (events[i].data.fd, respons.c_str(), respons.length());
+					write (events[i].data.fd, Clients[events[i].data.fd].getResponse().c_str(), Clients[events[i].data.fd].getResponse().length());
 					close(events[i].data.fd);
 					Clients.erase(events[i].data.fd);
 				}
