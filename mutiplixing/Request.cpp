@@ -103,6 +103,8 @@ void Request::matchingURL(std::string url) {
 	size_t i = 0;
 	std::string res;
 	std::string root = server->getRoot();
+
+	std::cout << "-" << std::endl;
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if ((i = CompareURL(it1->getPath(), url))) {
 			if (it1->getPath().length() > res.length()) {

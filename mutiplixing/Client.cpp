@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 18:15:40 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 23:33:00 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <fstream>
 #include <cctype>
 
-Client::Client() : status(1) {
+Client::Client() : status(1), Response("") {
     // fileName = "Data/" + getNewName() + ".txt";
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
@@ -28,6 +28,7 @@ Client &Client::operator=(Client const &other) {
         this->serv = getServ();
         this->status = getStatus();
         this->request = getRequest();
+        this->Response = getResponse();
     }
     return *this;
 }
@@ -112,10 +113,12 @@ void Client::SentRequest(std::string tmp){
     catch (const StatusCodeExcept &e) {
 
         Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
+        std::cout << "jj 2 " << e.what() << std::endl;
+        
         setStatus(0);
     }
     catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
+        std::cout << "jj " << e.what() << std::endl;
         setStatus(0);
     }
 }

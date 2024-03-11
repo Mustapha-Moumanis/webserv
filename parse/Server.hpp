@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 11:26:46 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/11 22:50:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Location.hpp"
+#include <algorithm>
 #include <sstream>
 #include <vector>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include "Location.hpp"
 #include "../include/Utils.hpp"
 
 class Server {
@@ -30,6 +31,9 @@ class Server {
 		long long clientMaxBodySize;
 		std::map<std::string, std::string> errorPages;
 		std::vector<Location> locations;
+		std::vector<std::string> index;
+		std::string autoIndex;
+		
 	public :
 		Server();
 		~Server();
@@ -40,14 +44,19 @@ class Server {
 		void setServNames(std::string value);
 		void setClientMaxBodySize(std::string value);
 		void setErrorPages(std::string value);
-		
+		void setAutoIndex(std::string value);
+		void setIndex(std::string value);
+
 		std::string getRoot();
 		int getPort();
 		std::string getHost();
 		std::string getServNames();
 		long long getClientMaxBodySize();
-		std::string getErrorPages(std::string code);
+		std::map<std::string, std::string> getErrorPages();
+		std::string getErrorPagesPath(std::string code);
+		std::vector<std::string> getIndex();
 		std::vector<Location> &getLocation();
+		std::string getAutoIndex();
 		
 		void checkArg();
 		

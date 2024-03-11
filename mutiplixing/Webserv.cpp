@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 18:34:49 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 23:35:40 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Webserv::Webserv(std::string file){
 	ParsConfigFile PCF(file, dataServers);
 	// exec();
+	// std::cout << (*dataServers[0]).getLocation()[0].getAutoIndex() << std::endl;
 	multiplixing();
 }
 
@@ -54,7 +55,7 @@ void Webserv::multiplixing() {
 		addr.sin_family = AF_INET;
 		addr.sin_addr.s_addr = inet_addr(dataServers[i]->getHost().c_str());
 		addr.sin_port = htons(dataServers[i]->getPort());
-		
+
 		int level = 1;
 		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));
 		
@@ -76,7 +77,7 @@ void Webserv::multiplixing() {
 		indexFD[tmpFD] = i;
 	}
 
-	// std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>404 Not Found</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>404 Not Found</h1>\n</div>\n</body>\n</html>";
+	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
 	int numEvents;
 	while (404) {
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
@@ -122,7 +123,12 @@ void Webserv::multiplixing() {
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd].getStatus() == 0) {
 					// response
 					std::cout << "response" << std::endl;
-					write (events[i].data.fd, Clients[events[i].data.fd].getResponse().c_str(), Clients[events[i].data.fd].getResponse().length());
+					if (Clients[events[i].data.fd].getResponse().empty()) {
+						write (events[i].data.fd, response.c_str(), response.length());
+						std::cout << "empty" << std::endl;
+					}
+					else
+						write (events[i].data.fd, Clients[events[i].data.fd].getResponse().c_str(), Clients[events[i].data.fd].getResponse().length());
 					close(events[i].data.fd);
 					Clients.erase(events[i].data.fd);
 				}

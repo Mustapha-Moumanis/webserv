@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/02/27 12:26:24 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:57:17 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,48 @@ Location::Location(Server &serv){
     path = "";
     methods = "";
 	rediraction = "";
-    autoIndex = "off";
+    errorPages = serv.getErrorPages();
+    autoIndex = serv.getAutoIndex();
+    index = serv.getIndex();
 }
 
 Location::~Location(){}
+
+std::string Location::getRediraction() {
+    return rediraction;
+}
+// change here
+std::map<std::string, std::string> Location::getErrorPages(){
+	return errorPages;
+}
+
+// souad helps
+std::string Location::getErrorPagesPath(std::string code) {
+	if (errorPages.find(code) != errorPages.end())
+		return errorPages[code];
+	return "";
+}
+
+std::vector<std::string> Location::getIndex() {
+	return index;
+}
+
+std::string Location::getAutoIndex() {
+    return autoIndex;
+}
+
+std::string Location::getRoot() {
+    return root;
+}
+
+std::string Location::getPath() {
+    return path;
+}
+
+std::string Location::getmethods() {
+    return methods;
+}
+
 
 void Location::setRoot(std::string value) {
 	root = value;
@@ -42,25 +80,50 @@ void Location::setAutoIndex(std::string value) {
     autoIndex = value;
 }
 
-std::string Location::getRediraction() {
-    return rediraction;
+void Location::setIndex(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
+	ss << value;
+	while (ss >> token) {
+		if (std::find(index.begin(), index.end(), token) != index.end())
+			index.push_back(token);
+	}
 }
 
-std::string Location::getAutoIndex() {
-    return autoIndex;
+void Location::setErrorPages(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	std::string path;
+
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		path = value.substr(0, pos + 1);
+	pos = path.find_last_of(" ");
+	if (pos == std::string::npos)
+		throw std::runtime_error("invalid value " + value);
+	
+	path = path.substr(pos + 1, value.length() - pos);
+	// if (!isRegFile(path))
+	// 	throw std::runtime_error("invalid value " + value);
+
+	value = value.substr(0, pos);
+
+	ss << value;
+	std::map<std::string, std::string>::iterator it;
+	
+	while (ss >> token) {
+		it = errorPages.find(token);
+		if (it != errorPages.end())
+			errorPages[token] = path;
+		else
+			errorPages.insert(std::make_pair(token, path));
+	}
 }
 
-std::string Location::getRoot() {
-    return root;
-}
-
-std::string Location::getPath() {
-    return path;
-}
-
-std::string Location::getmethods() {
-    return methods;
-}
 
 void Location::checkLocation() {
 	if (path.empty() || methods.empty())

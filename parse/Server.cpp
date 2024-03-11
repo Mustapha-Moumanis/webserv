@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/08 11:26:21 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/11 22:59:35 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Server::Server(){
 	serverName = "";
 	root = "/var/www/";
 	clientMaxBodySize = 2147483648;
+	autoIndex = "off";
 	// errorPage = kkjsgdfjsd;
 }
 
@@ -125,38 +126,69 @@ void Server::checkArg() {
 		it->checkLocation();
 	}
 }
+std::map<std::string, std::string> Server::getErrorPages() {
+	return errorPages;
+}
+
+// souad helps
+std::string Server::getErrorPagesPath(std::string code) {
+	if (errorPages.find(code) != errorPages.end())
+		return errorPages[code];
+	return "";
+}
+
+std::vector<std::string> Server::getIndex() {
+	return index;
+}
+
+std::string Server::getAutoIndex() {
+    return autoIndex;
+}
+
+void Server::setIndex(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
+	ss << value;
+	while (ss >> token) {
+		if (std::find(index.begin(), index.end(), token) != index.end())
+			index.push_back(token);
+	}
+}
+
+void Server::setAutoIndex(std::string value) {
+    autoIndex = value;
+}
 
 void Server::setErrorPages(std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
+
 	size_t pos = value.find_last_not_of(" ");
-	path = value.substr(0, pos + 1);
+	if (pos != std::string::npos)
+		path = value.substr(0, pos + 1);
 	pos = path.find_last_of(" ");
 	if (pos == std::string::npos)
 		throw std::runtime_error("invalid value " + value);
 	
 	path = path.substr(pos + 1, value.length() - pos);
-	if (!isRegFile(path))
-		throw std::runtime_error("invalid value " + value);
+	// if (!isRegFile(path))
+	// 	throw std::runtime_error("invalid value " + value);
 
 	value = value.substr(0, pos);
 
 	ss << value;
-	std::map<std::string, std::string>::iterator it;
 	
 	while (ss >> token) {
-		it = errorPages.find(token);
-		std::cout << token << std::endl;
-		if (it != errorPages.end())
+		if (errorPages.find(token) != errorPages.end())
 			errorPages[token] = path;
 		else
 			errorPages.insert(std::make_pair(token, path));
 	}
-}
-
-std::string Server::getErrorPages(std::string code) {
-	return "path of error pages " + code;
 }
 
 void Server::setLocValue(Location &locat, std::string key, std::string value) {
@@ -192,6 +224,14 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setRediraction(value);
 		return ;
 	}
+	else if (key == "index") {
+		locat.setIndex(value);
+		return ;
+	}
+	else if (key == "error_page") {
+		locat.setErrorPages(value);
+		return ;
+	}
 	ss >> validValue;
 	ss >> checkMultValue;
 	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue[0] != '#'))
@@ -201,7 +241,7 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	else if (key == "path")
 		locat.setPath(validValue);
 	else if (key == "autoindex") {
-		if (value != "on" && value != "off")
+		if (value != "on" && value != "ON" && value != "OFF" && value != "off")
 			throw std::runtime_error(key + " : invalide value");
 		else
 			locat.setAutoIndex(validValue);

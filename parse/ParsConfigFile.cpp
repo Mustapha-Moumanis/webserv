@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 18:30:32 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 20:54:48 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,11 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 	std::string checkMultValue;
 
 	if (key == "error_page") {
-		serv.setErrorPages(value);	
+		serv.setErrorPages(value);
+		return ;
+	}
+	else if (key == "index") {
+		serv.setIndex(value);
 		return ;
 	}
 	ss >> validValue;
