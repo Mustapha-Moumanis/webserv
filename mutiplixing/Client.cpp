@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 15:39:37 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:56:56 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,10 +95,12 @@ std::string Client::generateResponse(HttpStatus::StatusCode Code, std::string Ms
     resp += "Content-Type: " + mimeType + "\r\n\r\n";
     resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
     resp += sCode + " " + Msg;
-    resp += "</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>";
-    resp += "</head>\n<body>\n<div class='container'>\n<h1>";
-    resp += sCode + " " + Msg;
-    resp += "</h1>\n</div>\n</body>\n</html>";
+    resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
+    resp += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
+    resp += "</head>\n<body>\n<div class='container'>\n";
+    resp += "<h1>" + sCode + "</h1>\n";
+    resp += "<h3> " + Msg + "</h3>\n";
+    resp += "</div>\n</body>\n</html>";
 
     return resp;
 }

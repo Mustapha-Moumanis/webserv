@@ -22,7 +22,7 @@ void Request::CheckFirstLine(std::string Fline){
 	ss >> a >> b >> version;
 
     if (b.length() > 2048)
-		throw::std::runtime_error("414 URI Too Long");
+		throw std::runtime_error("414 URI Too Long");
     else {
 		// separate url from query "?key=value&..."
 		size_t pos = b.find("?");
@@ -35,7 +35,7 @@ void Request::CheckFirstLine(std::string Fline){
 
 	if ((a != "GET" && a != "DELETE" && a != "POST") 
 		|| this->location->getmethods().find(a) == std::string::npos)
-		throw::std::runtime_error("405 Method Not Allowed");
+		throw std::runtime_error("405 Method Not Allowed");
 	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
 
 	if (version != "HTTP/1.1")
@@ -43,7 +43,7 @@ void Request::CheckFirstLine(std::string Fline){
 }
 
 void Request::setRequest(std::string req) {
-	throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
+	// throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -80,10 +80,10 @@ void Request::CheckRequest(){
 			std::cout << "Not chencked" << std::endl;
 		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
 			if (it->second != "chunked")
-				throw::std::runtime_error("501 Not Implemanted");	
+				throw std::runtime_error("501 Not Implemanted");	
 		}
 		else
-			throw::std::runtime_error("400 Bad request");
+			throw std::runtime_error("400 Bad request");
 		std::cout << "Thers POST methode" << std::endl;
 	}
 }
@@ -126,7 +126,7 @@ void Request::matchingURL(std::string url) {
 		this->url = url.replace(0, res.length(), root);
 	}
 	else
-		throw::std::runtime_error("404 Not Found");
+		throw std::runtime_error("404 Not Found");
 }
 
 void Request::Get(){
@@ -136,18 +136,18 @@ void Request::Get(){
 
 	st = stat(url.c_str(), &buffer);
 	if (st == -1)
-		throw::std::runtime_error("404 Not Found");
+		throw std::runtime_error("404 Not Found");
 
 	if (S_ISDIR(buffer.st_mode)){
 		std::cout << "is Dir" << std::endl;
 		std::string index = url + "index.html";
 		if(stat(index.c_str(), &buffer) != -1){
-			throw::std::runtime_error("200 OK");
+			throw std::runtime_error("200 OK");
 		}
 		std::cout << "No index" << std::endl;
 	}
 	else {
 		std::cout << "is file" << std::endl;
-		throw::std::runtime_error("200 OK");
+		throw std::runtime_error("200 OK");
 	}
 }
