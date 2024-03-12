@@ -31,7 +31,7 @@ all: $(NAME)
 %.o: %.cpp
 	$(CC) $(FLAGS) -c $< -o $@
 
-$(NAME): $(OBJS) $(PHFILES) $(MHFILES) $(IHFILES)
+$(NAME): $(OBJS) $(PFILES) $(MFILES) $(IFILES) $(PHFILES) $(MHFILES) $(IHFILES)
 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 
 clean:

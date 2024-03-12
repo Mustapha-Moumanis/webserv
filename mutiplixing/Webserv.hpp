@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 18:06:11 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:13:20 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 class Webserv {
 	private :
 		std::vector<Server *> dataServers;
-		std::map<int, Client> Clients;
+		std::map<int, Client *> Clients;
 		std::vector<int> fds;
 		std::map<int, int> indexFD;
 

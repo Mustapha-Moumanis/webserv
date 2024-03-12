@@ -6,36 +6,18 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 23:33:00 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:47:43 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
-#include <fstream>
-#include <cctype>
 
 Client::Client() : status(1), Response("") {
     // fileName = "Data/" + getNewName() + ".txt";
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
 
-Client::Client(Client const &other) {
-    *this = other;
-}
-
-Client &Client::operator=(Client const &other) {
-    if (this != &other) {
-        this->serv = getServ();
-        this->status = getStatus();
-        this->request = getRequest();
-        this->Response = getResponse();
-    }
-    return *this;
-}
-
 Client::~Client() {}
-
-
 
 void Client::setServ(Server *serv) {
     request.setServ(*serv);
@@ -113,12 +95,11 @@ void Client::SentRequest(std::string tmp){
     catch (const StatusCodeExcept &e) {
 
         Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
-        std::cout << "jj 2 " << e.what() << std::endl;
-        
+        std::cout << Response << std::endl;
         setStatus(0);
     }
     catch (const std::exception &e) {
-        std::cout << "jj " << e.what() << std::endl;
+        std::cout << e.what() << std::endl;
         setStatus(0);
     }
 }

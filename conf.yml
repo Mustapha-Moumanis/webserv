@@ -7,7 +7,7 @@ server :
     index : index.html index.html
     error_page : 500 502 503 504 /custom_50x.html;
     location : 
-        - path : /ho
+        - path : /ho/
         - methods: DELETE POST GET
         - retrun : koko sdfsf
         - autoindex : ON

@@ -2,6 +2,9 @@
 #define REQUEST_HPP
 
 #include <fstream>
+#include <cctype>
+#include <algorithm>
+#include <cstring>
 #include "../parse/Server.hpp"
 #include "../include/Utils.hpp"
 #include "StatusCodeExcept.hpp"

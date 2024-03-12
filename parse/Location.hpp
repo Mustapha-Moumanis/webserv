@@ -6,16 +6,17 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 22:49:25 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:48:45 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <iostream>
 #include <map>
 #include <vector>
+#include <iostream>
+#include "Server.hpp"
 
 class Server;
 

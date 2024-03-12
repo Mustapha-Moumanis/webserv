@@ -1,8 +1,4 @@
 #include "Request.hpp"
-#include <fstream>
-#include <cctype>
-#include <algorithm>
-#include <cstring>
 
 Request::Request() : HeaderIsDone(0), body(""), url("") {}
 
@@ -43,7 +39,6 @@ void Request::CheckFirstLine(std::string Fline){
 }
 
 void Request::setRequest(std::string req) {
-	// throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -104,7 +99,6 @@ void Request::matchingURL(std::string url) {
 	std::string res;
 	std::string root = server->getRoot();
 
-	std::cout << "-" << std::endl;
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if ((i = CompareURL(it1->getPath(), url))) {
 			if (it1->getPath().length() > res.length()) {
@@ -128,11 +122,10 @@ void Request::matchingURL(std::string url) {
 		this->url = url.replace(0, res.length(), root);
 	}
 	else
-		throw std::runtime_error("404 Not Found");
+		throw StatusCodeExcept(HttpStatus::NotFound);
 }
 
 void Request::Get(){
-
 	struct stat buffer;
 	int st;
 

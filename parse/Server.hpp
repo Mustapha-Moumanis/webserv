@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 22:50:32 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:50:44 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include "Location.hpp"
 #include "../include/Utils.hpp"
+
+class Location;
 
 class Server {
 	private :		

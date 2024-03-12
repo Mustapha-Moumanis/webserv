@@ -6,12 +6,11 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 22:57:17 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:48:38 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
-#include "Server.hpp"
 
 Location::Location(Server &serv){
     root = serv.getRoot();

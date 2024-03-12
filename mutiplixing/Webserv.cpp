@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 23:35:40 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:38:51 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,23 +23,22 @@ Webserv::~Webserv(){
 	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
 		delete *it;
 	}
-		
+	for (std::map<int, Client *>::iterator it = Clients.begin(); it != Clients.end(); it++) {
+		delete it->second;
+	}
 }
 
 void Webserv::multiplixing() {
 	std::cout << "--------- Multiplixing part ---------" << std::endl;
 
-	// Open an epoll fd
 	int epfd = epoll_create(1);
-	struct epoll_event event, events[MAX_EVENTS];
-	
 	if (epfd == -1)
 		throw std::runtime_error("cannot create an epoll");
 
+	struct epoll_event event, events[MAX_EVENTS];
 	std::vector<int> ServsFD;
 	int tmpFD;
 
-	// for(std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
 	for(size_t i = 0; i != dataServers.size(); i++) {
 		
 		tmpFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -96,40 +95,40 @@ void Webserv::multiplixing() {
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, newSocket, &event) == -1) {
 					perror("epoll_ctl");
 					close(newSocket);
+					continue ;
 				}
-				// const Client client();
-				// // Clients.insert(std::make_pair(newSocket, client));
-				// std::pair<int, Client const > pair1(newSocket, client);
-				// Clients.insert(pair1);
-				const Client client;
-
-				Clients.insert(std::make_pair(newSocket, client));
-				Clients[newSocket].setServ(dataServers[indexFD[events[i].data.fd]]);
+				
+				Clients.insert(std::make_pair(newSocket, new Client()));
+				Clients[newSocket]->setServ(dataServers[indexFD[events[i].data.fd]]);
 			}
 			else {
-				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd].getStatus()) {
+				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus()) {
 					// request
+					std::cout << "request" << std::endl;
 					char buffer[1024] = {0};
+
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
-					if (valueRead == 0 || valueRead == -1) {
+					if (valueRead == -1) {
 						close(events[i].data.fd);
+						delete Clients[events[i].data.fd];
 						Clients.erase(events[i].data.fd);
 						// events[i].events = EPOLLOUT;
 						continue ;
 					}
 					std::string tmp(buffer, valueRead);
-					Clients[events[i].data.fd].SentRequest(tmp);
+					Clients[events[i].data.fd]->SentRequest(tmp);
 				}
-				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd].getStatus() == 0) {
+				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0) {
 					// response
-					std::cout << "response" << std::endl;
-					if (Clients[events[i].data.fd].getResponse().empty()) {
+					std::cout << "response " << std::endl;
+					
+					if (Clients[events[i].data.fd]->getResponse().empty())
 						write (events[i].data.fd, response.c_str(), response.length());
-						std::cout << "empty" << std::endl;
-					}
 					else
-						write (events[i].data.fd, Clients[events[i].data.fd].getResponse().c_str(), Clients[events[i].data.fd].getResponse().length());
+						write (events[i].data.fd, Clients[events[i].data.fd]->getResponse().c_str(), Clients[events[i].data.fd]->getResponse().length());
+					
 					close(events[i].data.fd);
+					delete Clients[events[i].data.fd];
 					Clients.erase(events[i].data.fd);
 				}
 			}

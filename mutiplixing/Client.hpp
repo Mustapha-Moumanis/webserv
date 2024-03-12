@@ -6,17 +6,18 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 18:14:54 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 17:48:11 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include <fstream>
+#include <cctype>
+#include "StatusCodeExcept.hpp"
 #include "../parse/Server.hpp"
 #include "Request.hpp"
-#include "StatusCodeExcept.hpp"
-#include <fstream>
 
 class Client {
 	private :
@@ -29,8 +30,6 @@ class Client {
 
 	public :
 		Client();
-		Client(Client const &other);
-		Client &operator=(Client const &other);
 		~Client();
 		
 		void setServ(Server *serv);
