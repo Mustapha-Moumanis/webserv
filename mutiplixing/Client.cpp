@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 17:47:43 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:59:29 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,9 @@ std::string Client::generateResponse(HttpStatus::StatusCode Code, std::string Ms
 
     resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
     resp += "Content-Type: " + mimeType + "\r\n\r\n";
+    if (sCode == "204") 
+        return resp;
+    
     resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
     resp += sCode + " " + Msg;
     resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
@@ -84,7 +87,6 @@ std::string Client::generateResponse(HttpStatus::StatusCode Code, std::string Ms
     resp += "<h1>" + sCode + "</h1>\n";
     resp += "<h3> " + Msg + "</h3>\n";
     resp += "</div>\n</body>\n</html>";
-
     return resp;
 }
 
@@ -95,7 +97,7 @@ void Client::SentRequest(std::string tmp){
     catch (const StatusCodeExcept &e) {
 
         Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
-        std::cout << Response << std::endl;
+        // std::cout << Response << std::endl;
         setStatus(0);
     }
     catch (const std::exception &e) {

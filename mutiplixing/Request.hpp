@@ -2,9 +2,8 @@
 #define REQUEST_HPP
 
 #include <fstream>
-#include <cctype>
-#include <algorithm>
-#include <cstring>
+#include <dirent.h>
+#include <unistd.h>
 #include "../parse/Server.hpp"
 #include "../include/Utils.hpp"
 #include "StatusCodeExcept.hpp"
@@ -18,6 +17,7 @@ class Request {
 		int HeaderIsDone;
 		std::string body;
 		std::string url;
+		std::string queryString;
 
 	public :
 		Request();
@@ -29,11 +29,12 @@ class Request {
 		void CheckRequest();
 		void matchingURL(std::string b);
 		bool CompareURL(std::string s1, std::string s2);
+	
 		void Get(void);
-		// Post();
-		// Delete();
+		void Delete(void);
+		void Post(std::string);
 
-		void checkUrl(std::string);
+		void RemoveContentDir(std::string);
 };
 
 #endif

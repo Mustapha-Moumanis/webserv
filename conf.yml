@@ -7,7 +7,7 @@ server :
     index : index.html index.htmld
     error_page : 500 500 502 503 504 /custom_50x.html
     location : 
-        - path : /ho/
+        - path : /ho
         - autoindex : ON
         - methods: DELETE POST GET
         - error_page : 400 400 402 403 404 /custom_40x.html

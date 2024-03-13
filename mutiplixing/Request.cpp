@@ -1,6 +1,10 @@
 #include "Request.hpp"
+#include <fstream>
+#include <cctype>
+#include <algorithm>
+#include <cstring>
 
-Request::Request() : HeaderIsDone(0), body(""), url("") {}
+Request::Request() : HeaderIsDone(0), body(""), url(""), queryString("") {}
 
 Request::~Request() {}
 
@@ -18,54 +22,26 @@ void Request::CheckFirstLine(std::string Fline){
 	ss >> a >> b >> version;
 
     if (b.length() > 2048)
-		throw std::runtime_error("414 URI Too Long");
+		throw StatusCodeExcept(HttpStatus::URITooLong);
     else {
-		// separate url from query "?key=value&..."
 		size_t pos = b.find("?");
-		if (pos != std::string::npos)
-			matchingURL(b.substr(0, pos));
-		else
-			matchingURL(b);
+		if (pos != std::string::npos) {
+			queryString = b.substr(pos + 1);
+			b = b.substr(0, pos);
+		}
+		matchingURL(b);
 	}
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
 
 	if ((a != "GET" && a != "DELETE" && a != "POST") 
 		|| this->location->getmethods().find(a) == std::string::npos)
-		throw std::runtime_error("405 Method Not Allowed");
+		throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
 	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
 
 	if (version != "HTTP/1.1")
 		throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
 }
 
-void Request::setRequest(std::string req) {
-    if (HeaderIsDone == 0){
-		CheckFirstLine(req.substr(0, req.find("\r\n")));
-		req.erase(0, req.find("\r\n") + 2);
-		while (404){
-			std::string key = req.substr(0, req.find(": "));
-			if (req.substr(0, req.find("\r\n")) == ""){
-				req.erase(0, req.find("\r\n") + 2);
-				break;
-			}
-			req.erase(0, req.find(": ") + 2);
-			std::string val =  req.substr(0, req.find("\r\n"));
-			HeadReq.insert(std::pair<std::string,std::string>(key,val));
-			req.erase(0, req.find("\r\n") + 2);
-		}
-        body = req;
-        HeaderIsDone = 1;
-        CheckRequest();
-	}
-	if (HeaderIsDone == 1){
-		if (HeadReq.find("Methode")->second == "POST")
-        	body += req;
-    	else if (HeaderIsDone == 1 && HeadReq.find("Methode")->second == "GET")
-			Get();
-		else
-			return ;
-	}
-}
 
 void Request::CheckRequest(){
 
@@ -75,10 +51,10 @@ void Request::CheckRequest(){
 			std::cout << "Not chencked" << std::endl;
 		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
 			if (it->second != "chunked")
-				throw std::runtime_error("501 Not Implemanted");	
+				throw StatusCodeExcept(HttpStatus::NotImplemented);	
 		}
 		else
-			throw std::runtime_error("400 Bad request");
+			throw StatusCodeExcept(HttpStatus::BadRequest);
 		std::cout << "Thers POST methode" << std::endl;
 	}
 }
@@ -98,7 +74,6 @@ void Request::matchingURL(std::string url) {
 	size_t i = 0;
 	std::string res;
 	std::string root = server->getRoot();
-
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if ((i = CompareURL(it1->getPath(), url))) {
 			if (it1->getPath().length() > res.length()) {
@@ -125,24 +100,114 @@ void Request::matchingURL(std::string url) {
 		throw StatusCodeExcept(HttpStatus::NotFound);
 }
 
+void Request::setRequest(std::string req) {
+	// std::cout << req << std::endl;
+    if (HeaderIsDone == 0){
+		CheckFirstLine(req.substr(0, req.find("\r\n")));
+		req.erase(0, req.find("\r\n") + 2);
+		while (404){
+			std::string key = req.substr(0, req.find(": "));
+			if (req.substr(0, req.find("\r\n")) == ""){
+				req.erase(0, req.find("\r\n") + 2);
+				break;
+			}
+			req.erase(0, req.find(": ") + 2);
+			std::string val =  req.substr(0, req.find("\r\n"));
+			HeadReq.insert(std::pair<std::string,std::string>(key,val));
+			req.erase(0, req.find("\r\n") + 2);
+		}
+        body = req;
+        HeaderIsDone = 1;
+        CheckRequest();
+	}
+	if (HeadReq.find("Methode")->second == "POST")
+		Post(req);
+	else if (HeadReq.find("Methode")->second == "GET")
+		Get();
+	else
+		Delete();
+}
+
 void Request::Get(){
+
 	struct stat buffer;
 	int st;
 
 	st = stat(url.c_str(), &buffer);
 	if (st == -1)
-		throw std::runtime_error("404 Not Found");
+		throw StatusCodeExcept(HttpStatus::NotFound);
 
 	if (S_ISDIR(buffer.st_mode)){
 		std::cout << "is Dir" << std::endl;
 		std::string index = url + "index.html";
-		if(stat(index.c_str(), &buffer) != -1){
-			throw std::runtime_error("200 OK");
+		if (stat(index.c_str(), &buffer) != -1){
+			throw StatusCodeExcept(HttpStatus::OK);
 		}
 		std::cout << "No index" << std::endl;
 	}
 	else {
 		std::cout << "is file" << std::endl;
-		throw std::runtime_error("200 OK");
+		throw StatusCodeExcept(HttpStatus::OK);
+	}
+}
+
+void	Request::RemoveContentDir(std::string str){
+	
+	struct dirent* dr;
+	
+	if (str[str.length() - 1] != '/')
+		str += "/";
+	DIR* dir = opendir(str.c_str());
+	if (!dir)
+		throw StatusCodeExcept(HttpStatus::Forbidden);
+	while ((dr = readdir(dir))){
+		std::string name = dr->d_name;
+		if (name != "." && name != "..")
+		{
+			if (isDir(str + name) == true)
+				RemoveContentDir(str + name);
+			else {
+				if (std::remove((str + name).c_str()) == -1){
+					closedir(dir);
+					throw StatusCodeExcept(HttpStatus::InternalServerError);
+				}
+			}
+		}
+	}
+	if (std::remove((str).c_str()) == -1){
+		closedir(dir);
+		throw StatusCodeExcept(HttpStatus::InternalServerError);
+	}
+	closedir(dir);
+}
+
+void Request::Delete(){
+	struct stat buffer;
+	int st;
+
+	st = stat(url.c_str(), &buffer);
+	if (st == -1)
+		throw StatusCodeExcept(HttpStatus::NotFound);
+	if (S_ISDIR(buffer.st_mode)){
+		if (access(url.c_str(), W_OK) == -1)
+			throw StatusCodeExcept(HttpStatus::Forbidden);
+		RemoveContentDir(url);
+	}
+	else {
+		if (std::remove(url.c_str()) == -1)
+			throw StatusCodeExcept(HttpStatus::Forbidden);
+	}
+	throw StatusCodeExcept(HttpStatus::NoContent);
+}
+
+void Request::Post(std::string req){
+
+	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
+		std::cout << "Is chunked" << std::endl;
+		body += req;
+	}
+	else {
+		std::cout << HeadReq.find("Content-Type")->second << std::endl;
+		body += req;
 	}
 }
