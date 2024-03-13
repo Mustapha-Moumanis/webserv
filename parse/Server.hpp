@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 17:50:44 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/12 22:24:56 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,15 @@ class Location;
 class Server {
 	private :		
 		// std::vector<std::string> serverName;
-		std::string serverName;
 		int port;
-		std::string host;
 		std::string root;
-		long long clientMaxBodySize;
-		std::map<std::string, std::string> errorPages;
-		std::vector<Location> locations;
-		std::vector<std::string> index;
+		std::string host;
 		std::string autoIndex;
+		std::string serverName;
+		long long clientMaxBodySize;
+		std::vector<std::string> index;
+		std::vector<Location> locations;
+		std::map<std::string, std::string> errorPages;
 		
 	public :
 		Server();
@@ -43,24 +43,25 @@ class Server {
 		void setRoot(std::string value);
 		void setPort(std::string value);
 		void setHost(std::string value);
-		void setServNames(std::string value);
-		void setClientMaxBodySize(std::string value);
-		void setErrorPages(std::string value);
-		void setAutoIndex(std::string value);
 		void setIndex(std::string value);
+		void setAutoIndex(std::string value);
+		void setServNames(std::string value);
+		void setErrorPages(std::string value);
+		void setClientMaxBodySize(std::string value);
 
-		std::string getRoot();
 		int getPort();
+		std::string getRoot();
 		std::string getHost();
 		std::string getServNames();
-		long long getClientMaxBodySize();
-		std::map<std::string, std::string> getErrorPages();
-		std::string getErrorPagesPath(std::string code);
-		std::vector<std::string> getIndex();
-		std::vector<Location> &getLocation();
 		std::string getAutoIndex();
+		long long getClientMaxBodySize();
+		std::vector<std::string> &getIndex();
+		std::vector<Location> &getLocation();
+		std::map<std::string, std::string> &getErrorPages();
 		
 		void checkArg();
+		// helps u :
+		std::string getErrorPagesPath(std::string key);
 		
 		// remove
 		// std::string getValue(std::string key);
@@ -68,8 +69,6 @@ class Server {
 		
 		void setLocValue(Location &locat, std::string key, std::string value);
 		void addLocat(Location &Locat);
-		
-		bool isDir(std::string path);
 		
 		void printArg();
 };

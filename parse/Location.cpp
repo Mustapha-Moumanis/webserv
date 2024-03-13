@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 17:48:38 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:28:36 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,7 @@ Location::Location(Server &serv){
     path = "";
     methods = "";
 	rediraction = "";
-    errorPages = serv.getErrorPages();
     autoIndex = serv.getAutoIndex();
-    index = serv.getIndex();
 }
 
 Location::~Location(){}
@@ -33,13 +31,13 @@ std::map<std::string, std::string> Location::getErrorPages(){
 }
 
 // souad helps
-std::string Location::getErrorPagesPath(std::string code) {
-	if (errorPages.find(code) != errorPages.end())
-		return errorPages[code];
+std::string Location::getErrorPagesPath(std::string key) {
+	if (errorPages.find(key) != errorPages.end())
+		return errorPages[key];
 	return "";
 }
 
-std::vector<std::string> Location::getIndex() {
+std::vector<std::string> &Location::getIndex() {
 	return index;
 }
 
@@ -58,7 +56,6 @@ std::string Location::getPath() {
 std::string Location::getmethods() {
     return methods;
 }
-
 
 void Location::setRoot(std::string value) {
 	root = value;
@@ -82,13 +79,13 @@ void Location::setAutoIndex(std::string value) {
 void Location::setIndex(std::string value) {
 	std::stringstream ss;
 	std::string token;
-	
+
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
 	ss << value;
 	while (ss >> token) {
-		if (std::find(index.begin(), index.end(), token) != index.end())
+		if (std::find(index.begin(), index.end(), token) == index.end())
 			index.push_back(token);
 	}
 }
@@ -123,7 +120,6 @@ void Location::setErrorPages(std::string value) {
 	}
 }
 
-
 void Location::checkLocation() {
 	if (path.empty() || methods.empty())
 		throw std::runtime_error("location importent data : path | methods ...");
@@ -141,5 +137,12 @@ void Location::printArg() {
     std::cout << "            path : *" << path << "*" << std::endl;
     std::cout << "            root : *" << root << "*" << std::endl;
     std::cout << "            methods : *" << methods << "*" << std::endl;
+	if (!getIndex().empty()) {
+		std::cout << "            index : ";
+		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
+	}
 }
 

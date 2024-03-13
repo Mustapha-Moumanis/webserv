@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/11 22:59:35 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/13 13:46:05 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,11 @@ void Server::setServNames(std::string value) {
 	serverName = value;
 }
 
+// change
 void Server::setClientMaxBodySize(std::string value) {
 	size_t myPos;
 	std::string sUnit;
+	int change = 1;
 
 	myPos = value.find_first_not_of("0123456789");
 	if (myPos == std::string::npos || myPos == 0)
@@ -83,14 +85,18 @@ void Server::setClientMaxBodySize(std::string value) {
 	sUnit = value.substr(myPos, value.length() - myPos);
 	if (sUnit.length() != 1 || sUnit.find_first_of("BKMG") == std::string::npos)
 		throw std::runtime_error("client_max_body_size units [B, K, M, G]");
+	if (sUnit == "K")
+		change = 1024;
+	else if (sUnit == "M")
+		change = 1048576;
+	else if (sUnit == "G")
+		change = 1073741824;
 	
 	std::stringstream ss(value.substr(0, myPos));
 	ss >> clientMaxBodySize;
-	// had l3iba fchkel
+	clientMaxBodySize *= change;
 	if (clientMaxBodySize > 2147483648)
-		throw std::runtime_error("client_max_body_size too long maximum 2G");
-		
-	
+		throw std::runtime_error("Client_max_body_size too long maximum 2G");
 }
 
 // get variables
@@ -126,18 +132,18 @@ void Server::checkArg() {
 		it->checkLocation();
 	}
 }
-std::map<std::string, std::string> Server::getErrorPages() {
+std::map<std::string, std::string> &Server::getErrorPages() {
 	return errorPages;
 }
 
 // souad helps
-std::string Server::getErrorPagesPath(std::string code) {
-	if (errorPages.find(code) != errorPages.end())
-		return errorPages[code];
+std::string Server::getErrorPagesPath(std::string key) {
+	if (errorPages.find(key) != errorPages.end())
+		return errorPages[key];
 	return "";
 }
 
-std::vector<std::string> Server::getIndex() {
+std::vector<std::string> &Server::getIndex() {
 	return index;
 }
 
@@ -153,8 +159,9 @@ void Server::setIndex(std::string value) {
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
 	ss << value;
+
 	while (ss >> token) {
-		if (std::find(index.begin(), index.end(), token) != index.end())
+		if (std::find(index.begin(), index.end(), token) == index.end())
 			index.push_back(token);
 	}
 }
@@ -268,22 +275,24 @@ void Server::printArg() {
 	std::cout << "	port : " << getPort() << std::endl;
 	std::cout << "	host : " << getHost() << std::endl;
 	std::cout << "	server_name : " << getServNames() << std::endl;
-	// for (std::vector<std::string>::iterator it = serverName.begin(); it != serverName.end(); it++) {
-	// 	std::cout << *it << " ";
-	// }
-	// std::cout << std::endl;
 	std::cout << "	root : " << getRoot() << std::endl;
 	std::cout << "	client_max_body_size : " << getClientMaxBodySize() << std::endl;
+	std::cout << "	autoindex : " << getAutoIndex() << std::endl;
+	if (!getIndex().empty()) {
+		std::cout << "	index : ";
+		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {
+			std::cout << *it << " ";
+		}
+		std::cout << std::endl;
+	}
+	if (!getIndex().empty()) {
+		std::cout << "	errorpages : " << std::endl;
+		for (std::map<std::string, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
+			std::cout << "	    - " << (*it).first << " : " << (*it).second << std::endl;
+		}
+	}
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
 		std::cout << "	location : " << std::endl;
 		it->printArg();
 	}
-}
-
-bool Server::isDir(std::string path) {
-	struct stat s;
-
-	if (stat(path.c_str(), &s) != 0)
-		return 0;
-	return S_ISDIR(s.st_mode);
 }

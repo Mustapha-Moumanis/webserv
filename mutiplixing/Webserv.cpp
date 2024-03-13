@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 17:38:51 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/13 14:30:46 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 Webserv::Webserv(std::string file){
 	ParsConfigFile PCF(file, dataServers);
-	// exec();
-	// std::cout << (*dataServers[0]).getLocation()[0].getAutoIndex() << std::endl;
 	multiplixing();
 }
 
