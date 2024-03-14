@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 16:13:20 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 15:21:00 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ class Webserv {
 		std::map<int, int> indexFD;
 
 	public :
-		Webserv(std::string file);
+		Webserv(std::ifstream &ifs);
 		~Webserv();
 		
 		void exec();

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/09 14:58:35 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 15:30:42 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,21 @@
  
 int main(int ac, char **av) {
     if (ac <= 2) {
-        try {
-            std::string file = "conf.yml";
-            if (av[1])
-                file = av[1];
-            
-            Webserv Webs(file);
-        }
-        catch (const std::exception &e) {
-            std::cout << e.what() << std::endl;
+        std::string file = "conf.yml";
+        if (av[1])
+            file = av[1];
+        std::ifstream ifs(file.c_str());
+        if (!ifs.is_open())
+            std::cerr << "Unable to open \"" << file << "\"" << std::endl;
+        else {
+            if (!isRegFile(file))
+                std::cerr << file << " is not a regular file" << std::endl;
+            else 
+                Webserv Webs(ifs);
+            ifs.close();
         }
     }
     else
-        std::cout << "Error : Invalid arguments" << std::endl;
+        std::cerr << "Error : Invalid arguments" << std::endl;
     return 0;
 }
