@@ -34,7 +34,7 @@ void Request::CheckFirstLine(std::string Fline){
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
 
 	if ((a != "GET" && a != "DELETE" && a != "POST") 
-		|| this->location->getmethods().find(a) == std::string::npos)
+		|| this->location->getMethods().find(a) == std::string::npos)
 		throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
 	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
 

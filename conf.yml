@@ -3,14 +3,16 @@ server :
     host:   127.0.3.1 # 4 nunmbers 3 . 
     server_name :  mmoumani.42.fr1   # test1 
     root: www #path
-    client_max_body_size: 2K
+    client_max_body_size: 1M
+    autoindex : ON
+    methods: DELETE POST GET
     index : index.html index.htmld
-    error_page : 500 500 502 503 504 /custom_50x.html
+    error_pages : [500 500 502 503 504 /custom_50x.html, 400 400 402 403 404 /custom_40x.html]
     location : 
         - path : /ho
         - autoindex : ON
         - methods: DELETE POST GET
-        - error_page : 400 400 402 403 404 /custom_40x.html
+        - error_pages : [400 400 402 403 404 /custom_40x.html]
         - retrun : koko sdfsf
 
     location :     

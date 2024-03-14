@@ -6,17 +6,17 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/13 14:28:36 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 20:05:16 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
 Location::Location(Server &serv){
-    root = serv.getRoot();
     path = "";
     methods = "";
 	rediraction = "";
+    root = serv.getRoot();
     autoIndex = serv.getAutoIndex();
 }
 
@@ -53,7 +53,7 @@ std::string Location::getPath() {
     return path;
 }
 
-std::string Location::getmethods() {
+std::string Location::getMethods() {
     return methods;
 }
 
@@ -65,15 +65,21 @@ void Location::setPath(std::string value) {
 	path = value;
 }
 
-void Location::setmethods(std::string value) {
+void Location::setMethods(std::string value) {
 	methods = value;
 }
+
 void Location::setRediraction(std::string value) {
     rediraction = value;
 }
 
 void Location::setAutoIndex(std::string value) {
-    autoIndex = value;
+	if (value == "on" || value == "ON")
+    	autoIndex = "on";
+	else if (value == "OFF" || value == "off")
+    	autoIndex = "off";
+	else
+		throw std::runtime_error("autoindex : invalide value");
 }
 
 void Location::setIndex(std::string value) {
@@ -90,7 +96,7 @@ void Location::setIndex(std::string value) {
 	}
 }
 
-void Location::setErrorPages(std::string value) {
+void Location::insertErrorPages(std::string str, std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
@@ -100,24 +106,42 @@ void Location::setErrorPages(std::string value) {
 		path = value.substr(0, pos + 1);
 	pos = path.find_last_of(" ");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + value);
+		throw std::runtime_error("invalid value " + str);
 	
 	path = path.substr(pos + 1, value.length() - pos);
-	// if (!isRegFile(path))
-	// 	throw std::runtime_error("invalid value " + value);
 
 	value = value.substr(0, pos);
 
 	ss << value;
-	std::map<std::string, std::string>::iterator it;
 	
 	while (ss >> token) {
-		it = errorPages.find(token);
-		if (it != errorPages.end())
-			errorPages[token] = path;
+		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
+			throw std::runtime_error("invalid value " + str);
+		if (errorPages.find(token) != errorPages.end())
+			errorPages.at(token) = path;
 		else
 			errorPages.insert(std::make_pair(token, path));
 	}
+}
+
+void Location::setErrorPages(std::string value) {
+	std::stringstream ss1;
+	std::string token_1;
+	std::string str;
+
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		str = value.substr(0, pos + 1);
+
+	if (str.empty() || str.at(0) != '[' || str.at(str.size() - 1) != ']')
+		throw std::runtime_error("error_pages : invalid foramt " + value);
+	str = str.substr(1, str.size() - 2);
+	if(str.empty() || str.find_first_of("[]") != std::string::npos)
+		throw std::runtime_error("error_pages : invalid foramt " + value);
+
+	ss1 << str;
+	while (getline(ss1, token_1, ','))
+		insertErrorPages(str, token_1);
 }
 
 void Location::checkLocation() {

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/13 14:34:33 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:53:21 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,15 @@ class Location {
 		void setRoot(std::string value);
 		void setPath(std::string value);
 		void setIndex(std::string value);
-		void setmethods(std::string value);
+		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setErrorPages(std::string value);
+		void insertErrorPages(std::string str, std::string value);
 		void setRediraction(std::string value);
 
 		std::string getRoot();
 		std::string getPath();
-		std::string getmethods();
+		std::string getMethods();
 		std::string getAutoIndex();
 		std::string getRediraction();
 		std::vector<std::string> &getIndex();

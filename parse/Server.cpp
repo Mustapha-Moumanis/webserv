@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/13 13:46:05 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 20:04:13 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ Server::Server(){
 	port = 0;
 	host = "";
 	serverName = "";
-	root = "/var/www/";
+	root = "www/";
 	clientMaxBodySize = 2147483648;
+	methods = "GET POST DELETE";
 	autoIndex = "off";
-	// errorPage = kkjsgdfjsd;
 }
 
 Server::~Server(){}
@@ -27,15 +27,11 @@ Server::~Server(){}
 // set variables
 
 void Server::setRoot(std::string value) {
-	// std::ifstream ifs;
-	// if (!isDir(value))
-	// 	throw std::runtime_error(value + " is not a Directory");
-	// ifs.open(value);
-	// if (!ifs.is_open())
-	// 	throw std::runtime_error("Unable to open \"" + value + "\"");
-	// ifs.close();
-
 	root = value;
+}
+
+void Server::setMethods(std::string value) {
+	methods = value;
 }
 
 void Server::setPort(std::string value) {
@@ -113,6 +109,10 @@ std::string Server::getHost() {
 	return host;
 }
 
+std::string Server::getMethods() {
+    return methods;
+}
+
 std::string Server::getServNames() {
 	return serverName;
 }
@@ -139,7 +139,7 @@ std::map<std::string, std::string> &Server::getErrorPages() {
 // souad helps
 std::string Server::getErrorPagesPath(std::string key) {
 	if (errorPages.find(key) != errorPages.end())
-		return errorPages[key];
+		return errorPages.at(key);
 	return "";
 }
 
@@ -167,10 +167,15 @@ void Server::setIndex(std::string value) {
 }
 
 void Server::setAutoIndex(std::string value) {
-    autoIndex = value;
+	if (value == "on" || value == "ON")
+    	autoIndex = "on";
+	else if (value == "OFF" || value == "off")
+    	autoIndex = "off";
+	else
+		throw std::runtime_error("autoindex : invalide value");
 }
 
-void Server::setErrorPages(std::string value) {
+void Server::insertErrorPages(std::string str, std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
@@ -180,22 +185,42 @@ void Server::setErrorPages(std::string value) {
 		path = value.substr(0, pos + 1);
 	pos = path.find_last_of(" ");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + value);
+		throw std::runtime_error("invalid value " + str);
 	
 	path = path.substr(pos + 1, value.length() - pos);
-	// if (!isRegFile(path))
-	// 	throw std::runtime_error("invalid value " + value);
 
 	value = value.substr(0, pos);
 
 	ss << value;
 	
 	while (ss >> token) {
+		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
+			throw std::runtime_error("invalid value " + str);
 		if (errorPages.find(token) != errorPages.end())
-			errorPages[token] = path;
+			errorPages.at(token) = path;
 		else
 			errorPages.insert(std::make_pair(token, path));
 	}
+}
+
+void Server::setErrorPages(std::string value) {
+	std::stringstream ss1;
+	std::string token_1;
+	std::string str;
+
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		str = value.substr(0, pos + 1);
+
+	if (str.empty() || str.at(0) != '[' || str.at(str.size() - 1) != ']')
+		throw std::runtime_error("error_pages : invalid foramt " + value);
+	str = str.substr(1, str.size() - 2);
+	if(str.empty() || str.find_first_of("[]") != std::string::npos)
+		throw std::runtime_error("error_pages : invalid foramt " + value);
+
+	ss1 << str;
+	while (getline(ss1, token_1, ','))
+		insertErrorPages(str, token_1);
 }
 
 void Server::setLocValue(Location &locat, std::string key, std::string value) {
@@ -211,10 +236,10 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 				break;
 			ss >> var;
 			// std::cout << "*" << var << "*" << std::endl;
-			if (var[0] == '#')
-				break;
-			else if (var.empty())
+			if (var.empty())
 				throw std::runtime_error(key + " : undifind value");
+			else if (var.at(0) == '#')
+				break;
 			else if (var != "POST" && var != "GET" && var != "DELETE")
 				throw std::runtime_error("methode : " + var + " not valide");
 			else if (!validValue.empty() && validValue.find(var) != std::string::npos)
@@ -224,7 +249,7 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		}
 		if (validValue.empty())
 			throw std::runtime_error(key + " : undifind value");
-		locat.setmethods(validValue);
+		locat.setMethods(validValue);
 		return ;
 	}
 	else if (key == "retrun") {
@@ -235,13 +260,13 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setIndex(value);
 		return ;
 	}
-	else if (key == "error_page") {
+	else if (key == "error_pages") {
 		locat.setErrorPages(value);
 		return ;
 	}
 	ss >> validValue;
 	ss >> checkMultValue;
-	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue[0] != '#'))
+	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue.at(0) != '#'))
 		throw std::runtime_error(key + " : invalide value");
 	if (key == "root")
 		locat.setRoot(validValue);
@@ -278,6 +303,7 @@ void Server::printArg() {
 	std::cout << "	root : " << getRoot() << std::endl;
 	std::cout << "	client_max_body_size : " << getClientMaxBodySize() << std::endl;
 	std::cout << "	autoindex : " << getAutoIndex() << std::endl;
+	std::cout << "	methods : " << getMethods() << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "	index : ";
 		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {

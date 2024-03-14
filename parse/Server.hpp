@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 22:24:56 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/14 17:53:21 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Server {
 		int port;
 		std::string root;
 		std::string host;
+		std::string methods;
 		std::string autoIndex;
 		std::string serverName;
 		long long clientMaxBodySize;
@@ -44,14 +45,17 @@ class Server {
 		void setPort(std::string value);
 		void setHost(std::string value);
 		void setIndex(std::string value);
+		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setServNames(std::string value);
 		void setErrorPages(std::string value);
+		void insertErrorPages(std::string value, std::string token);
 		void setClientMaxBodySize(std::string value);
 
 		int getPort();
 		std::string getRoot();
 		std::string getHost();
+		std::string getMethods();
 		std::string getServNames();
 		std::string getAutoIndex();
 		long long getClientMaxBodySize();
