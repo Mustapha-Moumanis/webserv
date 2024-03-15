@@ -1,12 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
+/*   Updated: 2024/03/15 14:39:01 by shilal           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
 #include <fstream>
 #include <cctype>
 #include <algorithm>
 #include <cstring>
 
-Request::Request() : HeaderIsDone(0), body(""), url(""), queryString("") {}
+Request::Request() : HeaderIsDone(0), body(""), url(""), queryString("") , length(0){}
 
-Request::~Request() {}
+Request::~Request() {
+	ftype.close();
+}
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;
@@ -41,7 +55,6 @@ void Request::CheckFirstLine(std::string Fline){
 	if (version != "HTTP/1.1")
 		throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
 }
-
 
 void Request::CheckRequest(){
 
@@ -120,7 +133,7 @@ void Request::setRequest(std::string req) {
         HeaderIsDone = 1;
         CheckRequest();
 	}
-	if (HeadReq.find("Methode")->second == "POST")
+	else if (HeadReq.find("Methode")->second == "POST")
 		Post(req);
 	else if (HeadReq.find("Methode")->second == "GET")
 		Get();
@@ -143,7 +156,8 @@ void Request::Get(){
 		if (stat(index.c_str(), &buffer) != -1){
 			throw StatusCodeExcept(HttpStatus::OK);
 		}
-		std::cout << "No index" << std::endl;
+		throw StatusCodeExcept(HttpStatus::Forbidden);
+
 	}
 	else {
 		std::cout << "is file" << std::endl;
@@ -200,14 +214,25 @@ void Request::Delete(){
 	throw StatusCodeExcept(HttpStatus::NoContent);
 }
 
-void Request::Post(std::string req){
+void Request::Post(std::string req) {
+
+	std::string type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
 
 	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
 		std::cout << "Is chunked" << std::endl;
-		body += req;
+		// body += req;
+		throw StatusCodeExcept(HttpStatus::OK);
 	}
 	else {
-		std::cout << HeadReq.find("Content-Type")->second << std::endl;
-		body += req;
+		if (!body.empty()){
+			ftype.open((url + "image." + type).c_str(), std::ios::binary);
+			ftype << body;
+			this->length = body.length();
+			body.clear();
+		}
+		this->length += req.length();
+		ftype << req;
+		if (this->length >= atol(HeadReq.find("Content-Length")->second.c_str()))
+			throw StatusCodeExcept(HttpStatus::OK);
 	}
 }

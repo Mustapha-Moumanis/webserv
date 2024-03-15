@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
+/*   Updated: 2024/03/15 14:36:34 by shilal           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
@@ -6,6 +18,7 @@
 #include <unistd.h>
 #include "../parse/Server.hpp"
 #include "../include/Utils.hpp"
+#include "../include/MimeTypes.hpp"
 #include "StatusCodeExcept.hpp"
 
 class Request {
@@ -18,6 +31,8 @@ class Request {
 		std::string body;
 		std::string url;
 		std::string queryString;
+		std::ofstream ftype;
+		long long length;
 
 	public :
 		Request();
