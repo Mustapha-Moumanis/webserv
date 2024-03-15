@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/15 14:39:01 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/15 15:46:40 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,14 +214,31 @@ void Request::Delete(){
 	throw StatusCodeExcept(HttpStatus::NoContent);
 }
 
+// void	getChunk(){
+	
+// }
+
 void Request::Post(std::string req) {
 
 	std::string type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
 
 	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
 		std::cout << "Is chunked" << std::endl;
-		// body += req;
-		throw StatusCodeExcept(HttpStatus::OK);
+		if (!body.empty()) {
+			ftype.open((url + "image.txt").c_str(), std::ios::binary);
+			// std::cout << body.substr(0, body.find("\r\n")) << "|||||"<< std::endl;
+			// body = body.substr(body.find("\r\n"));
+			// server->setPort("1203");
+
+			std::cout << body << std::endl;
+			ftype << body;
+			this->length = body.length();
+			body.clear();
+		}
+		ftype << req;
+		this->length += req.length();
+		if (this->length >= atol(HeadReq.find("Content-Length")->second.c_str()))
+			throw StatusCodeExcept(HttpStatus::OK);
 	}
 	else {
 		if (!body.empty()){

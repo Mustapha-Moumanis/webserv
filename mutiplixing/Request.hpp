@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/15 14:36:34 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/15 14:57:04 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Request {
 		void Post(std::string);
 
 		void RemoveContentDir(std::string);
+		void getChunk(long long length);
 };
 
 #endif

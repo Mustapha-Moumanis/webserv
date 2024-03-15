@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/14 20:04:13 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/15 15:41:51 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 Server::Server(){
+	bufferRead = 1024;
 	port = 0;
 	host = "";
 	serverName = "";
@@ -69,6 +70,10 @@ void Server::setServNames(std::string value) {
 	serverName = value;
 }
 
+void Server::setBufferRead(int value) {
+	bufferRead = value;
+}
+
 // change
 void Server::setClientMaxBodySize(std::string value) {
 	size_t myPos;
@@ -123,6 +128,10 @@ long long Server::getClientMaxBodySize() {
 
 std::vector<Location> &Server::getLocation() {
     return locations;
+}
+
+int Server::getBufferRead() {
+	return bufferRead;
 }
 
 void Server::checkArg() {
