@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 15:38:40 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/15 16:05:18 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server {
 		int bufferRead;
 		std::string root;
 		std::string host;
+		std::string upload;
 		std::string methods;
 		std::string autoIndex;
 		std::string serverName;
@@ -47,6 +48,7 @@ class Server {
 		void setPort(std::string value);
 		void setHost(std::string value);
 		void setIndex(std::string value);
+		void setUpload(std::string value);
 		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setServNames(std::string value);
@@ -58,6 +60,7 @@ class Server {
 		int getBufferRead();
 		std::string getRoot();
 		std::string getHost();
+		std::string getUpload();
 		std::string getMethods();
 		std::string getServNames();
 		std::string getAutoIndex();

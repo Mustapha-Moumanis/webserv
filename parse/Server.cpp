@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 15:41:51 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/15 16:15:23 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Server::Server(){
 	clientMaxBodySize = 2147483648;
 	methods = "GET POST DELETE";
 	autoIndex = "off";
+	upload = "on";
 }
 
 Server::~Server(){}
@@ -72,6 +73,15 @@ void Server::setServNames(std::string value) {
 
 void Server::setBufferRead(int value) {
 	bufferRead = value;
+}
+
+void Server::setUpload(std::string value) {
+	if (value == "on" || value == "ON")
+    	upload = "on";
+	else if (value == "OFF" || value == "off")
+    	upload = "off";
+	else
+		throw std::runtime_error("upload : invalide value");
 }
 
 // change
@@ -160,6 +170,10 @@ std::string Server::getAutoIndex() {
     return autoIndex;
 }
 
+std::string Server::getUpload() {
+    return upload;
+}
+
 void Server::setIndex(std::string value) {
 	std::stringstream ss;
 	std::string token;
@@ -220,12 +234,11 @@ void Server::setErrorPages(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		str = value.substr(0, pos + 1);
-
 	if (str.empty() || str.at(0) != '[' || str.at(str.size() - 1) != ']')
-		throw std::runtime_error("error_pages : invalid foramt " + value);
+		throw std::runtime_error("---error_pages : invalid foramt " + value);
 	str = str.substr(1, str.size() - 2);
 	if(str.empty() || str.find_first_of("[]") != std::string::npos)
-		throw std::runtime_error("error_pages : invalid foramt " + value);
+		throw std::runtime_error("+++error_pages : invalid foramt " + value);
 
 	ss1 << str;
 	while (getline(ss1, token_1, ','))
@@ -238,23 +251,17 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	std::string checkMultValue;
 
 	if (key == "methods") {
-		std::string var;
+		std::string token;
 		validValue = "";
-		while (1337) {
-			if (ss.eof())
-				break;
-			ss >> var;
-			// std::cout << "*" << var << "*" << std::endl;
-			if (var.empty())
+		while (ss >> token) {
+			if (token.empty())
 				throw std::runtime_error(key + " : undifind value");
-			else if (var.at(0) == '#')
-				break;
-			else if (var != "POST" && var != "GET" && var != "DELETE")
-				throw std::runtime_error("methode : " + var + " not valide");
-			else if (!validValue.empty() && validValue.find(var) != std::string::npos)
-				throw std::runtime_error("methode : " + var + " allready seted");
+			else if (token != "POST" && token != "GET" && token != "DELETE")
+				throw std::runtime_error("methode : " + token + " not valide");
+			else if (!validValue.empty() && validValue.find(token) != std::string::npos)
+				throw std::runtime_error("methode : " + token + " allready seted");
 			else
-				validValue = validValue + var + " ";
+				validValue += token + " ";
 		}
 		if (validValue.empty())
 			throw std::runtime_error(key + " : undifind value");
@@ -275,18 +282,16 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	}
 	ss >> validValue;
 	ss >> checkMultValue;
-	if (validValue.empty() || (!checkMultValue.empty() &&  checkMultValue.at(0) != '#'))
+	if (validValue.empty() || !checkMultValue.empty())
 		throw std::runtime_error(key + " : invalide value");
 	if (key == "root")
 		locat.setRoot(validValue);
 	else if (key == "path")
 		locat.setPath(validValue);
-	else if (key == "autoindex") {
-		if (value != "on" && value != "ON" && value != "OFF" && value != "off")
-			throw std::runtime_error(key + " : invalide value");
-		else
-			locat.setAutoIndex(validValue);
-	}
+	else if (key == "autoindex")
+		locat.setAutoIndex(validValue);
+	else if (key == "upload")
+		locat.setUpload(validValue);
 	else
 		throw std::runtime_error("invalide key : " + key);
 }
@@ -320,7 +325,7 @@ void Server::printArg() {
 		}
 		std::cout << std::endl;
 	}
-	if (!getIndex().empty()) {
+	if (!getErrorPages().empty()) {
 		std::cout << "	errorpages : " << std::endl;
 		for (std::map<std::string, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
 			std::cout << "	    - " << (*it).first << " : " << (*it).second << std::endl;

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/14 20:05:16 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/15 16:09:39 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Location::Location(Server &serv){
 	rediraction = "";
     root = serv.getRoot();
     autoIndex = serv.getAutoIndex();
+    upload = serv.getUpload();
 }
 
 Location::~Location(){}
@@ -43,6 +44,10 @@ std::vector<std::string> &Location::getIndex() {
 
 std::string Location::getAutoIndex() {
     return autoIndex;
+}
+
+std::string Location::getUpload() {
+    return upload;
 }
 
 std::string Location::getRoot() {
@@ -80,6 +85,15 @@ void Location::setAutoIndex(std::string value) {
     	autoIndex = "off";
 	else
 		throw std::runtime_error("autoindex : invalide value");
+}
+
+void Location::setUpload(std::string value) {
+	if (value == "on" || value == "ON")
+    	upload = "on";
+	else if (value == "OFF" || value == "off")
+    	upload = "off";
+	else
+		throw std::runtime_error("upload : invalide value");
 }
 
 void Location::setIndex(std::string value) {
@@ -132,12 +146,11 @@ void Location::setErrorPages(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		str = value.substr(0, pos + 1);
-
 	if (str.empty() || str.at(0) != '[' || str.at(str.size() - 1) != ']')
-		throw std::runtime_error("error_pages : invalid foramt " + value);
+		throw std::runtime_error("---error_pages : invalid foramt " + value);
 	str = str.substr(1, str.size() - 2);
 	if(str.empty() || str.find_first_of("[]") != std::string::npos)
-		throw std::runtime_error("error_pages : invalid foramt " + value);
+		throw std::runtime_error("+++error_pages : invalid foramt " + value);
 
 	ss1 << str;
 	while (getline(ss1, token_1, ','))
