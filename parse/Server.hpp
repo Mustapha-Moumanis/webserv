@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 16:05:18 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/15 17:18:45 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class Server {
 	private :		
 		// std::vector<std::string> serverName;
 		int port;
-		int bufferRead;
 		std::string root;
 		std::string host;
 		std::string upload;
@@ -43,7 +42,6 @@ class Server {
 		Server();
 		~Server();
 		
-		void setBufferRead(int value);
 		void setRoot(std::string value);
 		void setPort(std::string value);
 		void setHost(std::string value);
@@ -57,7 +55,6 @@ class Server {
 		void setClientMaxBodySize(std::string value);
 
 		int getPort();
-		int getBufferRead();
 		std::string getRoot();
 		std::string getHost();
 		std::string getUpload();

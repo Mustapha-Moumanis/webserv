@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 15:44:26 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/15 17:18:07 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,14 +107,13 @@ void Webserv::multiplixing() {
 			else {
 				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus()) {
 					// request
-					char buffer[Clients[events[i].data.fd]->getServ()->getBufferRead()] = {0};
+					char buffer[1024] = {0};
 
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
 					if (valueRead == -1) {
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
 						Clients.erase(events[i].data.fd);
-						// events[i].events = EPOLLOUT;
 						continue ;
 					}
 					std::string tmp(buffer, valueRead);
