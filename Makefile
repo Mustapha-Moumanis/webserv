@@ -22,7 +22,7 @@ MHFILES := $(addprefix mutiplixing/, $(MHFILES))
 
 CC = c++
 
-FLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
+FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
 
 OBJS = $(FILES:.cpp=.o) $(IFILES:.cpp=.o) $(PFILES:.cpp=.o) $(MFILES:.cpp=.o)
 

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 16:13:17 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/15 21:47:10 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,10 @@ ParsConfigFile::ParsConfigFile(std::ifstream &fs, std::vector<Server *> &serv) :
 	}
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
-	// for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
-	// 	std::cout << "server : " << std::endl;
-	// 	(*it)->printArg();
-	// }
+	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+		std::cout << "server : " << std::endl;
+		(*it)->printArg();
+	}
 }
 
 ParsConfigFile::~ParsConfigFile() {}

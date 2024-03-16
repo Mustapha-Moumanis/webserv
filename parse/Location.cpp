@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 16:09:39 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/16 16:10:59 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,27 +110,32 @@ void Location::setIndex(std::string value) {
 	}
 }
 
-void Location::insertErrorPages(std::string str, std::string value) {
+void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
-		path = value.substr(0, pos + 1);
-	pos = path.find_last_of(" ");
+		value = value.substr(0, pos + 1);
+	pos = value.find_last_of(",");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + str);
-	
-	path = path.substr(pos + 1, value.length() - pos);
-
+		throw std::runtime_error("invalid value " + line);
+	path = value.substr(pos + 1, value.length() - pos);
 	value = value.substr(0, pos);
-
+	pos = path.find_first_not_of(" ");
+	if (pos != std::string::npos)
+		path = path.substr(pos);
+	pos = value.find_first_not_of(" ");
+	if (pos == std::string::npos)
+		throw std::runtime_error("invalid value " + line);
+	value = value.substr(pos);
+	
 	ss << value;
 	
 	while (ss >> token) {
 		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
-			throw std::runtime_error("invalid value " + str);
+			throw std::runtime_error("invalid value " + line);
 		if (errorPages.find(token) != errorPages.end())
 			errorPages.at(token) = path;
 		else
@@ -139,22 +144,39 @@ void Location::insertErrorPages(std::string str, std::string value) {
 }
 
 void Location::setErrorPages(std::string value) {
-	std::stringstream ss1;
-	std::string token_1;
+	std::string token;
 	std::string str;
-
+	
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		str = value.substr(0, pos + 1);
-	if (str.empty() || str.at(0) != '[' || str.at(str.size() - 1) != ']')
-		throw std::runtime_error("---error_pages : invalid foramt " + value);
-	str = str.substr(1, str.size() - 2);
-	if(str.empty() || str.find_first_of("[]") != std::string::npos)
-		throw std::runtime_error("+++error_pages : invalid foramt " + value);
+	if (str.empty() || str.size() < 3 || str.at(0) != '[' || str.at(str.size() - 1) != ']')
+		throw std::runtime_error("error_pages : invalid foramt " + value);
+	
+	str = str.substr(1, str.length() - 2);
 
-	ss1 << str;
-	while (getline(ss1, token_1, ','))
-		insertErrorPages(str, token_1);
+	while (!str.empty()) {
+		if (str.at(0) != '[')
+			throw std::runtime_error("error_pages : invalid foramt " + value);
+		
+		pos = str.find(']');
+		if (pos == std::string::npos)
+			throw std::runtime_error("error_pages : invalid foramt " + value);
+		else {
+			token = str.substr(1, pos - 1);
+			str = str.substr(pos + 1);
+			insertErrorPages(value, token);
+			pos = str.find_first_not_of(" ,");
+			if (pos == std::string::npos) {
+				if (str.find(",") != std::string::npos)
+					throw std::runtime_error("error_pages : invalid foramt " + value);
+				break;
+			}
+			if (str.substr(0, pos).find(",") == std::string::npos)
+				throw std::runtime_error("error_pages : invalid foramt " + value);
+			str = str.substr(pos);
+		}
+	}
 }
 
 void Location::checkLocation() {

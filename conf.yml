@@ -8,13 +8,13 @@ server :
     autoindex : ON
     methods: DELETE POST GET
     index : index.html index.htmld
-    error_pages : [500 500 502 503 504 /custom_50x.html, 400 400 402 403 404 /custom_40x.html]
+    error_pages : [[500 500 502 503 504, /custom_50x.html], [400 400 402 403 404, /custom_40x.html]]
     location : 
         - path : /ho
         - autoindex : ON
         - upload : off
         - methods: DELETE POST GET
-        - error_pages : [400 400 402 403 404 /custom_40x.html]
+        - error_pages : [[404, /custom_40x.html]]
         - retrun : koko sdfsf
 
     location :     
