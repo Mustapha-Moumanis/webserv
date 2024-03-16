@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/15 17:21:10 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/16 21:55:47 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,9 @@ void Request::setRequest(std::string req) {
         HeaderIsDone = 1;
         CheckRequest();
 	}
-	if (HeadReq.find("Methode")->second == "POST")
+	if (HeadReq.find("Methode")->second == "POST"){
 		Post(req);
+	}
 	else if (HeadReq.find("Methode")->second == "GET")
 		Get();
 	else
@@ -214,43 +215,58 @@ void Request::Delete(){
 	throw StatusCodeExcept(HttpStatus::NoContent);
 }
 
-// void	getChunk(){
+void Request::hextodec(std::string str){
 	
-// }
+	std::stringstream stream;
+	stream << str.substr(0, str.find("\r\n"));
+	stream >> std::hex >> buffer;
+}
+
 
 void Request::Post(std::string req) {
 
 	std::string type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
-
-	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
-		// std::cout << "Is chunked" << std::endl;
-		if (!body.empty()) {
-			ftype.open((url + "image.txt").c_str(), std::ios::binary);
 	
-			int buffer;
-			std::stringstream stream;
-			stream << body.substr(0, body.find("\r\n"));
-			stream >> std::hex >> buffer;
-			// std::cout << buffer << std::endl;
+	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
+		if (!body.empty()) {
+			ftype.open((url + "image." + type).c_str(), std::ios::binary);
+			if (ftype.is_open() == 0)
+				throw StatusCodeExcept(HttpStatus::NotFound);
+			hextodec(body);
 			body = body.substr(body.find("\r\n") + 2);
-			buffer -= body.length();
-			buffer += 10000;
-			std::cout << buffer << std::endl;
-			// ftype << body;
-			this->length = body.length();
+			ftype << body;
+			this->length += body.length();
 			body.clear();
 		}
 		else {
-			ftype << req;
-			throw StatusCodeExcept(HttpStatus::OK);
+			oldlen = this->length;
 			this->length += req.length();
-			if (this->length >= atol(HeadReq.find("Content-Length")->second.c_str()))
-				throw StatusCodeExcept(HttpStatus::OK);
+			if (this->length >= buffer) {
+				std::string tmp = req.substr(0, (buffer - oldlen));
+				ftype << tmp;
+				if (req.length() == 1023){
+					req = req.substr((buffer - oldlen));
+					std::cout << req << std::endl;	
+				}
+				req = req.substr((buffer - oldlen) + 2);
+				hextodec(req);
+				if (buffer == 0)
+					throw StatusCodeExcept(HttpStatus::OK);
+				req = req.substr(req.find("\r\n") + 2);
+				this->length = req.length();
+			}
+			// else if (this->length == buffer){
+			// 	this->length = 0;
+			// }
+			ftype << req;
 		}
 	}
 	else {
 		if (!body.empty()){
 			ftype.open((url + "image." + type).c_str(), std::ios::binary);
+			if (!ftype.is_open())
+				throw StatusCodeExcept(HttpStatus::NotFound);
+				
 			ftype << body;
 			this->length = body.length();
 			body.clear();

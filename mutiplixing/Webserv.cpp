@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 21:47:34 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/16 21:58:39 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Webserv::Webserv(std::ifstream &ifs){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
-		// multiplixing();
+		multiplixing();
 	}
 	catch (const std::exception &e) {
 		std::cout << e.what() << std::endl;
@@ -92,7 +92,7 @@ void Webserv::multiplixing() {
 					continue;
 				}
 				std::cout << "\n------  wait for new connection  ------\n\n";
-				event.events = EPOLLIN | EPOLLOUT;
+				event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 				event.data.fd = newSocket;
 				
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, newSocket, &event) == -1) {
@@ -105,12 +105,17 @@ void Webserv::multiplixing() {
 				Clients[newSocket]->setServ(dataServers[indexFD[events[i].data.fd]]);
 			}
 			else {
-				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus()) {
+				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
+					close(events[i].data.fd);
+					delete Clients[events[i].data.fd];
+					Clients.erase(events[i].data.fd);
+				}
+				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
 					// request
 					char buffer[1024] = {0};
 
 					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
-					if (valueRead == -1) {
+					if (valueRead == 0 || valueRead == -1) {
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
 						Clients.erase(events[i].data.fd);
@@ -119,7 +124,8 @@ void Webserv::multiplixing() {
 					std::string tmp(buffer, valueRead);
 					Clients[events[i].data.fd]->SentRequest(tmp);
 				}
-				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0) {
+				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
+				{
 					// response
 					std::cout << "response " << std::endl;
 					
@@ -132,6 +138,11 @@ void Webserv::multiplixing() {
 					delete Clients[events[i].data.fd];
 					Clients.erase(events[i].data.fd);
 				}
+				// else {
+				// 	close(events[i].data.fd);
+				// 	delete Clients[events[i].data.fd];
+				// 	Clients.erase(events[i].data.fd);
+				// }
 			}
 		}
 	}

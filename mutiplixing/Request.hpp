@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/15 14:57:04 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/16 17:47:59 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ class Request {
 		std::string queryString;
 		std::ofstream ftype;
 		long long length;
+		int	buffer;
+		int oldlen;
 
 	public :
 		Request();
@@ -49,8 +51,9 @@ class Request {
 		void Delete(void);
 		void Post(std::string);
 
+		void hextodec(std::string);
 		void RemoveContentDir(std::string);
-		void getChunk(long long length);
+		void getChunk(std::string);
 };
 
 #endif
