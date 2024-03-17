@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 17:18:45 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/17 15:46:26 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Server {
 		std::vector<std::string> index;
 		std::vector<Location> locations;
 		std::map<std::string, std::string> errorPages;
+		std::map<std::string, std::string> cgiPaths;
 		
 	public :
 		Server();
@@ -50,9 +51,13 @@ class Server {
 		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setServNames(std::string value);
+		void setClientMaxBodySize(std::string value);
+
+		void setCgiPath(std::string value);
+		void insertCgiPath(std::string line, std::string value);
+
 		void setErrorPages(std::string value);
 		void insertErrorPages(std::string value, std::string token);
-		void setClientMaxBodySize(std::string value);
 
 		int getPort();
 		std::string getRoot();
@@ -65,10 +70,12 @@ class Server {
 		std::vector<std::string> &getIndex();
 		std::vector<Location> &getLocation();
 		std::map<std::string, std::string> &getErrorPages();
+		std::map<std::string, std::string> &getCgiPaths();
+		
+		std::string getCgiByKey(std::string key);
+		std::string getErrorPagesByKey(std::string key);
 		
 		void checkArg();
-		// helps u :
-		std::string getErrorPagesPath(std::string key);
 		
 		// remove
 		// std::string getValue(std::string key);

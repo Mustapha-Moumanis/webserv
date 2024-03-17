@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/16 16:08:02 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 15:57:08 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,16 +70,24 @@ void Server::setServNames(std::string value) {
 	serverName = value;
 }
 
+void Server::setAutoIndex(std::string value) {
+	if (value == "on" || value == "ON" || value == "On")
+    	autoIndex = "on";
+	else if (value == "OFF" || value == "off" || value == "Off")
+    	autoIndex = "off";
+	else
+		throw std::runtime_error("autoindex : invalide value");
+}
+
 void Server::setUpload(std::string value) {
-	if (value == "on" || value == "ON")
-    	upload = "on";
-	else if (value == "OFF" || value == "off")
+	if (value == "on" || value == "ON" || value == "On")
+		upload = "on";
+	else if (value == "OFF" || value == "off" || value == "Off")
     	upload = "off";
 	else
 		throw std::runtime_error("upload : invalide value");
 }
 
-// change
 void Server::setClientMaxBodySize(std::string value) {
 	size_t myPos;
 	std::string sUnit;
@@ -146,10 +154,19 @@ std::map<std::string, std::string> &Server::getErrorPages() {
 	return errorPages;
 }
 
-// souad helps
-std::string Server::getErrorPagesPath(std::string key) {
+std::string Server::getErrorPagesByKey(std::string key) {
 	if (errorPages.find(key) != errorPages.end())
 		return errorPages.at(key);
+	return "";
+}
+
+std::map<std::string, std::string> &Server::getCgiPaths() {
+	return cgiPaths;
+}
+
+std::string Server::getCgiByKey(std::string key) {
+	if (cgiPaths.find(key) != cgiPaths.end())
+		return cgiPaths.at(key);
 	return "";
 }
 
@@ -180,15 +197,6 @@ void Server::setIndex(std::string value) {
 	}
 }
 
-void Server::setAutoIndex(std::string value) {
-	if (value == "on" || value == "ON")
-    	autoIndex = "on";
-	else if (value == "OFF" || value == "off")
-    	autoIndex = "off";
-	else
-		throw std::runtime_error("autoindex : invalide value");
-}
-
 void Server::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
 	std::string token;
@@ -199,7 +207,7 @@ void Server::insertErrorPages(std::string line, std::string value) {
 		value = value.substr(0, pos + 1);
 	pos = value.find_last_of(",");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + line);
+		throw std::runtime_error("error_pages : invalid value " + line);
 	path = value.substr(pos + 1, value.length() - pos);
 	value = value.substr(0, pos);
 	pos = path.find_first_not_of(" ");
@@ -207,13 +215,13 @@ void Server::insertErrorPages(std::string line, std::string value) {
 		path = path.substr(pos);
 	pos = value.find_first_not_of(" ");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + line);
+		throw std::runtime_error("error_pages : invalid value " + line);
 	value = value.substr(pos);
 	
 	ss << value;
 	while (ss >> token) {
 		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
-			throw std::runtime_error("invalid value " + line);
+			throw std::runtime_error("error_pages : invalid value " + line);
 		if (errorPages.find(token) != errorPages.end())
 			errorPages.at(token) = path;
 		else
@@ -257,6 +265,78 @@ void Server::setErrorPages(std::string value) {
 	}
 }
 
+void Server::insertCgiPath(std::string line, std::string value) {
+	std::stringstream ss;
+	std::string token;
+	std::string path;
+
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
+	pos = value.find_last_of(",");
+	if (pos == std::string::npos)
+		throw std::runtime_error("cgi_paths : invalid value " + line);
+	path = value.substr(pos + 1, value.length() - pos);
+	value = value.substr(0, pos);
+	pos = path.find_first_not_of(" ");
+	if (pos != std::string::npos)
+		path = path.substr(pos);
+	pos = value.find_first_not_of(" ");
+	if (pos == std::string::npos)
+		throw std::runtime_error("cgi_paths : invalid value " + line);
+	value = value.substr(pos);
+	
+	ss << value;
+	ss >> token;
+	
+	if (cgiPaths.find(token) != cgiPaths.end())
+		cgiPaths.at(token) = path;
+	else
+		cgiPaths.insert(std::make_pair(token, path));
+	
+	token = "";
+	ss >> token;
+	
+	if (!token.empty())
+		throw std::runtime_error("cgi_pathsssss : invalid value " + line);
+}
+
+void Server::setCgiPath(std::string value) {
+	std::string token;
+	std::string str;
+	
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		str = value.substr(0, pos + 1);
+	if (str.empty() || str.size() < 3 || str.at(0) != '[' || str.at(str.size() - 1) != ']')
+		throw std::runtime_error("cgi_paths : invalid foramt " + value);
+	
+	str = str.substr(1, str.length() - 2);
+
+	while (!str.empty()) {
+		if (str.at(0) != '[')
+			throw std::runtime_error("cgi_paths : invalid foramt " + value);
+		
+		pos = str.find(']');
+		if (pos == std::string::npos)
+			throw std::runtime_error("cgi_paths : invalid foramt " + value);
+		else {
+			token = str.substr(1, pos - 1);
+			str = str.substr(pos + 1);
+			insertCgiPath(value, token);
+			pos = str.find_first_not_of(" ,");
+			if (pos == std::string::npos) {
+				if (str.find(",") != std::string::npos)
+					throw std::runtime_error("cgi_paths : invalid foramt " + value);
+				break;
+			}
+			if (str.substr(0, pos).find(",") == std::string::npos)
+				throw std::runtime_error("cgi_paths : invalid foramt " + value);
+			str = str.substr(pos);
+		}
+	}
+}
+
 void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	std::stringstream ss(value);
 	std::string validValue;
@@ -290,6 +370,10 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	}
 	else if (key == "error_pages") {
 		locat.setErrorPages(value);
+		return ;
+	}
+	else if (key == "cgi_paths") {
+		locat.setCgiPath(value);
 		return ;
 	}
 	ss >> validValue;
@@ -340,7 +424,13 @@ void Server::printArg() {
 	if (!getErrorPages().empty()) {
 		std::cout << "	errorpages : " << std::endl;
 		for (std::map<std::string, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
-			std::cout << "	    - " << (*it).first << " : " << (*it).second << std::endl;
+			std::cout << "            - " << (*it).first << " : " << (*it).second << std::endl;
+		}
+	}
+	if (!getCgiPaths().empty()) {
+		std::cout << "	cgi_paths : " << std::endl;
+		for (std::map<std::string, std::string>::iterator it = getCgiPaths().begin(); it != getCgiPaths().end(); it++) {
+			std::cout << "            - " << (*it).first << " : " << (*it).second << std::endl;
 		}
 	}
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {

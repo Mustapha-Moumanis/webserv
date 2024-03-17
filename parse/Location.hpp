@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 16:07:59 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 15:55:22 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Location {
 		std::string rediraction;
 		std::vector<std::string> index;
 		std::map<std::string, std::string> errorPages;
-		// std::map<std::string, std::string> cgipath;
+		std::map<std::string, std::string> cgiPaths;
 
 	public :
 		Location(Server &serv);
@@ -42,9 +42,13 @@ class Location {
 		void setUpload(std::string value);
 		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
+		void setRediraction(std::string value);
+
+		void setCgiPath(std::string value);
+		void insertCgiPath(std::string line, std::string value);
+
 		void setErrorPages(std::string value);
 		void insertErrorPages(std::string str, std::string value);
-		void setRediraction(std::string value);
 
 		std::string getRoot();
 		std::string getPath();
@@ -53,8 +57,10 @@ class Location {
 		std::string getAutoIndex();
 		std::string getRediraction();
 		std::vector<std::string> &getIndex();
-		std::map<std::string, std::string> getErrorPages();
-		
+		std::map<std::string, std::string> &getErrorPages();
+		std::map<std::string, std::string> &getCgiPaths();
+
+		std::string getCgiByKey(std::string key);
 		std::string getErrorPagesPath(std::string key);
 		
 		void checkLocation();

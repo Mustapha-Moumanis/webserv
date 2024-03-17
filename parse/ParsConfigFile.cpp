@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParsConfigFile.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/16 21:59:29 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/17 16:17:37 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,10 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 	}
 	else if (key == "index") {
 		serv.setIndex(value);
+		return ;
+	}
+	else if (key == "cgi_paths") {
+		serv.setCgiPath(value);
 		return ;
 	}
 	ss >> validValue;
