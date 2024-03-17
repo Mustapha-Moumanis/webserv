@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 15:46:26 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 20:58:04 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,7 @@
 class Location;
 
 class Server {
-	private :		
-		// std::vector<std::string> serverName;
+	private :
 		int port;
 		std::string root;
 		std::string host;

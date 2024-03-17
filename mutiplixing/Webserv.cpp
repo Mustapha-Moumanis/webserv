@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 16:17:46 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 22:43:38 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,15 @@ Webserv::~Webserv(){
 }
 
 void Webserv::multiplixing() {
-	std::cout << "--------- Multiplixing part ---------" << std::endl;
-
+	std::cout << "________________________________________________      " << std::endl;
+	std::cout << "     _    _      _     _____                          " << std::endl;
+	std::cout << "    | |  | |    | |   /  ___|                         " << std::endl;
+	std::cout << "    | |  | | ___| |__ \\ `--.  ___ _ ____   __        " << std::endl;
+	std::cout << "    | |/\\| |/ _ \\ '_ \\ `--. \\/ _ \\ '__\\ \\ / /  " << std::endl;
+	std::cout << "    \\  /\\  /  __/ |_) /\\__/ /  __/ |   \\ V /      " << std::endl;
+	std::cout << "     \\/  \\/ \\___|_.__/\\____/ \\___|_|    \\_/     " << std::endl;
+	std::cout << "________________________________________________\n    " << std::endl;
+	
 	int epfd = epoll_create(1);
 	if (epfd == -1)
 		throw std::runtime_error("cannot create an epoll");
@@ -79,7 +86,6 @@ void Webserv::multiplixing() {
 		indexFD[tmpFD] = i;
 	}
 
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
 	int numEvents;
 	while (404) {
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
@@ -91,7 +97,7 @@ void Webserv::multiplixing() {
 					perror("accept");
 					continue;
 				}
-				std::cout << "\n------  wait for new connection  ------\n\n";
+				// std::cout << "\n------  wait for new connection  ------\n\n";
 				event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 				event.data.fd = newSocket;
 				
@@ -112,9 +118,11 @@ void Webserv::multiplixing() {
 				}
 				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
 					// request
+					std::cout << "------ request ------" << std::endl;
+
 					char buffer[1024] = {0};
 
-					ssize_t valueRead = read (events[i].data.fd, buffer, 1023);
+					ssize_t valueRead = recv(events[i].data.fd, buffer, 1023, 0);
 					if (valueRead == 0 || valueRead == -1) {
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
@@ -127,13 +135,13 @@ void Webserv::multiplixing() {
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
 				{
 					// response
-					std::cout << "response " << std::endl;
+					std::cout << "------ response ------" << std::endl;
+					std::string res = Clients[events[i].data.fd]->getResponse();
 					
-					if (Clients[events[i].data.fd]->getResponse().empty())
-						write (events[i].data.fd, response.c_str(), response.length());
-					else
-						write (events[i].data.fd, Clients[events[i].data.fd]->getResponse().c_str(), Clients[events[i].data.fd]->getResponse().length());
-					
+					if (res.empty())
+						res = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
+					send(events[i].data.fd, res.c_str(), res.length(), 0);
+
 					close(events[i].data.fd);
 					delete Clients[events[i].data.fd];
 					Clients.erase(events[i].data.fd);

@@ -17,7 +17,7 @@ server :
         - error_pages : [[404, /custom_40x.html]]
         - retrun : koko sdfsf
 
-    location :     
+    location :
         - path:  /home/user/index.html 
         - index : home1.html
         - index : home.html
@@ -56,9 +56,3 @@ server :
 
     port: 8082
     root: /www
-
-
-# autoindex server and location uper/lower
-# index server and location 
-# client_max_body_size convert to byte
-# upload => post

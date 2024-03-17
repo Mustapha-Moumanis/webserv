@@ -1,19 +1,47 @@
 server :
-    server_name: mmoumani
-    port: 8080
-    host: 127.0.0.1
-    root: www/
-    autoindex: ON
-    methods: GET POST DELETE
-    index: index.html index1.html
+    server_name : mmoumani
+    host : 127.0.0.1
+    port : 8080
+    root : www/
+    autoindex : ON
+    methods : GET DELETE POST
+    index : index.html index1.html
     error_pages : [[500 502 503 504, /custom_d 50x.html] , [400 400 402 403 404, /custom_40x.html]]     
-    cgi_paths: [[.php, /usr/bin/php-cgi]]
+    cgi_paths : [[.php, /usr/bin/php-cgi]]
 
     location :
-        - path : /ho
+        - path : /home
         - autoindex : ON
         - upload : Off
-        - methods: DELETE
+        - index : home.html
+        # - methods : DELETE
         - error_pages : [[404, /custom_40x.html]]
-        - cgi_paths: [[.py , /usr/bin/python3], [.php, /usr/bin/php-cgi]]
+        - cgi_paths : [[.py , /usr/bin/python3], [.php, /usr/bin/php-cgi]]
         - retrun : koko sdfsf
+    location :
+        - path :  /home/user/index.html 
+        - index : home1.html
+        - index : home.html
+        # - methods :  GET POST
+
+server : 
+    server_name : shilal
+    host : 127.0.0.1
+    port : 8081
+    root : www/
+    autoindex : off
+    methods : GET POST
+    index : index.html
+
+server : 
+    server_name : webserv
+    host: 127.0.0.1
+
+    port: 8082
+    root: /www
+    methods : GET
+    location :
+        - path :  /root
+        - index : index.html index_2.html index_3.html
+        - methods :  POST
+

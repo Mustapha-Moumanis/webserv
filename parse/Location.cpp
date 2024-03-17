@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 15:57:40 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 22:05:35 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,11 @@ Location::~Location(){}
 std::string Location::getRediraction() {
     return rediraction;
 }
-// change here
+
 std::map<std::string, std::string> &Location::getErrorPages(){
 	return errorPages;
 }
 
-// souad helps
 std::string Location::getErrorPagesPath(std::string key) {
 	if (errorPages.find(key) != errorPages.end())
 		return errorPages[key];
@@ -261,7 +260,7 @@ void Location::setCgiPath(std::string value) {
 }
 
 void Location::checkLocation() {
-	if (path.empty() || methods.empty())
+	if (path.empty())
 		throw std::runtime_error("location importent data : path | methods ...");
 }
 
@@ -274,12 +273,12 @@ void Location::checkLocation() {
 // }
 
 void Location::printArg() {
-    std::cout << "            path : *" << path << "*" << std::endl;
-    std::cout << "            root : *" << root << "*" << std::endl;
-    std::cout << "            methods : *" << methods << "*" << std::endl;
-    std::cout << "            upload : *" << upload << "*" << std::endl;
-    std::cout << "            autoIndex : *" << autoIndex << "*" << std::endl;
-    std::cout << "            rediraction : *" << rediraction << "*" << std::endl;
+    std::cout << "            path : " << path << std::endl;
+    std::cout << "            root : " << root << std::endl;
+    std::cout << "            methods : " << methods << std::endl;
+    std::cout << "            upload : " << upload << std::endl;
+    std::cout << "            autoIndex : " << autoIndex << std::endl;
+    std::cout << "            rediraction : " << rediraction << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "            index : ";
 		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {

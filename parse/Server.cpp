@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 15:57:08 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/17 22:16:50 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,24 +91,24 @@ void Server::setUpload(std::string value) {
 void Server::setClientMaxBodySize(std::string value) {
 	size_t myPos;
 	std::string sUnit;
-	int change = 1;
+	int convert = 1;
 
 	myPos = value.find_first_not_of("0123456789");
 	if (myPos == std::string::npos || myPos == 0)
 		throw std::runtime_error("client_max_body_size invalide specify values in units");
 	sUnit = value.substr(myPos, value.length() - myPos);
-	if (sUnit.length() != 1 || sUnit.find_first_of("BKMG") == std::string::npos)
-		throw std::runtime_error("client_max_body_size units [B, K, M, G]");
-	if (sUnit == "K")
-		change = 1024;
-	else if (sUnit == "M")
-		change = 1048576;
-	else if (sUnit == "G")
-		change = 1073741824;
+	if (sUnit.length() != 1 || sUnit.find_first_of("bkmgBKMG") == std::string::npos)
+		throw std::runtime_error("client_max_body_size units [B, K, M, G, b, k, m, g]");
+	if (sUnit == "K" || sUnit == "k")
+		convert = 1024;
+	else if (sUnit == "M" || sUnit == "m")
+		convert = 1048576;
+	else if (sUnit == "G" || sUnit == "g")
+		convert = 1073741824;
 	
 	std::stringstream ss(value.substr(0, myPos));
 	ss >> clientMaxBodySize;
-	clientMaxBodySize *= change;
+	clientMaxBodySize *= convert;
 	if (clientMaxBodySize > 2147483648)
 		throw std::runtime_error("Client_max_body_size too long maximum 2G");
 }

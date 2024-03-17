@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/16 21:55:47 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/17 22:14:26 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void Request::CheckFirstLine(std::string Fline){
 		matchingURL(b);
 	}
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
-
+	// if location methods empty check server methods // change
 	if ((a != "GET" && a != "DELETE" && a != "POST") 
 		|| this->location->getMethods().find(a) == std::string::npos)
 		throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
