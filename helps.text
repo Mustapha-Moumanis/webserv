@@ -1,12 +1,20 @@
-server :
-    server_names : mmoumani.42.fr1 localhost #vector
-    port: 801
-    root: /var/www/html1
-    host: sdfsdf #ipaddress
-    maxbodysize: 54 #size things to Post
-
-    location :
-        path:  hsf
-        cgi_path : extantion(python | php ...) /path #map
-        methodss: post / get / delete #vector 
-
+#include <iostream>   // Instead of <stdio.h>
+#include <fstream>    // Instead of <stdio.h> for file I/O
+#include <iomanip>    // Instead of <iomanip.h> for formatting
+#include <sstream>    // Instead of <strstream.h> for string streams
+#include <ctime>      // Instead of <time.h> for date and time functions
+#include <cmath>      // Instead of <math.h> for mathematical functions
+#include <cstdlib>    // Instead of <stdlib.h> for general utilities
+#include <cctype>     // Instead of <ctype.h> for character handling
+#include <cassert>    // Instead of <assert.h> for program assertion
+#include <cstddef>    // Instead of <stddef.h> for standard definitions
+#include <csignal>    // Instead of <signal.h> for signal handling
+#include <cerrno>     // Instead of <errno.h> for error handling
+#include <clocale>    // Instead of <locale.h> for localization
+#include <ctime>      // Instead of <time.h> for date and time functions
+#include <cstdio>     // Instead of <stdio.h> for standard I/O
+#include <csetjmp>    // Instead of <setjmp.h> for non-local jumps
+#include <cstdarg>    // Instead of <stdarg.h> for handling variable arguments
+#include <cwchar>     // Instead of <wchar.h> for wide-character functions
+#include <cwctype>    // Instead of <wctype.h> for wide-character classification
+#include <cstring>    // Instead of <string.h> for string manipulation

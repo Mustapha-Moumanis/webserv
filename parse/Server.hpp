@@ -6,18 +6,21 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 20:58:04 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 18:06:48 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <map>
+#include <vector>
+#include <iostream>
 #include <algorithm>
 #include <sstream>
-#include <vector>
+#include <fstream>
 #include <sys/stat.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include "Location.hpp"
 #include "../include/Utils.hpp"
 
@@ -75,7 +78,7 @@ class Server {
 		std::string getErrorPagesByKey(std::string key);
 		
 		void checkArg();
-		
+		void initEmptyData();
 		// remove
 		// std::string getValue(std::string key);
 		// void addArg(std::string key, std::string value);

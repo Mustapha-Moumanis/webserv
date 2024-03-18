@@ -1,0 +1,61 @@
+server :
+    port:  8080   # min 1 max 65535
+    host:   127.0.3.1    # 4 nunmbers 3 . 
+    server_name :  mmoumani.42.fr1      # test1 
+    root: www    #path
+    client_max_body_size:    1M   
+    upload : on     
+    autoindex : ON     
+    methods: POST GET  
+    index : index.html index.htmld  
+    index : index.html index.htmld2  
+    error_pages : [[400 500 502 503 504, error_pages/custom_50x.html], [400 400 402 403 404, custom_40x.html]]   
+    location :   
+        - path : /ho   asdad     
+        - root : www/www/   
+        - autoindex : ON     
+        - upload : off  
+        - methods: DELETE POST  
+        - methods: DELETE GET  
+        - error_pages : [[400, error_pages/custom_40x.html]]  
+        - retrun : koko sdfsf  
+
+#     location :
+#         - path:  /home/user/index.html 
+#         - index : home1.html
+#         - index : home.html
+#         # - cgi_path : [.py, /usr/bin/python3]
+#         # - cgi_path : [.php, /usr/bin/php-cgi]
+#         # cgi_path : extantion(python | php ...) /path 
+#         - methods:  POST
+#     # location :   
+#     #     path:  hsf3 
+#     #     # cgi_path : extantion(python | php ...) /path 
+#     #     methods: post / get / delete
+#     # location :  
+#     #     path:  hsf4 # sdf
+#     #     # cgi_path : extantion(python | php ...) /path 
+#     #     # methods: post / get / delete
+
+# server : 
+#     server_name     : mmoumani.42.fr2
+#     host: 127.0.3.1
+
+#     port: 8081
+#     root: /www
+
+#     # location :
+#     #     - path:  \.php$2
+#     #     - methods: DELETE
+        
+#     # location :  
+#     #     - path:  \.php$2
+#     #     - methods: DELETE
+
+
+# server : 
+#     server_name : mmoumani.42.fr3
+#     host: 127.0.3.1
+
+#     port: 8082
+#     root: /www

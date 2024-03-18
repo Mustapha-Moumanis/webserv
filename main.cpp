@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/14 15:30:42 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 21:51:51 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
  
 int main(int ac, char **av) {
     if (ac <= 2) {
-        std::string file = "conf.yml";
+        std::string file = "defaultConfig.yml";
         if (av[1])
             file = av[1];
         std::ifstream ifs(file.c_str());

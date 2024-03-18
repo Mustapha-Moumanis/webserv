@@ -6,29 +6,26 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 20:36:49 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 18:05:14 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <map>
-#include <vector>
-#include <iostream>
 #include "Server.hpp"
 
 class Server;
 
 class Location {
 	private :
-		std::string root;
+		std::string root;//
 		std::string path;
-		std::string upload;
-		std::string methods;
-		std::string autoIndex;
+		std::string upload;//
+		std::string methods; //
+		std::string autoIndex; //
 		std::string rediraction;
-		std::vector<std::string> index;
+		std::vector<std::string> index; //
 		std::map<std::string, std::string> errorPages;
 		std::map<std::string, std::string> cgiPaths;
 
@@ -63,6 +60,7 @@ class Location {
 		std::string getCgiByKey(std::string key);
 		std::string getErrorPagesPath(std::string key);
 		
+		void initEmptyData(Server &serv);
 		void checkLocation();
 		void printArg();
 };

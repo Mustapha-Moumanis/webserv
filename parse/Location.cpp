@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 01:56:37 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 21:49:19 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 
 Location::Location(Server &serv){
     path = "";
+    methods = "";
 	rediraction = "";
     root = serv.getRoot();
-    methods = serv.getMethods();
     autoIndex = serv.getAutoIndex();
     upload = serv.getUpload();
+	errorPages = serv.getErrorPages();
 }
 
 Location::~Location(){}
@@ -71,39 +72,57 @@ std::string Location::getMethods() {
 }
 
 void Location::setRoot(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	root = value;
 }
 
 void Location::setPath(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	path = value;
 }
 
 void Location::setMethods(std::string value) {
 	std::stringstream ss(value);
-	std::string validValue;
 	std::string token;
-	validValue = "";
 	methods = "";
+	
 	while (ss >> token) {
-		if (token.empty())
-			throw std::runtime_error("methods : undifind value " + value);
-		else if (token != "POST" && token != "GET" && token != "DELETE")
+		if (token != "POST" && token != "GET" && token != "DELETE")
 			throw std::runtime_error("methode : " + token + " not valide");
-		else if (!validValue.empty() && validValue.find(token) != std::string::npos)
-			throw std::runtime_error("methode : " + token + " allready seted");
+		else if (!methods.empty() && methods.find(token) != std::string::npos)
+			continue ;
 		else
-			validValue = validValue + token + " ";
+			methods += token + " ";
 	}
-	if (validValue.empty())
+	if (methods.empty())
 		throw std::runtime_error("methods : undifind value " + value);
-	methods = validValue;
 }
+
 
 void Location::setRediraction(std::string value) {
-    rediraction = value;
+	std::stringstream ss;
+	std::string validValue;
+	std::string token;
+	int i = 0;
+
+	ss << value;
+	while (ss >> token) {
+		validValue += token + " ";
+		i++;
+	}
+	if (i != 2)
+		throw std::runtime_error("return : invalide value " + value);
+    rediraction = validValue;
 }
 
-void Location::setAutoIndex(std::string value) {
+void Location::setAutoIndex(std::string value) {\
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value == "on" || value == "ON" || value == "On")
     	autoIndex = "on";
 	else if (value == "OFF" || value == "off" || value == "Off")
@@ -113,6 +132,9 @@ void Location::setAutoIndex(std::string value) {
 }
 
 void Location::setUpload(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value == "on" || value == "ON" || value == "On")
 		upload = "on";
 	else if (value == "OFF" || value == "off" || value == "Off")
@@ -139,28 +161,37 @@ void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
+	std::ifstream ifs;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
 	pos = value.find_last_of(",");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + line);
+		throw std::runtime_error("error_pages : invalid value " + line);
 	path = value.substr(pos + 1, value.length() - pos);
 	value = value.substr(0, pos);
 	pos = path.find_first_not_of(" ");
 	if (pos != std::string::npos)
 		path = path.substr(pos);
+
+	if (!isRegFile(path))
+		return ;
+	ifs.open(path.c_str());
+	if (!ifs.is_open())
+		return ;
+	ifs.close();
+
 	pos = value.find_first_not_of(" ");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid value " + line);
+		throw std::runtime_error("error_pages : invalid value " + line);
 	value = value.substr(pos);
 	
 	ss << value;
 	
 	while (ss >> token) {
 		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
-			throw std::runtime_error("invalid value " + line);
+			throw std::runtime_error("error_pages : invalid value " + line);
 		if (errorPages.find(token) != errorPages.end())
 			errorPages.at(token) = path;
 		else
@@ -281,6 +312,17 @@ void Location::checkLocation() {
 		throw std::runtime_error("location importent data : path | methods ...");
 }
 
+void Location::initEmptyData(Server &serv) {
+	if (methods.empty())
+		methods = serv.getMethods();
+	if (!serv.getIndex().empty()) {
+		for (std::vector<std::string>::iterator it = serv.getIndex().begin(); it != serv.getIndex().end(); it++) {
+			if (std::find(index.begin(), index.end(), *it) == index.end())
+				index.push_back(*it);
+		}
+	}
+}
+
 // void Location::checkLocation(){
     
 //     for (std::map<std::string, std::string>::iterator it = arg.begin() ; it != arg.end(); it++) {
@@ -290,12 +332,12 @@ void Location::checkLocation() {
 // }
 
 void Location::printArg() {
-    std::cout << "            path : " << path << std::endl;
-    std::cout << "            root : " << root << std::endl;
-    std::cout << "            methods : " << methods << std::endl;
-    std::cout << "            upload : " << upload << std::endl;
-    std::cout << "            autoIndex : " << autoIndex << std::endl;
-    std::cout << "            rediraction : " << rediraction << std::endl;
+    std::cout << "            path : *" << path << "*" << std::endl;
+    std::cout << "            root : *" << root << "*"  << std::endl;
+    std::cout << "            methods : *" << methods << "*"  << std::endl;
+    std::cout << "            upload : *" << upload << "*"  << std::endl;
+    std::cout << "            autoIndex : *" << autoIndex << "*"  << std::endl;
+    std::cout << "            rediraction : *" << rediraction << "*"  << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "            index : ";
 		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {

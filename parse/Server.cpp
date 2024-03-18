@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 02:00:32 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 21:32:30 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 Server::Server(){
 	port = 0;
 	host = "";
+	methods = "";
 	serverName = "";
 	root = "www/";
 	clientMaxBodySize = 2147483648;
-	methods = "POST GET DELETE";
 	autoIndex = "off";
 	upload = "on";
 }
@@ -28,32 +28,33 @@ Server::~Server(){}
 // set variables
 
 void Server::setRoot(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	root = value;
 }
 
 void Server::setMethods(std::string value) {
 	std::stringstream ss(value);
-	std::string validValue;
 	std::string token;
-	validValue = "";
 	methods = "";
-
+	
 	while (ss >> token) {
-		if (token.empty())
-			throw std::runtime_error("methods : undifind value " + value);
-		else if (token != "POST" && token != "GET" && token != "DELETE")
+		if (token != "POST" && token != "GET" && token != "DELETE")
 			throw std::runtime_error("methode : " + token + " not valide");
-		else if (!validValue.empty() && validValue.find(token) != std::string::npos)
-			throw std::runtime_error("methode : " + token + " allready seted");
+		else if (!methods.empty() && methods.find(token) != std::string::npos)
+			continue ;
 		else
-			validValue = validValue + token + " ";
+			methods += token + " ";
 	}
-	if (validValue.empty())
+	if (methods.empty())
 		throw std::runtime_error("methods : undifind value " + value);
-	methods = validValue;
 }
 
 void Server::setPort(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value.length() > 5 || value.find_first_not_of("0123456789") != std::string::npos)
 		throw std::runtime_error("port : invalid value " + value);
 	
@@ -64,8 +65,11 @@ void Server::setPort(std::string value) {
 }
 
 void Server::setHost(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value.find_first_not_of(".0123456789") != std::string::npos)
-		throw std::runtime_error("port : invalid value " + value);
+		throw std::runtime_error("host : invalid value " + value);
 	std::stringstream ss(value);
 	std::string tmp;
 	int nb;
@@ -76,19 +80,30 @@ void Server::setHost(std::string value) {
 		getline(ss, tmp, '.');
 		nb = atoi(tmp.c_str());
 		if (nb > 255 || nb < 0 || tmp.length() > 3 || tmp.length() < 1)
-			throw std::runtime_error("port : invalid value " + value);
+			throw std::runtime_error("host : invalid value " + value);
 		i++;
 	}
 	if (i != 4)
-		throw std::runtime_error("port : invalid value " + value);
+		throw std::runtime_error("host : invalid value " + value);
 	host = value;
 }
 
 void Server::setServNames(std::string value) {
-	serverName = value;
+	std::stringstream ss(value);
+	std::string validValue;
+	std::string checkMultValue;
+	
+	ss >> validValue;
+	ss >> checkMultValue;
+	if (validValue.empty() || !checkMultValue.empty())
+		throw std::runtime_error("server_name : invalide value");
+	serverName = validValue;
 }
 
 void Server::setAutoIndex(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value == "on" || value == "ON" || value == "On")
     	autoIndex = "on";
 	else if (value == "OFF" || value == "off" || value == "Off")
@@ -98,6 +113,9 @@ void Server::setAutoIndex(std::string value) {
 }
 
 void Server::setUpload(std::string value) {
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
 	if (value == "on" || value == "ON" || value == "On")
 		upload = "on";
 	else if (value == "OFF" || value == "off" || value == "Off")
@@ -107,10 +125,12 @@ void Server::setUpload(std::string value) {
 }
 
 void Server::setClientMaxBodySize(std::string value) {
-	size_t myPos;
+	size_t myPos = value.find_last_not_of(" ");
 	std::string sUnit;
 	int convert = 1;
 
+	if (myPos != std::string::npos)
+		value = value.substr(0, myPos + 1);
 	myPos = value.find_first_not_of("0123456789");
 	if (myPos == std::string::npos || myPos == 0)
 		throw std::runtime_error("client_max_body_size invalide specify values in units");
@@ -161,13 +181,6 @@ std::vector<Location> &Server::getLocation() {
     return locations;
 }
 
-void Server::checkArg() {
-	if (port == 0 || host.empty())
-		throw std::runtime_error("importent data : port | host ...");
-	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
-		it->checkLocation();
-	}
-}
 std::map<std::string, std::string> &Server::getErrorPages() {
 	return errorPages;
 }
@@ -219,6 +232,7 @@ void Server::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
+	std::ifstream ifs;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -231,6 +245,14 @@ void Server::insertErrorPages(std::string line, std::string value) {
 	pos = path.find_first_not_of(" ");
 	if (pos != std::string::npos)
 		path = path.substr(pos);
+
+	if (!isRegFile(path))
+		return ;
+	ifs.open(path.c_str());
+	if (!ifs.is_open())
+		return ;
+	ifs.close();
+
 	pos = value.find_first_not_of(" ");
 	if (pos == std::string::npos)
 		throw std::runtime_error("error_pages : invalid value " + line);
@@ -356,40 +378,44 @@ void Server::setCgiPath(std::string value) {
 }
 
 void Server::setLocValue(Location &locat, std::string key, std::string value) {
-	std::stringstream ss(value);
-	std::string validValue;
-	std::string checkMultValue;
-
-	if (key == "methods")
-		return locat.setMethods(value);
-	else if (key == "retrun")
-		return locat.setRediraction(value);
-	else if (key == "index")
-		return locat.setIndex(value);
-	else if (key == "error_pages")
-		return locat.setErrorPages(value);
-	else if (key == "cgi_paths")
-		return locat.setCgiPath(value);
-	
-	ss >> validValue;
-	ss >> checkMultValue;
-	
-	if (validValue.empty() || !checkMultValue.empty())
-		throw std::runtime_error(key + " : invalide value");
 	if (key == "root")
-		locat.setRoot(validValue);
+		locat.setRoot(value);
 	else if (key == "path")
-		locat.setPath(validValue);
+		locat.setPath(value);
+	else if (key == "methods")
+		locat.setMethods(value);
+	else if (key == "retrun")
+		locat.setRediraction(value);
+	else if (key == "index")
+		locat.setIndex(value);
+	else if (key == "error_pages")
+		locat.setErrorPages(value);
+	else if (key == "cgi_paths")
+		locat.setCgiPath(value);
 	else if (key == "autoindex")
-		locat.setAutoIndex(validValue);
+		locat.setAutoIndex(value);
 	else if (key == "upload")
-		locat.setUpload(validValue);
+		locat.setUpload(value);
 	else
 		throw std::runtime_error("invalide key : " + key);
 }
 
 void Server::addLocat(Location &locat) {
 	locations.push_back(locat);
+}
+
+void Server::initEmptyData() {
+	if (methods.empty())
+		methods = "POST GET DELETE";
+	
+}
+
+void Server::checkArg() {
+	if (port == 0 || host.empty())
+		throw std::runtime_error("importent data : port | host ...");
+	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
+		it->checkLocation();
+	}
 }
 
 // void Server::checkArg() {
@@ -403,13 +429,13 @@ void Server::addLocat(Location &locat) {
 // }
 
 void Server::printArg() {
-	std::cout << "	port : " << getPort() << std::endl;
-	std::cout << "	host : " << getHost() << std::endl;
-	std::cout << "	server_name : " << getServNames() << std::endl;
-	std::cout << "	root : " << getRoot() << std::endl;
-	std::cout << "	client_max_body_size : " << getClientMaxBodySize() << std::endl;
-	std::cout << "	autoindex : " << getAutoIndex() << std::endl;
-	std::cout << "	methods : " << getMethods() << std::endl;
+	std::cout << "	port : *" << getPort() << "*" << std::endl;
+	std::cout << "	host : *" << getHost() << "*" << std::endl;
+	std::cout << "	server_name : *" << getServNames() << "*" << std::endl;
+	std::cout << "	root : " << getRoot() << "*" << std::endl;
+	std::cout << "	client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
+	std::cout << "	autoindex : *" << getAutoIndex() << "*" << std::endl;
+	std::cout << "	methods : *" << getMethods() << "*" << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "	index : ";
 		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {
