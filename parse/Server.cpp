@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 22:16:50 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 02:00:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Server::Server(){
 	serverName = "";
 	root = "www/";
 	clientMaxBodySize = 2147483648;
-	methods = "GET POST DELETE";
+	methods = "POST GET DELETE";
 	autoIndex = "off";
 	upload = "on";
 }
@@ -32,7 +32,25 @@ void Server::setRoot(std::string value) {
 }
 
 void Server::setMethods(std::string value) {
-	methods = value;
+	std::stringstream ss(value);
+	std::string validValue;
+	std::string token;
+	validValue = "";
+	methods = "";
+
+	while (ss >> token) {
+		if (token.empty())
+			throw std::runtime_error("methods : undifind value " + value);
+		else if (token != "POST" && token != "GET" && token != "DELETE")
+			throw std::runtime_error("methode : " + token + " not valide");
+		else if (!validValue.empty() && validValue.find(token) != std::string::npos)
+			throw std::runtime_error("methode : " + token + " allready seted");
+		else
+			validValue = validValue + token + " ";
+	}
+	if (validValue.empty())
+		throw std::runtime_error("methods : undifind value " + value);
+	methods = validValue;
 }
 
 void Server::setPort(std::string value) {
@@ -342,42 +360,20 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 	std::string validValue;
 	std::string checkMultValue;
 
-	if (key == "methods") {
-		std::string token;
-		validValue = "";
-		while (ss >> token) {
-			if (token.empty())
-				throw std::runtime_error(key + " : undifind value");
-			else if (token != "POST" && token != "GET" && token != "DELETE")
-				throw std::runtime_error("methode : " + token + " not valide");
-			else if (!validValue.empty() && validValue.find(token) != std::string::npos)
-				throw std::runtime_error("methode : " + token + " allready seted");
-			else
-				validValue += token + " ";
-		}
-		if (validValue.empty())
-			throw std::runtime_error(key + " : undifind value");
-		locat.setMethods(validValue);
-		return ;
-	}
-	else if (key == "retrun") {
-		locat.setRediraction(value);
-		return ;
-	}
-	else if (key == "index") {
-		locat.setIndex(value);
-		return ;
-	}
-	else if (key == "error_pages") {
-		locat.setErrorPages(value);
-		return ;
-	}
-	else if (key == "cgi_paths") {
-		locat.setCgiPath(value);
-		return ;
-	}
+	if (key == "methods")
+		return locat.setMethods(value);
+	else if (key == "retrun")
+		return locat.setRediraction(value);
+	else if (key == "index")
+		return locat.setIndex(value);
+	else if (key == "error_pages")
+		return locat.setErrorPages(value);
+	else if (key == "cgi_paths")
+		return locat.setCgiPath(value);
+	
 	ss >> validValue;
 	ss >> checkMultValue;
+	
 	if (validValue.empty() || !checkMultValue.empty())
 		throw std::runtime_error(key + " : invalide value");
 	if (key == "root")

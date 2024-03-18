@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 22:17:55 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 02:02:52 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,39 +107,20 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 	std::string validValue;
 	std::string checkMultValue;
 
-	if (key == "methods") {
-		std::string token;
-		validValue = "";
-		while (ss >> token) {
-			if (token.empty())
-				throw std::runtime_error(key + " : undifind value");
-			else if (token != "POST" && token != "GET" && token != "DELETE")
-				throw std::runtime_error("methode : " + token + " not valide");
-			else if (!validValue.empty() && validValue.find(token) != std::string::npos)
-				throw std::runtime_error("methode : " + token + " allready seted");
-			else
-				validValue = validValue + token + " ";
-		}
-		if (validValue.empty())
-			throw std::runtime_error(key + " : undifind value");
-		serv.setMethods(validValue);
-		return ;
-	}
-	else if (key == "error_pages") {
-		serv.setErrorPages(value);
-		return ;
-	}
-	else if (key == "index") {
-		serv.setIndex(value);
-		return ;
-	}
-	else if (key == "cgi_paths") {
-		serv.setCgiPath(value);
-		return ;
-	}
+	if (key == "methods")
+		return serv.setMethods(value);
+	else if (key == "error_pages")
+		return serv.setErrorPages(value);
+	else if (key == "index")
+		return serv.setIndex(value);
+	else if (key == "cgi_paths")
+		return serv.setCgiPath(value);
+	
 	ss >> validValue;
 	ss >> checkMultValue;
-
+	
+	if (validValue.empty() || !checkMultValue.empty())
+		throw std::runtime_error(key + " : invalide value");
 	if (key == "server_name")
 		serv.setServNames(validValue);
 	else if (key == "root")

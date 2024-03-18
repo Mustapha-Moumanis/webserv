@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/17 22:05:35 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/18 01:56:37 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 Location::Location(Server &serv){
     path = "";
-    methods = "";
 	rediraction = "";
     root = serv.getRoot();
+    methods = serv.getMethods();
     autoIndex = serv.getAutoIndex();
     upload = serv.getUpload();
 }
@@ -79,7 +79,24 @@ void Location::setPath(std::string value) {
 }
 
 void Location::setMethods(std::string value) {
-	methods = value;
+	std::stringstream ss(value);
+	std::string validValue;
+	std::string token;
+	validValue = "";
+	methods = "";
+	while (ss >> token) {
+		if (token.empty())
+			throw std::runtime_error("methods : undifind value " + value);
+		else if (token != "POST" && token != "GET" && token != "DELETE")
+			throw std::runtime_error("methode : " + token + " not valide");
+		else if (!validValue.empty() && validValue.find(token) != std::string::npos)
+			throw std::runtime_error("methode : " + token + " allready seted");
+		else
+			validValue = validValue + token + " ";
+	}
+	if (validValue.empty())
+		throw std::runtime_error("methods : undifind value " + value);
+	methods = validValue;
 }
 
 void Location::setRediraction(std::string value) {
