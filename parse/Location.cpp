@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 02:15:00 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 17:22:34 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,11 @@ int Location::getRediractionStatusCode() {
     return rediractionStatusCode;
 }
 
-std::map<std::string, std::string> &Location::getErrorPages(){
+std::map<int, std::string> &Location::getErrorPages(){
 	return errorPages;
 }
 
-std::string Location::getErrorPagesPath(std::string key) {
+std::string Location::getErrorPagesByKey(int key) {
 	if (errorPages.find(key) != errorPages.end())
 		return errorPages[key];
 	return "";
@@ -128,8 +128,8 @@ void Location::setRediraction(std::string value) {
 		throw std::runtime_error("return : invalid value " + value);
 
 	rediractionStatusCode = atoi(statusCode.c_str());
-	if (rediractionStatusCode < 100 || rediractionStatusCode >= 600)
-		throw std::runtime_error("return : invalid value " + value);
+	if (!HttpStatus::isRedirection(rediractionStatusCode))
+		throw std::runtime_error("return : invalide rediraction Status Code " + statusCode);
 
 	rediractionURL = value.substr(3);
 	pos = rediractionURL.find_first_not_of(" ");
@@ -204,9 +204,10 @@ void Location::setClientMaxBodySize(std::string value) {
 
 void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
+	std::ifstream ifs;
 	std::string token;
 	std::string path;
-	std::ifstream ifs;
+	int statusCode;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -231,16 +232,17 @@ void Location::insertErrorPages(std::string line, std::string value) {
 	if (pos == std::string::npos)
 		throw std::runtime_error("error_pages : invalid value " + line);
 	value = value.substr(pos);
-	
+
 	ss << value;
-	
+
 	while (ss >> token) {
-		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos)
-			throw std::runtime_error("error_pages : invalid value " + line);
-		if (errorPages.find(token) != errorPages.end())
-			errorPages.at(token) = path;
+		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos || !HttpStatus::isVadilCode(atoi(token.c_str())))
+			throw std::runtime_error("error_pages : invalide Status Code " + token);
+		statusCode = atoi(token.c_str());
+		if (errorPages.find(statusCode) != errorPages.end())
+			errorPages.at(statusCode) = path;
 		else
-			errorPages.insert(std::make_pair(token, path));
+			errorPages.insert(std::make_pair(statusCode, path));
 	}
 }
 
@@ -393,7 +395,7 @@ void Location::printArg() {
 	}
 	if (!getErrorPages().empty()) {
 		std::cout << "            errorpages : " << std::endl;
-		for (std::map<std::string, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
+		for (std::map<int, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
 			std::cout << "                - " << (*it).first << " : " << (*it).second << std::endl;
 		}
 	}

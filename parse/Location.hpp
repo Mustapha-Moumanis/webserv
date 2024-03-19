@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 02:01:32 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 17:19:57 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Location {
 		
 		long long clientMaxBodySize;
 		std::vector<std::string> index; 
-		std::map<std::string, std::string> errorPages;
+		std::map<int, std::string> errorPages;
 		std::map<std::string, std::string> cgiPaths;
 
 	public :
@@ -56,16 +56,15 @@ class Location {
 		std::string getUpload();
 		std::string getMethods();
 		std::string getAutoIndex();
-		// std::string getRediraction();
 		std::string getRediractionURL();
 		int getRediractionStatusCode();
 		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
-		std::map<std::string, std::string> &getErrorPages();
+		std::map<int, std::string> &getErrorPages();
 		std::map<std::string, std::string> &getCgiPaths();
 
+		std::string getErrorPagesByKey(int key);
 		std::string getCgiByKey(std::string key);
-		std::string getErrorPagesPath(std::string key);
 		
 		void initEmptyData(Server &serv);
 		void checkLocation();

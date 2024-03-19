@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 15:15:38 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 17:18:16 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,11 +181,11 @@ std::vector<Location> &Server::getLocation() {
     return locations;
 }
 
-std::map<std::string, std::string> &Server::getErrorPages() {
+std::map<int, std::string> &Server::getErrorPages() {
 	return errorPages;
 }
 
-std::string Server::getErrorPagesByKey(std::string key) {
+std::string Server::getErrorPagesByKey(int key) {
 	if (errorPages.find(key) != errorPages.end())
 		return errorPages.at(key);
 	return "";
@@ -230,9 +230,10 @@ void Server::setIndex(std::string value) {
 
 void Server::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
+	std::ifstream ifs;
 	std::string token;
 	std::string path;
-	std::ifstream ifs;
+	int statusCode;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -257,17 +258,17 @@ void Server::insertErrorPages(std::string line, std::string value) {
 	if (pos == std::string::npos)
 		throw std::runtime_error("error_pages : invalid value " + line);
 	value = value.substr(pos);
-	
+
 	ss << value;
+
 	while (ss >> token) {
-		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos)
-			throw std::runtime_error("error_pages : invalid value " + line);
-		if (atoi(token.c_str()) < 100 || atoi(token.c_str()) >= 600)
-			throw std::runtime_error("error_pages : invalid value " + line);
-		if (errorPages.find(token) != errorPages.end())
-			errorPages.at(token) = path;
+		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos || !HttpStatus::isVadilCode(atoi(token.c_str())))
+			throw std::runtime_error("error_pages : invalide Status Code " + token);
+		statusCode = atoi(token.c_str());
+		if (errorPages.find(statusCode) != errorPages.end())
+			errorPages.at(statusCode) = path;
 		else
-			errorPages.insert(std::make_pair(token, path));
+			errorPages.insert(std::make_pair(statusCode, path));
 	}
 }
 
@@ -449,7 +450,7 @@ void Server::printArg() {
 	}
 	if (!getErrorPages().empty()) {
 		std::cout << "	errorpages : " << std::endl;
-		for (std::map<std::string, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
+		for (std::map<int, std::string>::iterator it = getErrorPages().begin(); it != getErrorPages().end(); it++) {
 			std::cout << "            - " << (*it).first << " : " << (*it).second << std::endl;
 		}
 	}

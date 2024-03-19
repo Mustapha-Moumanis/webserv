@@ -2,8 +2,8 @@ NAME = webserv
 
 FILES = main.cpp
 
-IFILES = Utils.cpp MimeTypes.cpp
-IHFILES = Utils.hpp MimeTypes.hpp
+IFILES = Utils.cpp MimeTypes.cpp StatusCode.cpp
+IHFILES = Utils.hpp MimeTypes.hpp StatusCode.hpp
 
 PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
 PHFILES = ParsConfigFile.hpp Server.hpp Location.hpp

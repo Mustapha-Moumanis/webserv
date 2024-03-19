@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 18:06:48 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 17:20:12 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include "Location.hpp"
 #include "../include/Utils.hpp"
+#include "../include/StatusCode.hpp"
 
 class Location;
 
@@ -38,7 +39,7 @@ class Server {
 		long long clientMaxBodySize;
 		std::vector<std::string> index;
 		std::vector<Location> locations;
-		std::map<std::string, std::string> errorPages;
+		std::map<int, std::string> errorPages;
 		std::map<std::string, std::string> cgiPaths;
 		
 	public :
@@ -71,14 +72,14 @@ class Server {
 		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
 		std::vector<Location> &getLocation();
-		std::map<std::string, std::string> &getErrorPages();
+		std::map<int, std::string> &getErrorPages();
 		std::map<std::string, std::string> &getCgiPaths();
 		
+		std::string getErrorPagesByKey(int key);
 		std::string getCgiByKey(std::string key);
-		std::string getErrorPagesByKey(std::string key);
 		
-		void checkArg();
 		void initEmptyData();
+		void checkArg();
 		// remove
 		// std::string getValue(std::string key);
 		// void addArg(std::string key, std::string value);
