@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 21:32:30 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 15:15:38 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@ Server::Server(){
 	port = 0;
 	host = "";
 	methods = "";
-	serverName = "";
 	root = "www/";
-	clientMaxBodySize = 2147483648;
-	autoIndex = "off";
 	upload = "on";
+	serverName = "";
+	autoIndex = "off";
+	clientMaxBodySize = 2147483648;
 }
 
 Server::~Server(){}
@@ -260,7 +260,9 @@ void Server::insertErrorPages(std::string line, std::string value) {
 	
 	ss << value;
 	while (ss >> token) {
-		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
+		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos)
+			throw std::runtime_error("error_pages : invalid value " + line);
+		if (atoi(token.c_str()) < 100 || atoi(token.c_str()) >= 600)
 			throw std::runtime_error("error_pages : invalid value " + line);
 		if (errorPages.find(token) != errorPages.end())
 			errorPages.at(token) = path;
@@ -338,7 +340,7 @@ void Server::insertCgiPath(std::string line, std::string value) {
 	ss >> token;
 	
 	if (!token.empty())
-		throw std::runtime_error("cgi_pathsssss : invalid value " + line);
+		throw std::runtime_error("cgi_paths : invalid value " + line);
 }
 
 void Server::setCgiPath(std::string value) {
@@ -388,6 +390,8 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setRediraction(value);
 	else if (key == "index")
 		locat.setIndex(value);
+	else if (key == "client_max_body_size")
+		locat.setClientMaxBodySize(value);
 	else if (key == "error_pages")
 		locat.setErrorPages(value);
 	else if (key == "cgi_paths")

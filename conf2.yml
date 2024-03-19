@@ -17,7 +17,7 @@ server :
         # - methods : DELETE
         - error_pages : [[404, /custom_40x.html]]
         - cgi_paths : [[.py , /usr/bin/python3], [.php, /usr/bin/php-cgi]]
-        - retrun : koko sdfsf
+        - retrun : 301 sdfsf
     location :
         - path :  /home/user/index.html 
         - index : home1.html

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 21:49:19 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 02:15:00 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,23 @@
 Location::Location(Server &serv){
     path = "";
     methods = "";
-	rediraction = "";
+	rediractionURL = "";
+	rediractionStatusCode = 0;
     root = serv.getRoot();
-    autoIndex = serv.getAutoIndex();
     upload = serv.getUpload();
+    autoIndex = serv.getAutoIndex();
 	errorPages = serv.getErrorPages();
+	clientMaxBodySize = serv.getClientMaxBodySize();
 }
 
 Location::~Location(){}
 
-std::string Location::getRediraction() {
-    return rediraction;
+std::string Location::getRediractionURL() {
+    return rediractionURL;
+}
+
+int Location::getRediractionStatusCode() {
+    return rediractionStatusCode;
 }
 
 std::map<std::string, std::string> &Location::getErrorPages(){
@@ -71,6 +77,10 @@ std::string Location::getMethods() {
     return methods;
 }
 
+long long Location::getClientMaxBodySize() {
+	return clientMaxBodySize;
+}
+
 void Location::setRoot(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -104,22 +114,30 @@ void Location::setMethods(std::string value) {
 
 
 void Location::setRediraction(std::string value) {
-	std::stringstream ss;
-	std::string validValue;
-	std::string token;
-	int i = 0;
-
-	ss << value;
-	while (ss >> token) {
-		validValue += token + " ";
-		i++;
-	}
-	if (i != 2)
+	std::string statusCode;
+	
+	size_t pos = value.find_last_not_of(" ");
+	if (pos != std::string::npos)
+		value = value.substr(0, pos + 1);
+	
+	pos = value.find(" ");
+	if (pos == std::string::npos)
 		throw std::runtime_error("return : invalide value " + value);
-    rediraction = validValue;
+	statusCode = value.substr(0, pos);
+	if (statusCode.length() != 3 || statusCode.find_first_not_of("0123456789") != std::string::npos)
+		throw std::runtime_error("return : invalid value " + value);
+
+	rediractionStatusCode = atoi(statusCode.c_str());
+	if (rediractionStatusCode < 100 || rediractionStatusCode >= 600)
+		throw std::runtime_error("return : invalid value " + value);
+
+	rediractionURL = value.substr(3);
+	pos = rediractionURL.find_first_not_of(" ");
+	if (pos != std::string::npos)
+		rediractionURL = rediractionURL.substr(pos);
 }
 
-void Location::setAutoIndex(std::string value) {\
+void Location::setAutoIndex(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
@@ -157,6 +175,33 @@ void Location::setIndex(std::string value) {
 	}
 }
 
+void Location::setClientMaxBodySize(std::string value) {
+	size_t myPos = value.find_last_not_of(" ");
+	std::string sUnit;
+	int convert = 1;
+
+	if (myPos != std::string::npos)
+		value = value.substr(0, myPos + 1);
+	myPos = value.find_first_not_of("0123456789");
+	if (myPos == std::string::npos || myPos == 0)
+		throw std::runtime_error("client_max_body_size invalide specify values in units");
+	sUnit = value.substr(myPos, value.length() - myPos);
+	if (sUnit.length() != 1 || sUnit.find_first_of("bkmgBKMG") == std::string::npos)
+		throw std::runtime_error("client_max_body_size units [B, K, M, G, b, k, m, g]");
+	if (sUnit == "K" || sUnit == "k")
+		convert = 1024;
+	else if (sUnit == "M" || sUnit == "m")
+		convert = 1048576;
+	else if (sUnit == "G" || sUnit == "g")
+		convert = 1073741824;
+	
+	std::stringstream ss(value.substr(0, myPos));
+	ss >> clientMaxBodySize;
+	clientMaxBodySize *= convert;
+	if (clientMaxBodySize > 2147483648)
+		throw std::runtime_error("Client_max_body_size too long maximum 2G");
+}
+
 void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
 	std::string token;
@@ -190,7 +235,7 @@ void Location::insertErrorPages(std::string line, std::string value) {
 	ss << value;
 	
 	while (ss >> token) {
-		if (token.length() > 3 || token.find_first_not_of("0123456789") != std::string::npos)
+		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos)
 			throw std::runtime_error("error_pages : invalid value " + line);
 		if (errorPages.find(token) != errorPages.end())
 			errorPages.at(token) = path;
@@ -337,7 +382,8 @@ void Location::printArg() {
     std::cout << "            methods : *" << methods << "*"  << std::endl;
     std::cout << "            upload : *" << upload << "*"  << std::endl;
     std::cout << "            autoIndex : *" << autoIndex << "*"  << std::endl;
-    std::cout << "            rediraction : *" << rediraction << "*"  << std::endl;
+    std::cout << "            client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
+	std::cout << "            rediraction : *" << getRediractionStatusCode() << " " << getRediractionURL() << "*"  << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "            index : ";
 		for (std::vector<std::string>::iterator it = getIndex().begin(); it != getIndex().end(); it++) {

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 18:05:14 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/19 02:01:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,16 @@ class Server;
 
 class Location {
 	private :
-		std::string root;//
+		std::string root;
 		std::string path;
-		std::string upload;//
-		std::string methods; //
-		std::string autoIndex; //
-		std::string rediraction;
-		std::vector<std::string> index; //
+		std::string upload;
+		std::string methods; 
+		std::string autoIndex; 
+		int rediractionStatusCode;
+		std::string rediractionURL;
+		
+		long long clientMaxBodySize;
+		std::vector<std::string> index; 
 		std::map<std::string, std::string> errorPages;
 		std::map<std::string, std::string> cgiPaths;
 
@@ -40,6 +43,7 @@ class Location {
 		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setRediraction(std::string value);
+		void setClientMaxBodySize(std::string value);
 
 		void setCgiPath(std::string value);
 		void insertCgiPath(std::string line, std::string value);
@@ -52,7 +56,10 @@ class Location {
 		std::string getUpload();
 		std::string getMethods();
 		std::string getAutoIndex();
-		std::string getRediraction();
+		// std::string getRediraction();
+		std::string getRediractionURL();
+		int getRediractionStatusCode();
+		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
 		std::map<std::string, std::string> &getErrorPages();
 		std::map<std::string, std::string> &getCgiPaths();
