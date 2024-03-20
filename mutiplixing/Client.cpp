@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/15 15:35:41 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/20 01:43:50 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,15 @@ Client::~Client() {}
 void Client::setServ(Server *serv) {
     request.setServ(*serv);
     this->serv = serv;
-    // std::cout << this->serv->getPort() << std::endl;
+}
+
+void Client::setStatus(bool status) {
+    this->status = status;
+}
+
+void Client::setDoublicateServer(std::vector<Server *> &vec) {
+    request.setDoublicateServer(vec);
+    this->doublicateServer = vec;
 }
 
 // std::string Client::getNewName()
@@ -62,9 +70,8 @@ std::string Client::getResponse() {
     return Response;
 }
 
-
-void Client::setStatus(bool status) {
-    this->status = status;
+std::vector<Server *> &Client::getDoublicateServer() {
+    return doublicateServer;
 }
 
 std::string Client::generateResponse(HttpStatus::StatusCode Code, std::string Msg, std::string mimeType) {

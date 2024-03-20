@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/12 17:48:11 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 01:26:19 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 class Client {
 	private :
 		Server *serv;
+		std::vector<Server *> doublicateServer;
+		
 		bool status;
 		Request request;
 		// response atribuite
@@ -35,11 +37,13 @@ class Client {
 		void setServ(Server *serv);
 		void setStatus(bool status);
 		void SentRequest(std::string);
+		void setDoublicateServer(std::vector<Server *> &vec);
 		
 		Server *getServ();
 		bool getStatus();
 		Request &getRequest();
 		std::string getResponse();
+		std::vector<Server *> &getDoublicateServer();
 		
 		std::string generateResponse(HttpStatus::StatusCode Code, std::string const Msg, std::string mimeType);
 		

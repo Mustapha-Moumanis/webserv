@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:20:12 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 00:23:23 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,12 @@ class Server {
 		int port;
 		std::string root;
 		std::string host;
+		std::string hostPort;
 		std::string upload;
 		std::string methods;
 		std::string autoIndex;
-		std::string serverName;
+		// std::string serverName;
+		std::vector<std::string> serverName;
 		long long clientMaxBodySize;
 		std::vector<std::string> index;
 		std::vector<Location> locations;
@@ -56,6 +58,7 @@ class Server {
 		void setServNames(std::string value);
 		void setClientMaxBodySize(std::string value);
 
+		void initHostPort();
 		void setCgiPath(std::string value);
 		void insertCgiPath(std::string line, std::string value);
 
@@ -65,13 +68,15 @@ class Server {
 		int getPort();
 		std::string getRoot();
 		std::string getHost();
+
 		std::string getUpload();
 		std::string getMethods();
-		std::string getServNames();
+		std::string getHostPort();
 		std::string getAutoIndex();
 		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
 		std::vector<Location> &getLocation();
+		std::vector<std::string> &getServNames();
 		std::map<int, std::string> &getErrorPages();
 		std::map<std::string, std::string> &getCgiPaths();
 		

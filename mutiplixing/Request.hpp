@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/18 18:08:08 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 01:30:47 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Request {
     private :
 		std::map<std::string, std::string> HeadReq;
 		Server *server;
+		std::vector<Server *> doublicateServer;
 		Location *location;
 		int HeaderIsDone;
 		std::string body;
@@ -46,7 +47,9 @@ class Request {
 		void CheckRequest();
 		void matchingURL(std::string b);
 		bool CompareURL(std::string s1, std::string s2);
-	
+		void setDoublicateServer(std::vector<Server *> &vec);
+		// std::vector<Server *> &getDoublicateServer();
+
 		void Get(void);
 		void Delete(void);
 		void Post(std::string);

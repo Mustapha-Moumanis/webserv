@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:18:16 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 01:09:57 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ Server::Server(){
 	methods = "";
 	root = "www/";
 	upload = "on";
-	serverName = "";
 	autoIndex = "off";
 	clientMaxBodySize = 2147483648;
 }
@@ -88,16 +87,22 @@ void Server::setHost(std::string value) {
 	host = value;
 }
 
+void Server::initHostPort() {
+	std::stringstream ss;
+	std::string servPort;
+	ss << port;
+	ss >> servPort;
+	hostPort = host + ":" + servPort;
+}
+
 void Server::setServNames(std::string value) {
 	std::stringstream ss(value);
-	std::string validValue;
-	std::string checkMultValue;
-	
-	ss >> validValue;
-	ss >> checkMultValue;
-	if (validValue.empty() || !checkMultValue.empty())
-		throw std::runtime_error("server_name : invalide value");
-	serverName = validValue;
+	std::string token;
+
+	while (ss >> token) {
+		if (find(serverName.begin(), serverName.end(), token) == serverName.end())
+			serverName.push_back(token);
+	}
 }
 
 void Server::setAutoIndex(std::string value) {
@@ -165,11 +170,15 @@ std::string Server::getHost() {
 	return host;
 }
 
+std::string Server::getHostPort() {
+	return hostPort;
+}
+
 std::string Server::getMethods() {
     return methods;
 }
 
-std::string Server::getServNames() {
+std::vector<std::string> &Server::getServNames() {
 	return serverName;
 }
 
@@ -412,7 +421,8 @@ void Server::addLocat(Location &locat) {
 void Server::initEmptyData() {
 	if (methods.empty())
 		methods = "POST GET DELETE";
-	
+	if (hostPort.empty())
+		initHostPort();
 }
 
 void Server::checkArg() {
@@ -436,7 +446,12 @@ void Server::checkArg() {
 void Server::printArg() {
 	std::cout << "	port : *" << getPort() << "*" << std::endl;
 	std::cout << "	host : *" << getHost() << "*" << std::endl;
-	std::cout << "	server_name : *" << getServNames() << "*" << std::endl;
+	// std::cout << "	server_name : *" << getServNames() << "*" << std::endl;
+	std::cout << "	server_name : ";
+	for (std::vector<std::string>::iterator it = getServNames().begin(); it != getServNames().end(); it++) {
+		std::cout << *it << " ";
+	}
+	std::cout << std::endl;
 	std::cout << "	root : " << getRoot() << "*" << std::endl;
 	std::cout << "	client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
 	std::cout << "	autoindex : *" << getAutoIndex() << "*" << std::endl;

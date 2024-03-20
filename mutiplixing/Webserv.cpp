@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:23:14 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 01:08:48 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Webserv::Webserv(std::ifstream &ifs){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
+		initDoublicateServer();
 		multiplixing();
 	}
 	catch (const std::exception &e) {
@@ -108,7 +109,13 @@ void Webserv::multiplixing() {
 				}
 				
 				Clients.insert(std::make_pair(newSocket, new Client()));
-				Clients[newSocket]->setServ(dataServers[indexFD[events[i].data.fd]]);
+				Server *serv = dataServers[indexFD[events[i].data.fd]];
+				
+				Clients[newSocket]->setServ(serv);
+				
+				std::vector<Server *> &servVec = getDoublicateServer(serv->getHostPort());
+				if (servVec.size() > 1)
+					Clients[newSocket]->setDoublicateServer(servVec);
 			}
 			else {
 				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
@@ -154,4 +161,25 @@ void Webserv::multiplixing() {
 			}
 		}
 	}
+}
+
+void Webserv::initDoublicateServer() {
+	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+		std::string token = (*it)->getHostPort();
+		std::map<std::string, std::vector<Server *> >::iterator it2 = doublicateServer.find(token);
+		if (it2 == doublicateServer.end()) {
+			std::vector<Server *> servVec;
+			servVec.push_back(*it);
+			doublicateServer.insert(std::make_pair(token, servVec));
+		}
+		else
+			doublicateServer[token].push_back(*it);
+	}
+	// for (std::map<std::string, std::vector<Server *> >::iterator it = doublicateServer.begin(); it != doublicateServer.end(); it++) {
+	// 	std::cout << (*it).first << std::endl;
+	// }
+}
+
+std::vector<Server *> &Webserv::getDoublicateServer(std::string host) {
+	return doublicateServer[host];
 }

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/18 01:30:51 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 02:09:39 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@ Request::~Request() {
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;
+}
+
+void Request::setDoublicateServer(std::vector<Server *> &vec) {
+    doublicateServer = vec;
 }
 
 void Request::CheckFirstLine(std::string Fline){
@@ -115,9 +119,10 @@ void Request::matchingURL(std::string url) {
 void Request::setRequest(std::string req) {
 	// std::cout << req << std::endl;
     if (HeaderIsDone == 0){
+		
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
-		while (404){
+		while (404) {
 			std::string key = req.substr(0, req.find(": "));
 			if (req.substr(0, req.find("\r\n")) == ""){
 				req.erase(0, req.find("\r\n") + 2);
@@ -130,6 +135,18 @@ void Request::setRequest(std::string req) {
 		}
         body = req;
         HeaderIsDone = 1;
+		
+		
+		// std::cout << ">> " << HeadReq["Host"] << std::endl;
+		if (doublicateServer.size() > 1) {
+			for (std::vector<Server *>::iterator it = doublicateServer.begin(); it != doublicateServer.end(); it++) {
+				std::vector <std::string> serv_names = (*it)->getServNames();
+				if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
+					server = *it;
+					break;
+				}
+			}
+		}
         CheckRequest();
 	}
 	if (HeadReq.find("Methode")->second == "POST"){

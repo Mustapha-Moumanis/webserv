@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:23:10 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 00:45:59 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,14 @@ ParsConfigFile::ParsConfigFile(std::ifstream &fs, std::vector<Server *> &serv) :
 			throw std::runtime_error("invalid line : " + line);
 			
 	}
-	for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
-		(*it1)->checkArg();
-		// check doublicate 
-		for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
-			if ((*it1)->getPort() == (*it2)->getPort())
-				throw std::runtime_error("doublicate post");
-		}
-	}
+	// for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
+	// 	(*it1)->checkArg();
+	// 	// check doublicate 
+	// 	for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
+	// 		if ((*it1)->getPort() == (*it2)->getPort())
+	// 			throw std::runtime_error("doublicate post");
+	// 	}
+	// }
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
 	// for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {

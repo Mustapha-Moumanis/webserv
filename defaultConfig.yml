@@ -2,7 +2,7 @@ server :
     # doublicate 
     port:  8080   # min 1 max 65535
     host:   127.0.3.1    # 4 nunmbers 3 . 
-    server_name :  mmoumani.42.fr1      # test1 
+    server_name :  mmoumani.42.fr1  # test1 
     root: www    #path
     client_max_body_size:    20M   
     upload : on     
@@ -12,8 +12,7 @@ server :
     index : index.html index.htmld2  
     error_pages : [[400 500 502 503 504, error_pages/custom_50x.html], [400 400 402 403 404, custom_40x.html]]   
     location :   
-        - path : /ho   asdad     
-        - root : www/www/   
+        - path : /home
         - autoindex : ON     
         - upload : off  
         - methods: DELETE POST  
@@ -22,42 +21,45 @@ server :
         - error_pages : [[400, error_pages/custom_40x.html]]  
         - retrun : 301   sdfs   dfsf
 
-#     location :
-#         - path:  /home/user/index.html 
-#         - index : home1.html
-#         - index : home.html
-#         # - cgi_path : [.py, /usr/bin/python3]
-#         # - cgi_path : [.php, /usr/bin/php-cgi]
-#         # cgi_path : extantion(python | php ...) /path 
-#         - methods:  POST
-#     # location :   
-#     #     path:  hsf3 
-#     #     # cgi_path : extantion(python | php ...) /path 
-#     #     methods: post / get / delete
-#     # location :  
-#     #     path:  hsf4 # sdf
-#     #     # cgi_path : extantion(python | php ...) /path 
-#     #     # methods: post / get / delete
+    location :
+        - path:  /home/user/index.html 
+        - index : home1.html
+        - index : home.html
+        # - cgi_path : [.py, /usr/bin/python3]
+        # - cgi_path : [.php, /usr/bin/php-cgi]
+        # cgi_path : extantion(python | php ...) /path 
+        - methods:  POST
+    # location :   
+    #     path:  hsf3 
+    #     # cgi_path : extantion(python | php ...) /path 
+    #     methods: post / get / delete
+    # location :  
+    #     path:  hsf4 # sdf
+    #     # cgi_path : extantion(python | php ...) /path 
+    #     # methods: post / get / delete
 
-# server : 
-#     server_name     : mmoumani.42.fr2
-#     host: 127.0.3.1
+server : 
+    # change if two servers have the same server_name
+    server_name     : mmoumani.42.fr1
+    host: 127.0.3.1
 
-#     port: 8081
-#     root: /www
+    port: 8080
+    root: /www
+    index : congradulation 
 
-#     # location :
-#     #     - path:  \.php$2
-#     #     - methods: DELETE
+
+    # location :
+    #     - path:  \.php$2
+    #     - methods: DELETE
         
-#     # location :  
-#     #     - path:  \.php$2
-#     #     - methods: DELETE
+    # location :  
+    #     - path:  \.php$2
+    #     - methods: DELETE
 
 
-# server : 
-#     server_name : mmoumani.42.fr3
-#     host: 127.0.3.1
+server : 
+    server_name : mmoumani.42.fr3
+    host: 127.0.3.1
 
-#     port: 8082
-#     root: /www
+    port: 8082
+    root: /www

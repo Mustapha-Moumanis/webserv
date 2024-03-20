@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 20:51:08 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 00:36:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 #include "Client.hpp"
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
+#include <stdlib.h>
+
 #include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -28,6 +31,7 @@
 class Webserv {
 	private :
 		std::vector<Server *> dataServers;
+		std::map<std::string, std::vector<Server *> > doublicateServer;
 		std::map<int, Client *> Clients;
 		std::vector<int> fds; // close
 		std::map<int, int> indexFD;
@@ -36,8 +40,9 @@ class Webserv {
 		Webserv(std::ifstream &ifs);
 		~Webserv();
 		
-		void exec();
 		void multiplixing();
+		void initDoublicateServer();
+		std::vector<Server *> &getDoublicateServer(std::string host);
 };
 
 #endif
