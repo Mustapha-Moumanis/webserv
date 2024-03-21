@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 01:08:48 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 23:43:52 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ Webserv::Webserv(std::ifstream &ifs){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
 		initDoublicateServer();
+		initDefaultServer();
 		multiplixing();
 	}
 	catch (const std::exception &e) {
@@ -109,13 +110,13 @@ void Webserv::multiplixing() {
 				}
 				
 				Clients.insert(std::make_pair(newSocket, new Client()));
-				Server *serv = dataServers[indexFD[events[i].data.fd]];
-				
-				Clients[newSocket]->setServ(serv);
+				Server *serv = getDefaultServer(dataServers[indexFD[events[i].data.fd]]->getHostPort());
 				
 				std::vector<Server *> &servVec = getDoublicateServer(serv->getHostPort());
 				if (servVec.size() > 1)
 					Clients[newSocket]->setDoublicateServer(servVec);
+				
+				Clients[newSocket]->setServ(serv);
 			}
 			else {
 				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
@@ -180,6 +181,31 @@ void Webserv::initDoublicateServer() {
 	// }
 }
 
+void Webserv::initDefaultServer() {
+	std::map<std::string, std::vector<Server *> >::iterator it1 = doublicateServer.begin();
+	
+	for (; it1 != doublicateServer.end(); it1++) {
+		std::vector <Server *> servVec = it1->second;
+		Server *def = servVec.at(0);
+		if (servVec.size() != 1) {
+			for (std::vector<Server *>::iterator it2 = servVec.begin(); it2 != servVec.end(); it2++) {
+				std::vector <std::string> serv_names = (*it2)->getServNames();
+				if (!serv_names.empty() && serv_names.at(0) == "_") {
+					def = *it2;
+					break;
+				}
+			}
+		}
+		defaultServer.insert(std::make_pair(it1->first, def));
+	}
+}
+
 std::vector<Server *> &Webserv::getDoublicateServer(std::string host) {
 	return doublicateServer[host];
+}
+
+Server *Webserv::getDefaultServer(std::string host) {
+	if (defaultServer.find(host) != defaultServer.end())
+		return defaultServer[host];
+	return NULL;
 }

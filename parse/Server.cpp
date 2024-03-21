@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 01:09:57 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/20 17:04:44 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ void Server::setServNames(std::string value) {
 		if (find(serverName.begin(), serverName.end(), token) == serverName.end())
 			serverName.push_back(token);
 	}
+	if (find(serverName.begin(), serverName.end(), "_") != serverName.end() && serverName.size() != 1)
+		throw std::runtime_error("server_name : cannot join '_' with other server names.");
 }
 
 void Server::setAutoIndex(std::string value) {

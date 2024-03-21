@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/20 02:09:39 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/21 00:48:54 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void Request::CheckFirstLine(std::string Fline){
 			queryString = b.substr(pos + 1);
 			b = b.substr(0, pos);
 		}
+		// this->url = b;
 		matchingURL(b);
 	}
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
@@ -119,7 +120,19 @@ void Request::matchingURL(std::string url) {
 void Request::setRequest(std::string req) {
 	// std::cout << req << std::endl;
     if (HeaderIsDone == 0){
-		
+		// if (doublicateServer.size() > 1) {
+		// 	std::vector<Server *>::iterator it = doublicateServer.begin();
+		// 	for (; it != doublicateServer.end(); it++) {
+		// 		std::vector <std::string> serv_names = (*it)->getServNames();
+
+		// 		if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
+		// 			std::cout << "hello " << std::endl;
+		// 			server = *it;
+		// 			break;
+		// 		}
+		// 	}
+		// }
+		// server->printArg();
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
 		while (404) {
@@ -135,18 +148,8 @@ void Request::setRequest(std::string req) {
 		}
         body = req;
         HeaderIsDone = 1;
-		
-		
-		// std::cout << ">> " << HeadReq["Host"] << std::endl;
-		if (doublicateServer.size() > 1) {
-			for (std::vector<Server *>::iterator it = doublicateServer.begin(); it != doublicateServer.end(); it++) {
-				std::vector <std::string> serv_names = (*it)->getServNames();
-				if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
-					server = *it;
-					break;
-				}
-			}
-		}
+		std::cout << "change this -_-" << std::endl;
+		// matchingURL(this->url);
         CheckRequest();
 	}
 	if (HeadReq.find("Methode")->second == "POST"){
