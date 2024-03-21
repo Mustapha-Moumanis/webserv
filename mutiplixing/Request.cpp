@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/21 00:48:54 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/21 22:39:54 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,11 @@
 #include <algorithm>
 #include <cstring>
 
-Request::Request() : HeaderIsDone(0), body(""), url(""), queryString("") , length(0){}
+Request::Request() : body(""), queryString(""), url(""), Methode(""), length(0){
+	nextchunk = "";
+	ContentLength = 0;
+	HeaderIsDone = 0;
+}
 
 Request::~Request() {
 	ftype.close();
@@ -41,20 +45,11 @@ void Request::CheckFirstLine(std::string Fline){
 
     if (b.length() > 2048)
 		throw StatusCodeExcept(HttpStatus::URITooLong);
-    else {
-		size_t pos = b.find("?");
-		if (pos != std::string::npos) {
-			queryString = b.substr(pos + 1);
-			b = b.substr(0, pos);
-		}
-		// this->url = b;
-		matchingURL(b);
-	}
-	HeadReq.insert(std::pair<std::string,std::string>("Location",b));
-	if ((a != "GET" && a != "DELETE" && a != "POST") 
-		|| this->location->getMethods().find(a) == std::string::npos)
-		throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
-	HeadReq.insert(std::pair<std::string,std::string>("Methode", a));
+	Methode = a;
+	url = b;
+
+	HeadReq.insert(std::pair<std::string,std::string>("Methode", a)); // its will be removed
+	HeadReq.insert(std::pair<std::string,std::string>("Location",b)); // its will be removed
 
 	if (version != "HTTP/1.1")
 		throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
@@ -63,16 +58,15 @@ void Request::CheckFirstLine(std::string Fline){
 void Request::CheckRequest(){
 
 	std::map<std::string, std::string>::iterator it;
-	if (HeadReq.find("Methode")->second == "POST"){
+	if (Methode == "POST"){
 		if ((it = HeadReq.find("Content-Length")) != HeadReq.end())
-			std::cout << "Not chencked" << std::endl;
+			ContentLength = atol(it->second.c_str());
 		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
 			if (it->second != "chunked")
 				throw StatusCodeExcept(HttpStatus::NotImplemented);	
 		}
 		else
 			throw StatusCodeExcept(HttpStatus::BadRequest);
-		std::cout << "Thers POST methode" << std::endl;
 	}
 }
 
@@ -88,6 +82,13 @@ bool Request::CompareURL(std::string s1, std::string s2) {
 }
 
 void Request::matchingURL(std::string url) {
+	// ------I add this from check firstline()
+	size_t pos = url.find("?");
+	if (pos != std::string::npos) {
+		queryString = url.substr(pos + 1);
+		url = url.substr(0, pos);
+	}
+	// ------- its for get queryString
 	size_t i = 0;
 	std::string res;
 	std::string root = server->getRoot();
@@ -118,7 +119,6 @@ void Request::matchingURL(std::string url) {
 }
 
 void Request::setRequest(std::string req) {
-	// std::cout << req << std::endl;
     if (HeaderIsDone == 0){
 		// if (doublicateServer.size() > 1) {
 		// 	std::vector<Server *>::iterator it = doublicateServer.begin();
@@ -139,6 +139,7 @@ void Request::setRequest(std::string req) {
 			std::string key = req.substr(0, req.find(": "));
 			if (req.substr(0, req.find("\r\n")) == ""){
 				req.erase(0, req.find("\r\n") + 2);
+				// if no "\r\n\r\n" should be timeout ==> |!|
 				break;
 			}
 			req.erase(0, req.find(": ") + 2);
@@ -148,14 +149,29 @@ void Request::setRequest(std::string req) {
 		}
         body = req;
         HeaderIsDone = 1;
-		std::cout << "change this -_-" << std::endl;
-		// matchingURL(this->url);
+		// check host
+		// host:port host  port == serv->port
+		if (doublicateServer.size() > 1) {
+			std::vector<Server *>::iterator it = doublicateServer.begin();
+			for (; it != doublicateServer.end(); it++) {
+				std::vector <std::string> serv_names = (*it)->getServNames();
+			
+				if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
+					server = *it;
+					break;
+				}
+			}
+		}
+		// server->printArg();
+		matchingURL(url);
+		if (this->location->getMethods().find(Methode) == std::string::npos)
+			throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
         CheckRequest();
 	}
-	if (HeadReq.find("Methode")->second == "POST"){
+	if (Methode == "POST"){
 		Post(req);
 	}
-	else if (HeadReq.find("Methode")->second == "GET")
+	else if (Methode == "GET")
 		Get();
 	else
 		Delete();
@@ -234,55 +250,94 @@ void Request::Delete(){
 	throw StatusCodeExcept(HttpStatus::NoContent);
 }
 
-void Request::hextodec(std::string str){
+void Request::setfirstBody(std::string type){
+
+	ftype.open((url + "image." + type).c_str(), std::ios::binary);
+	if (ftype.is_open() == 0)
+		throw StatusCodeExcept(HttpStatus::NotFound);
 	
+	std::string num = body.substr(0, body.find("\r\n"));
 	std::stringstream stream;
-	stream << str.substr(0, str.find("\r\n"));
+	stream << num;
 	stream >> std::hex >> buffer;
+	if (buffer == 0)
+		throw StatusCodeExcept(HttpStatus::NoContent);
+
+	body = body.substr(body.find("\r\n") + 2);
+	ftype << body;
+	len = body.length();
+	body.clear();
+
 }
 
+void Request::getBuffer(std::string req){
+		
+	std::string num = req.substr(0, req.find("\r\n"));
+	std::stringstream stream;
+	stream << num;
+	stream >> std::hex >> buffer;
+	if (buffer == 0)
+		throw StatusCodeExcept(HttpStatus::OK);
+
+	req = req.substr(req.find("\r\n") + 2);
+	ftype << req;
+	len = req.length();
+}
+
+void Request::PostChunked(std::string req, std::string type){
+
+	if (!body.empty())
+		setfirstBody(type);
+	else if (!nextchunk.empty()){
+		req = nextchunk + req;
+		if (req[0] == '\r')
+			req = req.substr(req.find("\r\n") + 2);
+		getBuffer(req);
+		nextchunk.clear();
+	}
+	else {
+		size_t chunkBuffer;
+		len += req.length();
+		if (len > buffer) {
+			chunkBuffer = req.length() - (len - buffer); // calcul how much i should add to the chunke.
+			ftype << req.substr(0, chunkBuffer); // Push the missing part of chunke.
+			req = req.substr(chunkBuffer); // remove the missing part of chunke from the request.
+	
+			size_t pos;
+			pos = req.find("\r\n");
+			if (pos != std::string::npos && pos + 2 < req.length()){
+				req = req.substr(pos + 2);
+				pos = req.find("\r\n");
+				if (pos != std::string::npos && pos + 2 < req.length()){
+					getBuffer(req);
+					return ;
+				}
+			}
+			nextchunk = req; // This when the format (\r\nBUFFER\r\n) not correct.
+			req.clear();
+		}
+		else if (len == buffer){
+			ftype << req;
+			nextchunk = "";
+		}
+		else
+			ftype << req;
+	}
+}
 
 void Request::Post(std::string req) {
 
-	std::string type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
-	
-	if (HeadReq.find("Transfer-Encoding") != HeadReq.end()){
-		if (!body.empty()) {
-			ftype.open((url + "image." + type).c_str(), std::ios::binary);
-			if (ftype.is_open() == 0)
-				throw StatusCodeExcept(HttpStatus::NotFound);
-			hextodec(body);
-			body = body.substr(body.find("\r\n") + 2);
-			ftype << body;
-			this->length += body.length();
-			body.clear();
-		}
-		else {
-			oldlen = this->length;
-			this->length += req.length();
-			if (this->length >= buffer) {
-				std::string tmp = req.substr(0, (buffer - oldlen));
-				ftype << tmp;
-				if (req.length() == 1023){
-					req = req.substr((buffer - oldlen));
-					std::cout << req << std::endl;	
-				}
-				req = req.substr((buffer - oldlen) + 2);
-				hextodec(req);
-				if (buffer == 0)
-					throw StatusCodeExcept(HttpStatus::OK);
-				req = req.substr(req.find("\r\n") + 2);
-				this->length = req.length();
-			}
-			// else if (this->length == buffer){
-			// 	this->length = 0;
-			// }
-			ftype << req;
-		}
-	}
+	std::string type;
+	if (HeadReq.find("Content-Type") != HeadReq.end())
+		type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
+	else
+		throw StatusCodeExcept(HttpStatus::NoContent);
+
+	if (HeadReq.find("Transfer-Encoding") != HeadReq.end())
+		PostChunked(req, type);
 	else {
 		if (!body.empty()){
-			ftype.open((url + "image." + type).c_str(), std::ios::binary);
+			ftype.open(("image." + type).c_str(), std::ios::binary);
 			if (!ftype.is_open())
 				throw StatusCodeExcept(HttpStatus::NotFound);
 				
@@ -290,11 +345,14 @@ void Request::Post(std::string req) {
 			this->length = body.length();
 			body.clear();
 		}
-		else{
+		else {
 			this->length += req.length();
 			ftype << req;
-			if (this->length >= atol(HeadReq.find("Content-Length")->second.c_str()))
+			if (this->length >= ContentLength){
+				std::cout << req << std::endl;
 				throw StatusCodeExcept(HttpStatus::OK);
+			}
 		}
 	}
+
 }

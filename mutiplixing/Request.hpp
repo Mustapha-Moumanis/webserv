@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/20 01:30:47 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/21 22:19:54 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,11 @@ class Request {
 		Server *server;
 		std::vector<Server *> doublicateServer;
 		Location *location;
-		int HeaderIsDone;
 		std::string body;
-		std::string url;
 		std::string queryString;
-		std::ofstream ftype;
-		long long length;
-		int	buffer;
-		int oldlen;
+		std::string url;
+		std::string Methode;
+		int HeaderIsDone;
 
 	public :
 		Request();
@@ -50,13 +47,27 @@ class Request {
 		void setDoublicateServer(std::vector<Server *> &vec);
 		// std::vector<Server *> &getDoublicateServer();
 
-		void Get(void);
-		void Delete(void);
-		void Post(std::string);
+	private :
+		std::ofstream ftype;
+		long long ContentLength;
+		std::string nextchunk;
+		long long length;
+		int	buffer;
+		int len;
 
-		void hextodec(std::string);
+	public :
+		// Get 
+		void Get(void);
+		
+		// Post
+		void Post(std::string);
+		void PostChunked(std::string, std::string);
+		void setfirstBody(std::string);
+		void getBuffer(std::string);
+
+		// Delete
+		void Delete(void);
 		void RemoveContentDir(std::string);
-		void getChunk(std::string);
 };
 
 #endif

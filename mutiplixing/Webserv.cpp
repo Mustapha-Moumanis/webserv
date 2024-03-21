@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 23:43:52 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/21 21:27:12 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void Webserv::multiplixing() {
 				}
 				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
 					// request
-					std::cout << "------ request ------" << std::endl;
+					// std::cout << "------ request ------" << std::endl;
 
 					char buffer[1024] = {0};
 

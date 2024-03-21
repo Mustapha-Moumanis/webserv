@@ -16,7 +16,7 @@ server :
         - autoindex : ON     
         - upload : off  
         - methods: DELETE POST  
-        - methods: DELETE GET  
+        # - methods: DELETE GET  
         - client_max_body_size:    10M
         - error_pages : [[400, error_pages/custom_40x.html]]  
         - retrun : 301   sdfs   dfsf
@@ -40,7 +40,7 @@ server :
 
 server : 
     # change if two servers have the same server_name
-    server_name     : _
+    server_name     : mmoumani
     host: 127.0.3.1
 
     port: 8080
