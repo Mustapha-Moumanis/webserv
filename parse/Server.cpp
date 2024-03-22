@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/22 01:45:24 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/22 17:12:36 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,7 +448,6 @@ void Server::checkArg() {
 void Server::printArg() {
 	std::cout << "	port : *" << getPort() << "*" << std::endl;
 	std::cout << "	host : *" << getHost() << "*" << std::endl;
-	// std::cout << "	server_name : *" << getServNames() << "*" << std::endl;
 	std::cout << "	server_name : ";
 	for (std::vector<std::string>::iterator it = getServNames().begin(); it != getServNames().end(); it++) {
 		std::cout << *it << " ";
