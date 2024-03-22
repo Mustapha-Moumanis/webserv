@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/22 17:05:58 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/22 21:47:16 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,12 @@
 #include <algorithm>
 #include <cstring>
 
-Request::Request() : body(""), queryString(""), url(""), Methode(""), length(0){
+Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	nextchunk = "";
+	type = "";
 	ContentLength = 0;
 	HeaderIsDone = 0;
+	IsChunked = 0;
 }
 
 Request::~Request() {
@@ -45,10 +47,10 @@ void Request::CheckFirstLine(std::string Fline){
 
     if (b.length() > 2048)
 		throw StatusCodeExcept(HttpStatus::URITooLong);
-	Methode = a;
+	Method = a;
 	url = b;
 
-	HeadReq.insert(std::pair<std::string,std::string>("Methode", a)); // its will be removed
+	HeadReq.insert(std::pair<std::string,std::string>("Method", a)); // its will be removed
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b)); // its will be removed
 
 	if (version != "HTTP/1.1")
@@ -58,16 +60,28 @@ void Request::CheckFirstLine(std::string Fline){
 void Request::CheckRequest(){
 
 	std::map<std::string, std::string>::iterator it;
-	if (Methode == "POST"){
-		if ((it = HeadReq.find("Content-Length")) != HeadReq.end())
-			ContentLength = atol(it->second.c_str());
-		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
-			if (it->second != "chunked")
-				throw StatusCodeExcept(HttpStatus::NotImplemented);	
-		}
-		else
-			throw StatusCodeExcept(HttpStatus::BadRequest);
+	if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
+		ContentLength = atol(it->second.c_str());
+		if (ContentLength > server->getClientMaxBodySize())
+			throw StatusCodeExcept(HttpStatus::PayloadTooLarge);
 	}
+	
+	if (Method == "POST"){
+		if (it == HeadReq.end()){
+			if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
+				if (it->second != "chunked")
+					throw StatusCodeExcept(HttpStatus::NotImplemented);	
+			}
+			else
+				throw StatusCodeExcept(HttpStatus::BadRequest);
+		}
+
+		it = HeadReq.find("Content-Type");
+		if (it == HeadReq.end())
+			throw StatusCodeExcept(HttpStatus::NoContent);
+		type = MimeTypes::getExtension(it->second.c_str());
+	}
+	
 }
 
 bool Request::CompareURL(std::string s1, std::string s2) {
@@ -163,14 +177,15 @@ void Request::setRequest(std::string req) {
         HeaderIsDone = 1;
 		specificServ();
 		matchingURL(url);
-		if (this->location->getMethods().find(Methode) == std::string::npos)
+		if (this->location->getMethods().find(Method) == std::string::npos)
 			throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
         CheckRequest();
 	}
-	if (Methode == "POST"){
+	if (Method == "POST"){
+		// check if upload is on |!|
 		Post(req);
 	}
-	else if (Methode == "GET")
+	else if (Method == "GET")
 		Get();
 	else
 		Delete();
@@ -249,7 +264,7 @@ void Request::Delete(){
 	throw StatusCodeExcept(HttpStatus::NoContent);
 }
 
-void Request::setfirstBody(std::string type){
+void Request::setfirstBody(){
 
 	ftype.open((url + "image." + type).c_str(), std::ios::binary);
 	if (ftype.is_open() == 0)
@@ -264,7 +279,7 @@ void Request::setfirstBody(std::string type){
 
 	body = body.substr(body.find("\r\n") + 2);
 	ftype << body;
-	len = body.length();
+	this->length = body.length();
 	body.clear();
 
 }
@@ -276,17 +291,17 @@ void Request::getBuffer(std::string req){
 	stream << num;
 	stream >> std::hex >> buffer;
 	if (buffer == 0)
-		throw StatusCodeExcept(HttpStatus::OK);
+		throw StatusCodeExcept(HttpStatus::Created);
 
 	req = req.substr(req.find("\r\n") + 2);
 	ftype << req;
-	len = req.length();
+	this->length = req.length();
 }
 
-void Request::PostChunked(std::string req, std::string type){
+void Request::PostChunked(std::string req){
 
 	if (!body.empty())
-		setfirstBody(type);
+		setfirstBody();
 	else if (!nextchunk.empty()){
 		req = nextchunk + req;
 		if (req[0] == '\r')
@@ -296,9 +311,9 @@ void Request::PostChunked(std::string req, std::string type){
 	}
 	else {
 		size_t chunkBuffer;
-		len += req.length();
-		if (len > buffer) {
-			chunkBuffer = req.length() - (len - buffer); // calcul how much i should add to the chunke.
+		this->length += req.length();
+		if (this->length > buffer) {
+			chunkBuffer = req.length() - (this->length - buffer); // calcul how much i should add to the chunke.
 			ftype << req.substr(0, chunkBuffer); // Push the missing part of chunke.
 			req = req.substr(chunkBuffer); // remove the missing part of chunke from the request.
 	
@@ -315,7 +330,7 @@ void Request::PostChunked(std::string req, std::string type){
 			nextchunk = req; // This when the format (\r\nBUFFER\r\n) not correct.
 			req.clear();
 		}
-		else if (len == buffer){
+		else if (this->length == buffer){
 			ftype << req;
 			nextchunk = "";
 		}
@@ -326,14 +341,8 @@ void Request::PostChunked(std::string req, std::string type){
 
 void Request::Post(std::string req) {
 
-	std::string type;
-	if (HeadReq.find("Content-Type") != HeadReq.end())
-		type = MimeTypes::getExtension(HeadReq.find("Content-Type")->second.c_str());
-	else
-		throw StatusCodeExcept(HttpStatus::NoContent);
-
 	if (HeadReq.find("Transfer-Encoding") != HeadReq.end())
-		PostChunked(req, type);
+		PostChunked(req);
 	else {
 		if (!body.empty()){
 			ftype.open((url + "image." + type).c_str(), std::ios::binary);
@@ -342,15 +351,15 @@ void Request::Post(std::string req) {
 				
 			ftype << body;
 			this->length = body.length();
+			if (this->length >= ContentLength)
+				throw StatusCodeExcept(HttpStatus::Created);
 			body.clear();
 		}
 		else {
-			this->length += req.length();
 			ftype << req;
-			if (this->length >= ContentLength){
-				// std::cout << req << std::endl;
-				throw StatusCodeExcept(HttpStatus::OK);
-			}
+			this->length += req.length();
+			if (this->length >= ContentLength)
+				throw StatusCodeExcept(HttpStatus::Created);
 		}
 	}
 

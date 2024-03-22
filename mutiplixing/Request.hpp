@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/21 23:38:41 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/22 20:41:25 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Request {
 		std::string body;
 		std::string queryString;
 		std::string url;
-		std::string Methode;
+		std::string Method;
 		int HeaderIsDone;
 
 	public :
@@ -50,11 +50,12 @@ class Request {
 	
 	private :
 		std::ofstream ftype;
-		long long ContentLength;
 		std::string nextchunk;
+		std::string type;
+		long long ContentLength;
 		long long length;
+		bool IsChunked;
 		int	buffer;
-		int len;
 
 	public :
 		// Get 
@@ -62,8 +63,8 @@ class Request {
 		
 		// Post
 		void Post(std::string);
-		void PostChunked(std::string, std::string);
-		void setfirstBody(std::string);
+		void PostChunked(std::string);
+		void setfirstBody();
 		void getBuffer(std::string);
 
 		// Delete

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:22:34 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/22 20:41:25 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void Location::setMethods(std::string value) {
 	
 	while (ss >> token) {
 		if (token != "POST" && token != "GET" && token != "DELETE")
-			throw std::runtime_error("methode : " + token + " not valide");
+			throw std::runtime_error("Method : " + token + " not valide");
 		else if (!methods.empty() && methods.find(token) != std::string::npos)
 			continue ;
 		else
