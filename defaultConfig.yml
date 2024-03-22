@@ -1,7 +1,7 @@
 server :
     # doublicate 
     port:  8080   # min 1 max 65535
-    host:   127.0.3.1    # 4 nunmbers 3 . 
+    host: 127.0.3.1
     server_name : mmoumani.42.fr1  # test1 
     root: www    #path
     client_max_body_size:    20M   
@@ -15,8 +15,6 @@ server :
         - path : /home
         - autoindex : ON     
         - upload : off  
-        - methods: DELETE POST  
-        # - methods: DELETE GET  
         - client_max_body_size:    10M
         - error_pages : [[400, error_pages/custom_40x.html]]  
         - retrun : 301   sdfs   dfsf

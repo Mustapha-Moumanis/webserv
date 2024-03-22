@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/21 22:39:54 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/22 17:05:58 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,31 @@ bool Request::CompareURL(std::string s1, std::string s2) {
     return 0;
 }
 
+void Request::specificServ() {
+	std::string Host = HeadReq["Host"];
+	size_t pos = Host.find(":");
+	if (pos == std::string::npos)
+		throw StatusCodeExcept(HttpStatus::BadRequest);
+	std::string port = Host.substr(pos + 1);
+	if (port.length() > 5 || port.find_first_not_of("0123456789") != std::string::npos 
+		|| atoi(port.c_str()) != server->getPort())
+		throw StatusCodeExcept(HttpStatus::BadRequest);
+	Host = Host.substr(0, pos);
+
+	if (doublicateServer.size() > 1) {
+		std::vector<Server *>::iterator it = doublicateServer.begin();
+		for (; it != doublicateServer.end(); it++) {
+			std::vector <std::string> serv_names = (*it)->getServNames();
+		
+			if (find(serv_names.begin(), serv_names.end(), Host) != serv_names.end()) {
+				server = *it;
+				break;
+			}
+		}
+	}
+	// server->printArg();
+}
+
 void Request::matchingURL(std::string url) {
 	// ------I add this from check firstline()
 	size_t pos = url.find("?");
@@ -120,19 +145,6 @@ void Request::matchingURL(std::string url) {
 
 void Request::setRequest(std::string req) {
     if (HeaderIsDone == 0){
-		// if (doublicateServer.size() > 1) {
-		// 	std::vector<Server *>::iterator it = doublicateServer.begin();
-		// 	for (; it != doublicateServer.end(); it++) {
-		// 		std::vector <std::string> serv_names = (*it)->getServNames();
-
-		// 		if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
-		// 			std::cout << "hello " << std::endl;
-		// 			server = *it;
-		// 			break;
-		// 		}
-		// 	}
-		// }
-		// server->printArg();
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
 		while (404) {
@@ -149,20 +161,7 @@ void Request::setRequest(std::string req) {
 		}
         body = req;
         HeaderIsDone = 1;
-		// check host
-		// host:port host  port == serv->port
-		if (doublicateServer.size() > 1) {
-			std::vector<Server *>::iterator it = doublicateServer.begin();
-			for (; it != doublicateServer.end(); it++) {
-				std::vector <std::string> serv_names = (*it)->getServNames();
-			
-				if (find(serv_names.begin(), serv_names.end(), HeadReq["Host"]) != serv_names.end()) {
-					server = *it;
-					break;
-				}
-			}
-		}
-		// server->printArg();
+		specificServ();
 		matchingURL(url);
 		if (this->location->getMethods().find(Methode) == std::string::npos)
 			throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
@@ -337,7 +336,7 @@ void Request::Post(std::string req) {
 		PostChunked(req, type);
 	else {
 		if (!body.empty()){
-			ftype.open(("image." + type).c_str(), std::ios::binary);
+			ftype.open((url + "image." + type).c_str(), std::ios::binary);
 			if (!ftype.is_open())
 				throw StatusCodeExcept(HttpStatus::NotFound);
 				
@@ -349,7 +348,7 @@ void Request::Post(std::string req) {
 			this->length += req.length();
 			ftype << req;
 			if (this->length >= ContentLength){
-				std::cout << req << std::endl;
+				// std::cout << req << std::endl;
 				throw StatusCodeExcept(HttpStatus::OK);
 			}
 		}

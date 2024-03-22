@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/21 22:19:54 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/21 23:38:41 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,9 @@ class Request {
 		void matchingURL(std::string b);
 		bool CompareURL(std::string s1, std::string s2);
 		void setDoublicateServer(std::vector<Server *> &vec);
-		// std::vector<Server *> &getDoublicateServer();
+		void specificServ();
 
+	
 	private :
 		std::ofstream ftype;
 		long long ContentLength;
