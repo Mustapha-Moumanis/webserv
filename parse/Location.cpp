@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/22 20:41:25 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/23 22:09:32 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,17 +82,9 @@ std::string Location::getMethods() {
 }
 
 void Location::setRoot(std::string value) {
-	std::ifstream ifs;
-
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	if (!isDir(value))
-		throw std::runtime_error("root : invalide value " + value);
-	ifs.open(value.c_str());
-	if (!ifs.is_open())
-		throw std::runtime_error("root : invalide value " + value);
-	ifs.close();
 	root = value;
 }
 
@@ -184,10 +176,10 @@ void Location::setUpload(std::string value) {
 	if (path.empty())
 		return ;
 	if (!isDir(path))
-		throw std::runtime_error("upload : invalide path " + path);
+		return ;
 	ifs.open(path.c_str());
 	if (!ifs.is_open())
-		throw std::runtime_error("upload : invalide path " + path);
+		return ;
 	ifs.close();
 	uploadPath = path;
 }

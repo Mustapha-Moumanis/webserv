@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/22 21:07:56 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/23 22:08:50 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,9 @@ Server::~Server(){}
 // set variables
 
 void Server::setRoot(std::string value) {
-	std::ifstream ifs;
-
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	if (!isDir(value))
-		throw std::runtime_error("root : invalide value " + value);
-	ifs.open(value.c_str());
-	if (!ifs.is_open())
-		throw std::runtime_error("root : invalide value " + value);
-	ifs.close();
 	root = value;
 }
 
@@ -68,7 +60,7 @@ void Server::setPort(std::string value) {
 	
 	port = atoi(value.c_str());
 	
-	if (port < 1 || port > 65535)
+	if (port < 1024 || port > 65535)
 		throw std::runtime_error("port : invalid value " + value);
 }
 
@@ -155,10 +147,10 @@ void Server::setUpload(std::string value) {
 	if (path.empty())
 		return ;
 	if (!isDir(path))
-		throw std::runtime_error("upload : invalide path " + path);
+		return ;
 	ifs.open(path.c_str());
 	if (!ifs.is_open())
-		throw std::runtime_error("upload : invalide path " + path);
+		return ;
 	ifs.close();
 	uploadPath = path;
 }
@@ -455,8 +447,8 @@ void Server::initEmptyData() {
 		methods = "POST GET DELETE";
 	if (hostPort.empty())
 		initHostPort();
-	if (uploadPath.empty())
-		uploadPath = root;
+	// if (uploadPath.empty())
+	// 	uploadPath = root;
 	if (!index.empty()) {
 		std::ifstream ifs;
 		std::string path;
