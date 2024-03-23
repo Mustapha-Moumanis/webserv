@@ -5,13 +5,12 @@ server :
     server_name : mmoumani.42.fr1
     root: www
     client_max_body_size: 20M
-    upload : on  upload/
+    upload : on
     autoindex : ON
     methods: POST GET
     index : index.html index.htmld
     index : home.html index.htmld2
     error_pages : [[400 500 502 503 504, error_pages/custom_50x.html], [400 400 402 403 404, custom_40x.html]]   
-    root: upload
     location :   
         - path : /home
         - autoindex : ON     

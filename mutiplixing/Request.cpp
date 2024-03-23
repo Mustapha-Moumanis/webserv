@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/22 21:47:16 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/23 20:28:26 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void Request::setDoublicateServer(std::vector<Server *> &vec) {
 void Request::CheckFirstLine(std::string Fline){
 
 	std::stringstream ss(Fline);
-
 	std::string version;
 	std::string a;
 	std::string b;
@@ -47,9 +46,10 @@ void Request::CheckFirstLine(std::string Fline){
 
     if (b.length() > 2048)
 		throw StatusCodeExcept(HttpStatus::URITooLong);
+	if ((a != "GET" && a != "DELETE" && a != "POST") )
+		throw StatusCodeExcept(HttpStatus::NotImplemented);
 	Method = a;
 	url = b;
-
 	HeadReq.insert(std::pair<std::string,std::string>("Method", a)); // its will be removed
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b)); // its will be removed
 
@@ -61,11 +61,13 @@ void Request::CheckRequest(){
 
 	std::map<std::string, std::string>::iterator it;
 	if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
+		// check if Content-Length is not intger |!|
+		if (it->second.find_first_not_of("0123456789"))
 		ContentLength = atol(it->second.c_str());
 		if (ContentLength > server->getClientMaxBodySize())
 			throw StatusCodeExcept(HttpStatus::PayloadTooLarge);
 	}
-	
+
 	if (Method == "POST"){
 		if (it == HeadReq.end()){
 			if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
@@ -75,18 +77,20 @@ void Request::CheckRequest(){
 			else
 				throw StatusCodeExcept(HttpStatus::BadRequest);
 		}
-
-		it = HeadReq.find("Content-Type");
-		if (it == HeadReq.end())
-			throw StatusCodeExcept(HttpStatus::NoContent);
-		type = MimeTypes::getExtension(it->second.c_str());
 	}
-	
+	it = HeadReq.find("Content-Type");
+	if (it != HeadReq.end()){
+		type = ".";
+		if (MimeTypes::getExtension(it->second.c_str()) == NULL)
+			throw StatusCodeExcept(HttpStatus::UnsupportedMediaType);
+		type += MimeTypes::getExtension(it->second.c_str());
+	}
 }
 
 bool Request::CompareURL(std::string s1, std::string s2) {
 	size_t len1 = s1.length();
 	size_t len2 = s2.length();
+
 	if (len2 > len1)
 		len2 = len1;
 	for (size_t i = len2; i > 0; --i)
@@ -121,18 +125,16 @@ void Request::specificServ() {
 }
 
 void Request::matchingURL(std::string url) {
-	// ------I add this from check firstline()
+	std::string res;
+	std::string root = server->getRoot();
+
 	size_t pos = url.find("?");
 	if (pos != std::string::npos) {
 		queryString = url.substr(pos + 1);
 		url = url.substr(0, pos);
 	}
-	// ------- its for get queryString
-	size_t i = 0;
-	std::string res;
-	std::string root = server->getRoot();
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
-		if ((i = CompareURL(it1->getPath(), url))) {
+		if (CompareURL(it1->getPath(), url)) {
 			if (it1->getPath().length() > res.length()) {
 				res = it1->getPath();
 				location = &(*it1);
@@ -145,7 +147,7 @@ void Request::matchingURL(std::string url) {
 		if (url[res.length()] == '/')
 			res += '/';
 		else {
-			size_t pos = url.find("/", res.length());
+			pos = url.find("/", res.length());
 			if (pos != std::string::npos)
 				res = url.substr(0, pos + 1);
 			else
@@ -158,6 +160,7 @@ void Request::matchingURL(std::string url) {
 }
 
 void Request::setRequest(std::string req) {
+
     if (HeaderIsDone == 0){
 		CheckFirstLine(req.substr(0, req.find("\r\n")));
 		req.erase(0, req.find("\r\n") + 2);
@@ -266,10 +269,10 @@ void Request::Delete(){
 
 void Request::setfirstBody(){
 
-	ftype.open((url + "image." + type).c_str(), std::ios::binary);
+	ftype.open((url + "image" + type).c_str(), std::ios::binary);
 	if (ftype.is_open() == 0)
 		throw StatusCodeExcept(HttpStatus::NotFound);
-	
+
 	std::string num = body.substr(0, body.find("\r\n"));
 	std::stringstream stream;
 	stream << num;
@@ -331,6 +334,7 @@ void Request::PostChunked(std::string req){
 			req.clear();
 		}
 		else if (this->length == buffer){
+			
 			ftype << req;
 			nextchunk = "";
 		}
@@ -345,7 +349,9 @@ void Request::Post(std::string req) {
 		PostChunked(req);
 	else {
 		if (!body.empty()){
-			ftype.open((url + "image." + type).c_str(), std::ios::binary);
+			std::string fileName = url + getNewName() + type;
+			std::cout << "upload >> " << fileName << std::endl;
+			ftype.open(fileName.c_str(), std::ios::binary);
 			if (!ftype.is_open())
 				throw StatusCodeExcept(HttpStatus::NotFound);
 				
