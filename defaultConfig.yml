@@ -1,21 +1,21 @@
 server :
     # doublicate 
-    port:  8080   # min 1 max 65535
+    port:  8080
     host: 127.0.3.1
-    server_name : mmoumani.42.fr1  # test1 
-    root: www    #path
-    client_max_body_size:    20M   
-    upload : on     
-    autoindex : ON     
-    methods: POST GET  
-    index : index.html index.htmld  
-    index : index.html index.htmld2  
+    server_name : mmoumani.42.fr1
+    root: www
+    client_max_body_size: 20M
+    upload : on  upload/
+    autoindex : ON
+    methods: POST GET
+    index : index.html index.htmld
+    index : home.html index.htmld2
     error_pages : [[400 500 502 503 504, error_pages/custom_50x.html], [400 400 402 403 404, custom_40x.html]]   
+    root: upload
     location :   
         - path : /home
         - autoindex : ON     
         - upload : off  
-        - client_max_body_size:    10M
         - error_pages : [[400, error_pages/custom_40x.html]]  
         - retrun : 301   sdfs   dfsf
 
@@ -42,7 +42,7 @@ server :
     host: 127.0.3.1
 
     port: 8080
-    root: /www
+    root: www
     index : congradulation 
 
 
@@ -60,4 +60,4 @@ server :
     host: 127.0.3.1
 
     port: 8082
-    root: /www
+    root: www

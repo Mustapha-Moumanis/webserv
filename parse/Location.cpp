@@ -19,9 +19,9 @@ Location::Location(Server &serv){
 	rediractionStatusCode = 0;
     root = serv.getRoot();
     upload = serv.getUpload();
+    uploadPath = serv.getUploadPath();
     autoIndex = serv.getAutoIndex();
 	errorPages = serv.getErrorPages();
-	clientMaxBodySize = serv.getClientMaxBodySize();
 }
 
 Location::~Location(){}
@@ -65,6 +65,10 @@ std::string Location::getUpload() {
     return upload;
 }
 
+std::string Location::getUploadPath() {
+    return uploadPath;
+}
+
 std::string Location::getRoot() {
     return root;
 }
@@ -77,14 +81,18 @@ std::string Location::getMethods() {
     return methods;
 }
 
-long long Location::getClientMaxBodySize() {
-	return clientMaxBodySize;
-}
-
 void Location::setRoot(std::string value) {
+	std::ifstream ifs;
+
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
+	if (!isDir(value))
+		throw std::runtime_error("root : invalide value " + value);
+	ifs.open(value.c_str());
+	if (!ifs.is_open())
+		throw std::runtime_error("root : invalide value " + value);
+	ifs.close();
 	root = value;
 }
 
@@ -150,56 +158,49 @@ void Location::setAutoIndex(std::string value) {
 }
 
 void Location::setUpload(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	std::string path;
+	std::ifstream ifs;
+
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	if (value == "on" || value == "ON" || value == "On")
+
+	ss << value;
+	ss >> token;
+	// get token
+	if (token == "on" || token == "ON" || token == "On")
 		upload = "on";
-	else if (value == "OFF" || value == "off" || value == "Off")
+	else if (token == "OFF" || token == "off" || token == "Off")
     	upload = "off";
 	else
-		throw std::runtime_error("upload : invalide value");
+		throw std::runtime_error("upload : invalide value " + value);
+	// get path
+	getline(ss, path, '\0');
+	pos = path.find_first_not_of(" ");
+	if (pos != std::string::npos)
+		path = path.substr(pos);
+	if (path.empty())
+		return ;
+	if (!isDir(path))
+		throw std::runtime_error("upload : invalide path " + path);
+	ifs.open(path.c_str());
+	if (!ifs.is_open())
+		throw std::runtime_error("upload : invalide path " + path);
+	ifs.close();
+	uploadPath = path;
 }
 
 void Location::setIndex(std::string value) {
 	std::stringstream ss;
 	std::string token;
 
-	size_t pos = value.find_last_not_of(" ");
-	if (pos != std::string::npos)
-		value = value.substr(0, pos + 1);
 	ss << value;
 	while (ss >> token) {
 		if (std::find(index.begin(), index.end(), token) == index.end())
 			index.push_back(token);
 	}
-}
-
-void Location::setClientMaxBodySize(std::string value) {
-	size_t myPos = value.find_last_not_of(" ");
-	std::string sUnit;
-	int convert = 1;
-
-	if (myPos != std::string::npos)
-		value = value.substr(0, myPos + 1);
-	myPos = value.find_first_not_of("0123456789");
-	if (myPos == std::string::npos || myPos == 0)
-		throw std::runtime_error("client_max_body_size invalide specify values in units");
-	sUnit = value.substr(myPos, value.length() - myPos);
-	if (sUnit.length() != 1 || sUnit.find_first_of("bkmgBKMG") == std::string::npos)
-		throw std::runtime_error("client_max_body_size units [B, K, M, G, b, k, m, g]");
-	if (sUnit == "K" || sUnit == "k")
-		convert = 1024;
-	else if (sUnit == "M" || sUnit == "m")
-		convert = 1048576;
-	else if (sUnit == "G" || sUnit == "g")
-		convert = 1073741824;
-	
-	std::stringstream ss(value.substr(0, myPos));
-	ss >> clientMaxBodySize;
-	clientMaxBodySize *= convert;
-	if (clientMaxBodySize > 2147483648)
-		throw std::runtime_error("Client_max_body_size too long maximum 2G");
 }
 
 void Location::insertErrorPages(std::string line, std::string value) {
@@ -362,10 +363,30 @@ void Location::checkLocation() {
 void Location::initEmptyData(Server &serv) {
 	if (methods.empty())
 		methods = serv.getMethods();
-	if (!serv.getIndex().empty()) {
+	if (index.empty()) {
 		for (std::vector<std::string>::iterator it = serv.getIndex().begin(); it != serv.getIndex().end(); it++) {
 			if (std::find(index.begin(), index.end(), *it) == index.end())
 				index.push_back(*it);
+		}
+	}
+	else {
+		std::ifstream ifs;
+		std::string path;
+		for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
+			if (root.at(root.length() - 1) != '/')
+				path = root + "/" + *it;
+			else
+				path = root + *it;
+			if (!isRegFile(path)) {
+				it->erase();
+				continue ;
+			}
+			ifs.open(path.c_str());
+			if (!ifs.is_open()) {
+				it->erase();
+				continue ;
+			}
+			ifs.close();
 		}
 	}
 }
@@ -379,12 +400,12 @@ void Location::initEmptyData(Server &serv) {
 // }
 
 void Location::printArg() {
-    std::cout << "            path : *" << path << "*" << std::endl;
-    std::cout << "            root : *" << root << "*"  << std::endl;
-    std::cout << "            methods : *" << methods << "*"  << std::endl;
-    std::cout << "            upload : *" << upload << "*"  << std::endl;
-    std::cout << "            autoIndex : *" << autoIndex << "*"  << std::endl;
-    std::cout << "            client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
+    std::cout << "            path : *" << getPath() << "*" << std::endl;
+    std::cout << "            root : *" << getRoot() << "*"  << std::endl;
+    std::cout << "            methods : *" << getMethods() << "*"  << std::endl;
+    std::cout << "            upload : *" << getUpload() << "*"  << std::endl;
+    std::cout << "            upload Path : *" << getUploadPath() << "*" << std::endl;
+	std::cout << "            autoIndex : *" << getAutoIndex() << "*"  << std::endl;
 	std::cout << "            rediraction : *" << getRediractionStatusCode() << " " << getRediractionURL() << "*"  << std::endl;
 	if (!getIndex().empty()) {
 		std::cout << "            index : ";

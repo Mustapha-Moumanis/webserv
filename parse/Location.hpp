@@ -24,10 +24,10 @@ class Location {
 		std::string upload;
 		std::string methods; 
 		std::string autoIndex; 
+		std::string uploadPath;
 		int rediractionStatusCode;
 		std::string rediractionURL;
 		
-		long long clientMaxBodySize;
 		std::vector<std::string> index; 
 		std::map<int, std::string> errorPages;
 		std::map<std::string, std::string> cgiPaths;
@@ -43,7 +43,6 @@ class Location {
 		void setMethods(std::string value);
 		void setAutoIndex(std::string value);
 		void setRediraction(std::string value);
-		void setClientMaxBodySize(std::string value);
 
 		void setCgiPath(std::string value);
 		void insertCgiPath(std::string line, std::string value);
@@ -56,9 +55,9 @@ class Location {
 		std::string getUpload();
 		std::string getMethods();
 		std::string getAutoIndex();
+		std::string getUploadPath();
 		std::string getRediractionURL();
 		int getRediractionStatusCode();
-		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
 		std::map<int, std::string> &getErrorPages();
 		std::map<std::string, std::string> &getCgiPaths();

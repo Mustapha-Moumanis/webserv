@@ -34,9 +34,9 @@ class Server {
 		std::string host;
 		std::string hostPort;
 		std::string upload;
+		std::string uploadPath;
 		std::string methods;
 		std::string autoIndex;
-		// std::string serverName;
 		std::vector<std::string> serverName;
 		long long clientMaxBodySize;
 		std::vector<std::string> index;
@@ -73,6 +73,7 @@ class Server {
 		std::string getMethods();
 		std::string getHostPort();
 		std::string getAutoIndex();
+		std::string getUploadPath();
 		long long getClientMaxBodySize();
 		std::vector<std::string> &getIndex();
 		std::vector<Location> &getLocation();

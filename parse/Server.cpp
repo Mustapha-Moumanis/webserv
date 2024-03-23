@@ -18,6 +18,7 @@ Server::Server(){
 	methods = "";
 	root = "www/";
 	upload = "on";
+	uploadPath = "";
 	autoIndex = "off";
 	clientMaxBodySize = 2147483648;
 }
@@ -27,9 +28,17 @@ Server::~Server(){}
 // set variables
 
 void Server::setRoot(std::string value) {
+	std::ifstream ifs;
+
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
+	if (!isDir(value))
+		throw std::runtime_error("root : invalide value " + value);
+	ifs.open(value.c_str());
+	if (!ifs.is_open())
+		throw std::runtime_error("root : invalide value " + value);
+	ifs.close();
 	root = value;
 }
 
@@ -120,15 +129,38 @@ void Server::setAutoIndex(std::string value) {
 }
 
 void Server::setUpload(std::string value) {
+	std::stringstream ss;
+	std::string token;
+	std::string path;
+	std::ifstream ifs;
+
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	if (value == "on" || value == "ON" || value == "On")
+
+	ss << value;
+	ss >> token;
+	// get token
+	if (token == "on" || token == "ON" || token == "On")
 		upload = "on";
-	else if (value == "OFF" || value == "off" || value == "Off")
+	else if (token == "OFF" || token == "off" || token == "Off")
     	upload = "off";
 	else
-		throw std::runtime_error("upload : invalide value");
+		throw std::runtime_error("upload : invalide value " + value);
+	// get path
+	getline(ss, path, '\0');
+	pos = path.find_first_not_of(" ");
+	if (pos != std::string::npos)
+		path = path.substr(pos);
+	if (path.empty())
+		return ;
+	if (!isDir(path))
+		throw std::runtime_error("upload : invalide path " + path);
+	ifs.open(path.c_str());
+	if (!ifs.is_open())
+		throw std::runtime_error("upload : invalide path " + path);
+	ifs.close();
+	uploadPath = path;
 }
 
 void Server::setClientMaxBodySize(std::string value) {
@@ -224,15 +256,15 @@ std::string Server::getUpload() {
     return upload;
 }
 
+std::string Server::getUploadPath() {
+    return uploadPath;
+}
+
 void Server::setIndex(std::string value) {
 	std::stringstream ss;
 	std::string token;
-	
-	size_t pos = value.find_last_not_of(" ");
-	if (pos != std::string::npos)
-		value = value.substr(0, pos + 1);
-	ss << value;
 
+	ss << value;
 	while (ss >> token) {
 		if (std::find(index.begin(), index.end(), token) == index.end())
 			index.push_back(token);
@@ -402,8 +434,6 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setRediraction(value);
 	else if (key == "index")
 		locat.setIndex(value);
-	else if (key == "client_max_body_size")
-		locat.setClientMaxBodySize(value);
 	else if (key == "error_pages")
 		locat.setErrorPages(value);
 	else if (key == "cgi_paths")
@@ -425,6 +455,28 @@ void Server::initEmptyData() {
 		methods = "POST GET DELETE";
 	if (hostPort.empty())
 		initHostPort();
+	if (uploadPath.empty())
+		uploadPath = root;
+	if (!index.empty()) {
+		std::ifstream ifs;
+		std::string path;
+		for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
+			if (root.at(root.length() - 1) != '/')
+				path = root + "/" + *it;
+			else
+				path = root + *it;
+			if (!isRegFile(path)) {
+				it->erase();
+				continue ;
+			}
+			ifs.open(path.c_str());
+			if (!ifs.is_open()) {
+				it->erase();
+				continue ;
+			}
+			ifs.close();
+		}
+	}
 }
 
 void Server::checkArg() {
@@ -454,6 +506,8 @@ void Server::printArg() {
 	}
 	std::cout << std::endl;
 	std::cout << "	root : " << getRoot() << "*" << std::endl;
+	std::cout << "	upload : *" << getUpload() << "*" << std::endl;
+	std::cout << "	upload Path : *" << getUploadPath() << "*" << std::endl;
 	std::cout << "	client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
 	std::cout << "	autoindex : *" << getAutoIndex() << "*" << std::endl;
 	std::cout << "	methods : *" << getMethods() << "*" << std::endl;
