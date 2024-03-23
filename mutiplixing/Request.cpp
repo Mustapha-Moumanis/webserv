@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:28 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/23 21:55:01 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/23 23:25:43 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,24 +60,26 @@ void Request::CheckFirstLine(std::string Fline){
 void Request::CheckRequest(){
 
 	std::map<std::string, std::string>::iterator it;
-	if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
-		// check if Content-Length is not intger |!|
-		if (it->second.find_first_not_of("0123456789"))
-		ContentLength = atol(it->second.c_str());
-		if (ContentLength > server->getClientMaxBodySize())
-			throw StatusCodeExcept(HttpStatus::PayloadTooLarge);
+	if (Method == "POST"){
+		if (this->location->getUpload() == "off" || this->location->getUploadPath().empty())
+				throw StatusCodeExcept(HttpStatus::Forbidden);
+
+		if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
+			if (it->second.find_first_not_of("0123456789") != std::string::npos)
+				throw StatusCodeExcept(HttpStatus::BadRequest);
+			ContentLength = atol(it->second.c_str());
+			if (ContentLength > server->getClientMaxBodySize())
+				throw StatusCodeExcept(HttpStatus::PayloadTooLarge);
+		}
+		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
+			if (it->second != "chunked")
+				throw StatusCodeExcept(HttpStatus::NotImplemented);
+		}
+		else
+			throw StatusCodeExcept(HttpStatus::BadRequest);
+
 	}
 
-	if (Method == "POST"){
-		if (it == HeadReq.end()){
-			if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
-				if (it->second != "chunked")
-					throw StatusCodeExcept(HttpStatus::NotImplemented);	
-			}
-			else
-				throw StatusCodeExcept(HttpStatus::BadRequest);
-		}
-	}
 	it = HeadReq.find("Content-Type");
 	if (it != HeadReq.end()){
 		type = ".";
@@ -281,8 +283,17 @@ void Request::setfirstBody(){
 		throw StatusCodeExcept(HttpStatus::NoContent);
 
 	body = body.substr(body.find("\r\n") + 2);
-	ftype << body;
 	this->length = body.length();
+	if (this->length > buffer){
+		std::stringstream stream;
+		stream << body.substr(body.find("\r\n") + 2);
+		stream >> std::hex >> buffer;
+		if (buffer == 0){
+			ftype << body.substr(0, body.find("\r\n"));
+			throw StatusCodeExcept(HttpStatus::Created);
+		}
+	}
+	ftype << body;
 	body.clear();
 
 }
@@ -344,7 +355,7 @@ void Request::PostChunked(std::string req){
 }
 
 void Request::Post(std::string req) {
-
+	// change all the url to path of upload |!|
 	if (HeadReq.find("Transfer-Encoding") != HeadReq.end())
 		PostChunked(req);
 	else {
