@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/23 22:13:23 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/24 03:25:05 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,14 @@ ParsConfigFile::ParsConfigFile(std::ifstream &fs, std::vector<Server *> &serv) :
 			throw std::runtime_error("invalid line : " + line);
 			
 	}
-	// for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
-	// 	(*it1)->checkArg();
+	for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
+		(*it1)->checkArg();
 	// 	// check doublicate 
 	// 	for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
 	// 		if ((*it1)->getPort() == (*it2)->getPort())
 	// 			throw std::runtime_error("doublicate post");
 	// 	}
-	// }
+	}
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
 	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
@@ -125,6 +125,8 @@ void ParsConfigFile::setServValue(Server &serv, std::string key, std::string val
 		serv.setIndex(value);
 	else if (key == "cgi_paths")
 		serv.setCgiPath(value);
+	else if (key == "time_out")
+		serv.setTimeOut(value);
 	else if (key == "-")
 		throw std::runtime_error("Error : Bad format " + key);
 	else

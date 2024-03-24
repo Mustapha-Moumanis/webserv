@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 00:23:23 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/24 02:52:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Server {
 		std::string autoIndex;
 		std::vector<std::string> serverName;
 		long long clientMaxBodySize;
+		double timeOut;
 		std::vector<std::string> index;
 		std::vector<Location> locations;
 		std::map<int, std::string> errorPages;
@@ -54,6 +55,7 @@ class Server {
 		void setIndex(std::string value);
 		void setUpload(std::string value);
 		void setMethods(std::string value);
+		void setTimeOut(std::string value);
 		void setAutoIndex(std::string value);
 		void setServNames(std::string value);
 		void setClientMaxBodySize(std::string value);
@@ -66,6 +68,7 @@ class Server {
 		void insertErrorPages(std::string value, std::string token);
 
 		int getPort();
+		double getTimeOut();
 		std::string getRoot();
 		std::string getHost();
 

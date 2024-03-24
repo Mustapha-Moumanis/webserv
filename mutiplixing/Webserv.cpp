@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/21 21:27:12 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/24 03:32:28 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void Webserv::multiplixing() {
 
 	int numEvents;
 	while (404) {
+		// add pip ignord get problem program exit when i refresh page |!|
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
 			throw std::runtime_error("epoll wait field");
 		for (int i = 0; i < numEvents; i++) {

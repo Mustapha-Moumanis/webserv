@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/23 22:08:50 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/24 03:30:41 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ Server::Server(){
 	uploadPath = "";
 	autoIndex = "off";
 	clientMaxBodySize = 2147483648;
+	timeOut = 30;
 }
 
 Server::~Server(){}
@@ -85,6 +86,9 @@ void Server::setHost(std::string value) {
 	}
 	if (i != 4)
 		throw std::runtime_error("host : invalid value " + value);
+	if (nb == 0)
+		throw std::runtime_error("host : invalid value " + value);
+
 	host = value;
 }
 
@@ -174,12 +178,38 @@ void Server::setClientMaxBodySize(std::string value) {
 		convert = 1048576;
 	else if (sUnit == "G" || sUnit == "g")
 		convert = 1073741824;
+	value = value.substr(0, myPos);
 	
-	std::stringstream ss(value.substr(0, myPos));
+	std::stringstream ss(value);
 	ss >> clientMaxBodySize;
 	clientMaxBodySize *= convert;
-	if (clientMaxBodySize > 2147483648)
+	if (value.size() > 10 || clientMaxBodySize > 2147483648)
 		throw std::runtime_error("Client_max_body_size too long maximum 2G");
+}
+
+void Server::setTimeOut(std::string value) {
+	std::string sUnit;
+	int convert = 1;
+	
+	size_t myPos = value.find_last_not_of(" ");
+	if (myPos != std::string::npos)
+		value = value.substr(0, myPos + 1);
+	myPos = value.find_first_not_of("0123456789");
+	if (myPos == std::string::npos || myPos == 0)
+		throw std::runtime_error("time_out : invalide specify values in units");
+
+	sUnit = value.substr(myPos, value.length() - myPos);
+	if (sUnit.length() != 1 || sUnit.find_first_of("smSM") == std::string::npos)
+		throw std::runtime_error("time_out : units seconds/minute [S, s, M, m]");
+	if (sUnit == "M" || sUnit == "m")
+		convert = 60;
+	value = value.substr(0, myPos);
+
+	std::stringstream ss(value);
+	ss >> timeOut;
+	timeOut *= convert;
+	if (value.size() > 4 || timeOut > 1200) // max 20min
+		throw std::runtime_error("time_out too long maximum 20 minute");
 }
 
 // get variables
@@ -210,6 +240,10 @@ std::vector<std::string> &Server::getServNames() {
 
 long long Server::getClientMaxBodySize() {
 	return clientMaxBodySize;
+}
+
+double Server::getTimeOut() {
+	return timeOut;
 }
 
 std::vector<Location> &Server::getLocation() {
@@ -422,7 +456,7 @@ void Server::setLocValue(Location &locat, std::string key, std::string value) {
 		locat.setPath(value);
 	else if (key == "methods")
 		locat.setMethods(value);
-	else if (key == "retrun")
+	else if (key == "return")
 		locat.setRediraction(value);
 	else if (key == "index")
 		locat.setIndex(value);
@@ -501,6 +535,7 @@ void Server::printArg() {
 	std::cout << "	upload : *" << getUpload() << "*" << std::endl;
 	std::cout << "	upload Path : *" << getUploadPath() << "*" << std::endl;
 	std::cout << "	client_max_body_size : *" << getClientMaxBodySize() << "*" << std::endl;
+	std::cout << "	time_out : *" << getTimeOut() << "*" << std::endl;
 	std::cout << "	autoindex : *" << getAutoIndex() << "*" << std::endl;
 	std::cout << "	methods : *" << getMethods() << "*" << std::endl;
 	if (!getIndex().empty()) {

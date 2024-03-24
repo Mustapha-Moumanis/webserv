@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/23 22:09:32 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/24 03:25:51 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,7 +349,7 @@ void Location::setCgiPath(std::string value) {
 
 void Location::checkLocation() {
 	if (path.empty())
-		throw std::runtime_error("location importent data : path | methods ...");
+		throw std::runtime_error("location importent data : path ...");
 }
 
 void Location::initEmptyData(Server &serv) {
