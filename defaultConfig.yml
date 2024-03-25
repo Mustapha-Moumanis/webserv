@@ -3,7 +3,7 @@ server :
     host: 127.0.3.1 # 0 on the end handled
     server_name : mmoumani.42.fr1
     root: www
-    client_max_body_size: 10M
+    # client_max_body_size: 10M
     upload : on upload 
     autoindex : OFF
     methods: POST GET
@@ -17,7 +17,7 @@ server :
         - upload : on
         - index : home.html
         - error_pages : [[400, error_pages/custom_40x.html]]  
-        - return : 301   sdfs   dfsf
+        # - return : 301  http://google.com
 
     location :
         - path:  /home/user/index.html 

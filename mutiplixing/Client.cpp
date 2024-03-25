@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 01:43:50 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/25 01:07:34 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,13 @@ std::vector<Server *> &Client::getDoublicateServer() {
     return doublicateServer;
 }
 
-std::string Client::generateResponse(HttpStatus::StatusCode Code, std::string Msg, std::string mimeType) {
+std::string Client::generateResponse(int Code, std::string Msg, std::string mimeType) {
     std::string resp;
     std::stringstream ss;
     std::string sCode;
     ss << Code;
     ss >> sCode;
-
+    
     resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
     resp += "Content-Type: " + mimeType + "\r\n\r\n";
     if (sCode == "204") 
@@ -105,6 +105,21 @@ void Client::SentRequest(std::string tmp){
 
         Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
         // std::cout << Response << std::endl;
+        setStatus(0);
+    }
+    catch (const rediractionExcept &e){
+        std::string resp;
+        std::stringstream ss;
+        std::string sCode;
+
+        ss << e.getStatusCode();
+        ss >> sCode;
+        Response += "HTTP/1.1 " + sCode;
+        Response += " ";
+        Response += e.what();
+        Response += "\r\nLocation: " + e.getURL() + "\r\n";
+        Response += "Content-Type: text/html\r\n\r\n";
+        std::cout << Response << std::endl;
         setStatus(0);
     }
     catch (const std::exception &e) {

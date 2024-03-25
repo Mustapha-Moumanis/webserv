@@ -20,6 +20,7 @@
 Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	nextchunk = "";
 	type = "";
+	path = "";
 	ContentLength = 0;
 	HeaderIsDone = 0;
 	IsChunked = 0;
@@ -46,38 +47,40 @@ void Request::CheckFirstLine(std::string Fline){
 	ss >> a >> b >> version;
 
     if (b.length() > 2048)
-		throw StatusCodeExcept(HttpStatus::URITooLong);
+		throw StatusCodeExcept(414);
 	if ((a != "GET" && a != "DELETE" && a != "POST") )
-		throw StatusCodeExcept(HttpStatus::NotImplemented);
+		throw StatusCodeExcept(501);
 	Method = a;
 	url = b;
 	HeadReq.insert(std::pair<std::string,std::string>("Method", a)); // its will be removed
 	HeadReq.insert(std::pair<std::string,std::string>("Location",b)); // its will be removed
 
 	if (version != "HTTP/1.1")
-		throw StatusCodeExcept(HttpStatus::HTTPVersionNotSupported);
+		throw StatusCodeExcept(505);
 }
 
 void Request::CheckRequest(){
 
 	std::map<std::string, std::string>::iterator it;
 	if (Method == "POST"){
-		if (this->location->getUpload() == "off" || this->location->getUploadPath().empty())
-				throw StatusCodeExcept(HttpStatus::Forbidden);
-
+		path = this->location->getUploadPath();
+		// check if path end with "/" or not |!|
+		if (this->location->getUpload() == "off" || path.empty())
+			throw StatusCodeExcept(403);
+		
 		if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
 			if (it->second.find_first_not_of("0123456789") != std::string::npos)
-				throw StatusCodeExcept(HttpStatus::BadRequest);
+				throw StatusCodeExcept(400);
 			ContentLength = atol(it->second.c_str());
 			if (ContentLength > server->getClientMaxBodySize())
-				throw StatusCodeExcept(HttpStatus::PayloadTooLarge);
+				throw StatusCodeExcept(413);
 		}
 		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
 			if (it->second != "chunked")
-				throw StatusCodeExcept(HttpStatus::NotImplemented);
+				throw StatusCodeExcept(501);
 		}
 		else
-			throw StatusCodeExcept(HttpStatus::BadRequest);
+			throw StatusCodeExcept(400);
 
 	}
 
@@ -85,7 +88,7 @@ void Request::CheckRequest(){
 	if (it != HeadReq.end()){
 		type = ".";
 		if (MimeTypes::getExtension(it->second.c_str()) == NULL)
-			throw StatusCodeExcept(HttpStatus::UnsupportedMediaType);
+			throw StatusCodeExcept(415);
 		type += MimeTypes::getExtension(it->second.c_str());
 	}
 }
@@ -106,11 +109,11 @@ void Request::specificServ() {
 	std::string Host = HeadReq["Host"];
 	size_t pos = Host.find(":");
 	if (pos == std::string::npos)
-		throw StatusCodeExcept(HttpStatus::BadRequest);
+		throw StatusCodeExcept(400);
 	std::string port = Host.substr(pos + 1);
 	if (port.length() > 5 || port.find_first_not_of("0123456789") != std::string::npos 
 		|| atoi(port.c_str()) != server->getPort())
-		throw StatusCodeExcept(HttpStatus::BadRequest);
+		throw StatusCodeExcept(400);
 	Host = Host.substr(0, pos);
 
 	if (doublicateServer.size() > 1) {
@@ -159,7 +162,7 @@ void Request::matchingURL(std::string url) {
 		this->url = url.replace(0, res.length(), root);
 	}
 	else
-		throw StatusCodeExcept(HttpStatus::NotFound);
+		throw StatusCodeExcept(404);
 }
 
 void Request::setRequest(std::string req) {
@@ -183,12 +186,15 @@ void Request::setRequest(std::string req) {
         HeaderIsDone = 1;
 		specificServ();
 		matchingURL(url);
+		if (this->location->getRediractionStatusCode() != 0) {
+			throw rediractionExcept(this->location->getRediractionStatusCode(), this->location->getRediractionURL());
+		}
+	
 		if (this->location->getMethods().find(Method) == std::string::npos)
-			throw StatusCodeExcept(HttpStatus::MethodNotAllowed);
+			throw StatusCodeExcept(405);
         CheckRequest();
 	}
 	if (Method == "POST"){
-		// check if upload is on |!|
 		Post(req);
 	}
 	else if (Method == "GET")
@@ -204,20 +210,20 @@ void Request::Get(){
 
 	st = stat(url.c_str(), &buffer);
 	if (st == -1)
-		throw StatusCodeExcept(HttpStatus::NotFound);
+		throw StatusCodeExcept(404);
 
 	if (S_ISDIR(buffer.st_mode)){
 		std::cout << "is Dir" << std::endl;
 		std::string index = url + "index.html";
 		if (stat(index.c_str(), &buffer) != -1){
-			throw StatusCodeExcept(HttpStatus::OK);
+			throw StatusCodeExcept(200);
 		}
-		throw StatusCodeExcept(HttpStatus::Forbidden);
+		throw StatusCodeExcept(403);
 
 	}
 	else {
 		std::cout << "is file" << std::endl;
-		throw StatusCodeExcept(HttpStatus::OK);
+		throw StatusCodeExcept(200);
 	}
 }
 
@@ -229,7 +235,7 @@ void	Request::RemoveContentDir(std::string str){
 		str += "/";
 	DIR* dir = opendir(str.c_str());
 	if (!dir)
-		throw StatusCodeExcept(HttpStatus::Forbidden);
+		throw StatusCodeExcept(403);
 	while ((dr = readdir(dir))){
 		std::string name = dr->d_name;
 		if (name != "." && name != "..")
@@ -239,14 +245,14 @@ void	Request::RemoveContentDir(std::string str){
 			else {
 				if (std::remove((str + name).c_str()) == -1){
 					closedir(dir);
-					throw StatusCodeExcept(HttpStatus::InternalServerError);
+					throw StatusCodeExcept(500);
 				}
 			}
 		}
 	}
 	if (std::remove((str).c_str()) == -1){
 		closedir(dir);
-		throw StatusCodeExcept(HttpStatus::InternalServerError);
+		throw StatusCodeExcept(500);
 	}
 	closedir(dir);
 }
@@ -257,31 +263,32 @@ void Request::Delete(){
 
 	st = stat(url.c_str(), &buffer);
 	if (st == -1)
-		throw StatusCodeExcept(HttpStatus::NotFound);
+		throw StatusCodeExcept(404);
 	if (S_ISDIR(buffer.st_mode)){
 		if (access(url.c_str(), W_OK) == -1)
-			throw StatusCodeExcept(HttpStatus::Forbidden);
+			throw StatusCodeExcept(403);
 		RemoveContentDir(url);
 	}
 	else {
 		if (std::remove(url.c_str()) == -1)
-			throw StatusCodeExcept(HttpStatus::Forbidden);
+			throw StatusCodeExcept(403);
 	}
-	throw StatusCodeExcept(HttpStatus::NoContent);
+	throw StatusCodeExcept(204);
 }
 
 void Request::setfirstBody(){
-
-	ftype.open((url + "image" + type).c_str(), std::ios::binary);
+	
+	std::string fileName = path + "/" + getNewName() + type;
+	ftype.open(fileName.c_str(), std::ios::binary);
 	if (ftype.is_open() == 0)
-		throw StatusCodeExcept(HttpStatus::NotFound);
+		throw StatusCodeExcept(404);
 
 	std::string num = body.substr(0, body.find("\r\n"));
 	std::stringstream stream;
 	stream << num;
 	stream >> std::hex >> buffer;
 	if (buffer == 0)
-		throw StatusCodeExcept(HttpStatus::NoContent);
+		throw StatusCodeExcept(204);
 
 	body = body.substr(body.find("\r\n") + 2);
 	this->length = body.length();
@@ -291,7 +298,7 @@ void Request::setfirstBody(){
 		stream >> std::hex >> buffer;
 		if (buffer == 0){
 			ftype << body.substr(0, body.find("\r\n"));
-			throw StatusCodeExcept(HttpStatus::Created);
+			throw StatusCodeExcept(201);
 		}
 	}
 	ftype << body;
@@ -306,7 +313,7 @@ void Request::getBuffer(std::string req){
 	stream << num;
 	stream >> std::hex >> buffer;
 	if (buffer == 0)
-		throw StatusCodeExcept(HttpStatus::Created);
+		throw StatusCodeExcept(201);
 
 	req = req.substr(req.find("\r\n") + 2);
 	ftype << req;
@@ -356,28 +363,28 @@ void Request::PostChunked(std::string req){
 }
 
 void Request::Post(std::string req) {
-	// change all the url to path of upload |!|
 	if (HeadReq.find("Transfer-Encoding") != HeadReq.end())
 		PostChunked(req);
 	else {
+		// if no body sent|!|
 		if (!body.empty()){
-			std::string fileName = url + getNewName() + type;
+			std::string fileName = path + "/" + getNewName() + type;
 			std::cout << "upload >> " << fileName << std::endl;
 			ftype.open(fileName.c_str(), std::ios::binary);
 			if (!ftype.is_open())
-				throw StatusCodeExcept(HttpStatus::NotFound);
+				throw StatusCodeExcept(404);
 				
 			ftype << body;
 			this->length = body.length();
 			if (this->length >= ContentLength)
-				throw StatusCodeExcept(HttpStatus::Created);
+				throw StatusCodeExcept(201);
 			body.clear();
 		}
 		else {
 			ftype << req;
 			this->length += req.length();
 			if (this->length >= ContentLength)
-				throw StatusCodeExcept(HttpStatus::Created);
+				throw StatusCodeExcept(201);
 		}
 	}
 

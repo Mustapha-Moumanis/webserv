@@ -3,21 +3,21 @@
 
 #include <iostream>
 #include <exception>
-#include "../include/StatusCode.hpp"
+#include "../include/Utils.hpp"
 
 class StatusCodeExcept: public std::exception {
-    HttpStatus::StatusCode statusCode;
+    int statusCode;
     
     public :
-        StatusCodeExcept(HttpStatus::StatusCode code) : statusCode(code) {}
+        StatusCodeExcept(int code) : statusCode(code) {}
         virtual ~StatusCodeExcept() throw() { return ; }
         
-        HttpStatus::StatusCode getStatusCode() const {
+        int getStatusCode() const {
             return statusCode;
         };
 
         const char* what() const throw() {
-            return HttpStatus::reasonPhrase(this->statusCode);
+            return reasonPhrase(this->statusCode);
         }
 
 };

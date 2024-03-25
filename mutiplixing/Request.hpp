@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/22 20:41:25 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/25 00:17:13 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "../include/Utils.hpp"
 #include "../include/MimeTypes.hpp"
 #include "StatusCodeExcept.hpp"
+#include "rediractionExcept.hpp"
 
 class Request {
 	
@@ -52,6 +53,7 @@ class Request {
 		std::ofstream ftype;
 		std::string nextchunk;
 		std::string type;
+		std::string path;
 		long long ContentLength;
 		long long length;
 		bool IsChunked;

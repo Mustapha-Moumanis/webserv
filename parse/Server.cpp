@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/24 03:30:41 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/25 01:01:09 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,7 +331,7 @@ void Server::insertErrorPages(std::string line, std::string value) {
 	ss << value;
 
 	while (ss >> token) {
-		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos || !HttpStatus::isVadilCode(atoi(token.c_str())))
+		if (token.length() != 3 || token.find_first_not_of("0123456789") != std::string::npos || !isVadilCode(atoi(token.c_str())))
 			throw std::runtime_error("error_pages : invalide Status Code " + token);
 		statusCode = atoi(token.c_str());
 		if (errorPages.find(statusCode) != errorPages.end())

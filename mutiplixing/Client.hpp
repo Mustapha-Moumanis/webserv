@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 01:26:19 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/25 00:53:41 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <cctype>
 #include "StatusCodeExcept.hpp"
+#include "rediractionExcept.hpp"
 #include "../parse/Server.hpp"
 #include "Request.hpp"
 
@@ -45,7 +46,7 @@ class Client {
 		std::string getResponse();
 		std::vector<Server *> &getDoublicateServer();
 		
-		std::string generateResponse(HttpStatus::StatusCode Code, std::string const Msg, std::string mimeType);
+		std::string generateResponse(int Code, std::string const Msg, std::string mimeType);
 		
 		// std::string getNewName();
 };
