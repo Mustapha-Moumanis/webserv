@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/25 01:01:09 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/26 21:14:42 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -355,32 +355,31 @@ void Location::checkLocation() {
 void Location::initEmptyData(Server &serv) {
 	if (methods.empty())
 		methods = serv.getMethods();
-	if (index.empty()) {
-		for (std::vector<std::string>::iterator it = serv.getIndex().begin(); it != serv.getIndex().end(); it++) {
-			if (std::find(index.begin(), index.end(), *it) == index.end())
-				index.push_back(*it);
-		}
+	for (std::vector<std::string>::iterator it = serv.getIndex().begin(); it != serv.getIndex().end(); it++) {
+		if (std::find(index.begin(), index.end(), *it) == index.end())
+			index.push_back(*it);
 	}
-	else {
-		std::ifstream ifs;
-		std::string path;
-		for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
-			if (root.at(root.length() - 1) != '/')
-				path = root + "/" + *it;
-			else
-				path = root + *it;
-			if (!isRegFile(path)) {
-				it->erase();
-				continue ;
-			}
-			ifs.open(path.c_str());
-			if (!ifs.is_open()) {
-				it->erase();
-				continue ;
-			}
-			ifs.close();
-		}
-	}
+	// }
+	// else {
+	// 	std::ifstream ifs;
+	// 	std::string path;
+	// 	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
+	// 		if (root.at(root.length() - 1) != '/')
+	// 			path = root + "/" + *it;
+	// 		else
+	// 			path = root + *it;
+	// 		if (!isRegFile(path)) {
+	// 			it->erase();
+	// 			continue ;
+	// 		}
+	// 		ifs.open(path.c_str());
+	// 		if (!ifs.is_open()) {
+	// 			it->erase();
+	// 			continue ;
+	// 		}
+	// 		ifs.close();
+	// 	}
+	// }
 }
 
 // void Location::checkLocation(){

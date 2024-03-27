@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/25 01:01:09 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/26 21:06:33 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -483,26 +483,26 @@ void Server::initEmptyData() {
 		initHostPort();
 	// if (uploadPath.empty())
 	// 	uploadPath = root;
-	if (!index.empty()) {
-		std::ifstream ifs;
-		std::string path;
-		for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
-			if (root.at(root.length() - 1) != '/')
-				path = root + "/" + *it;
-			else
-				path = root + *it;
-			if (!isRegFile(path)) {
-				it->erase();
-				continue ;
-			}
-			ifs.open(path.c_str());
-			if (!ifs.is_open()) {
-				it->erase();
-				continue ;
-			}
-			ifs.close();
-		}
-	}
+	// if (!index.empty()) {
+	// 	std::ifstream ifs;
+	// 	std::string path;
+	// 	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
+	// 		if (root.at(root.length() - 1) != '/')
+	// 			path = root + "/" + *it;
+	// 		else
+	// 			path = root + *it;
+	// 		if (!isRegFile(path)) {
+	// 			it->erase();
+	// 			continue ;
+	// 		}
+	// 		ifs.open(path.c_str());
+	// 		if (!ifs.is_open()) {
+	// 			it->erase();
+	// 			continue ;
+	// 		}
+	// 		ifs.close();
+	// 	}
+	// }
 }
 
 void Server::checkArg() {

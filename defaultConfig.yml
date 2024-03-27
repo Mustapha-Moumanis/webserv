@@ -8,21 +8,20 @@ server :
     autoindex : OFF
     methods: POST GET
     index : index.html index.htmld
-    index : home.html index.htmld2
+    index : home.html index.htmld2 # is dir
     time_out : 1m
     error_pages : [[400 500 502 503 504, error_pages/custom_50x.html]]
+
     location :   
         - path : /home
         - autoindex : ON    
         - upload : on
         - index : home.html
         - error_pages : [[400, error_pages/custom_40x.html]]  
-        # - return : 301  http://google.com
-
     location :
-        - path:  /home/user/index.html 
-        - index : home.html
-        - methods:  POST
+        - path:  /
+        # - methods:  POST
+        # - return : 301  http://google.com
 
 server : 
     server_name     : mmoumani

@@ -1,6 +1,7 @@
 #include "Utils.hpp"
 
 bool isDir(std::string path) {
+    std::cout << path << std::endl;
 	struct stat s;
 
 	if (stat(path.c_str(), &s) != 0)

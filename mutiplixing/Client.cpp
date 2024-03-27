@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/25 01:07:34 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/27 03:17:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     
     resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
     resp += "Content-Type: " + mimeType + "\r\n\r\n";
-    if (sCode == "204") 
+    if (Code == 204) 
         return resp;
     
     resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
@@ -93,6 +93,38 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     resp += "</head>\n<body>\n<div class='container'>\n";
     resp += "<h1>" + sCode + "</h1>\n";
     resp += "<h3> " + Msg + "</h3>\n";
+    resp += "</div>\n</body>\n</html>";
+    return resp;
+}
+
+std::string Client::generateDirResponse(int Code, std::string const Msg, std::string path) {
+    std::string resp;
+    std::stringstream ss;
+    std::string sCode;
+	
+    ss << Code;
+    ss >> sCode;
+    struct dirent* directoryEntries;
+	DIR* dir = opendir(path.c_str());
+    
+    resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
+    resp += "Content-Type: text/html\r\n\r\n";
+    if (Code == 204) 
+        return resp;
+    
+    resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
+    resp += sCode + " " + Msg;
+    resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
+    resp += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
+    resp += "</head>\n<body>\n<div class='container'>\n";
+    if (!dir)
+        throw StatusCodeExcept(403);
+    while ((directoryEntries = readdir(dir))){
+        std::string name = directoryEntries->d_name;
+        std::cout << ">> " << name << std::endl;
+        
+    }
+    closedir(dir);
     resp += "</div>\n</body>\n</html>";
     return resp;
 }
@@ -120,6 +152,16 @@ void Client::SentRequest(std::string tmp){
         Response += "\r\nLocation: " + e.getURL() + "\r\n";
         Response += "Content-Type: text/html\r\n\r\n";
         std::cout << Response << std::endl;
+        setStatus(0);
+    }
+    catch (const responseGetExcept &e){
+        if (e.getIsFile())
+            std::cout << "is file\n";
+        else {
+            std::cout << "is folder\n";
+            Response = generateDirResponse(e.getStatusCode(), e.what(), e.getURL());
+            std::cout << Response << std::endl;
+        }
         setStatus(0);
     }
     catch (const std::exception &e) {

@@ -9,7 +9,7 @@ PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
 PHFILES = ParsConfigFile.hpp Server.hpp Location.hpp
 
 MFILES = Webserv.cpp Client.cpp Request.cpp
-MHFILES = Webserv.hpp Client.hpp Request.hpp StatusCodeExcept.hpp
+MHFILES = Webserv.hpp Client.hpp Request.hpp StatusCodeExcept.hpp rediractionExcept.hpp responseGetExcept.hpp
 
 IFILES := $(addprefix include/, $(IFILES))
 IHFILES := $(addprefix include/, $(IHFILES))

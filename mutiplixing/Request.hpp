@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/25 00:17:13 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/27 16:55:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "../include/MimeTypes.hpp"
 #include "StatusCodeExcept.hpp"
 #include "rediractionExcept.hpp"
+#include "responseGetExcept.hpp"
 
 class Request {
 	
@@ -31,6 +32,7 @@ class Request {
 		Location *location;
 		std::string body;
 		std::string queryString;
+		std::string reqURL;
 		std::string url;
 		std::string Method;
 		int HeaderIsDone;
@@ -47,8 +49,9 @@ class Request {
 		bool CompareURL(std::string s1, std::string s2);
 		void setDoublicateServer(std::vector<Server *> &vec);
 		void specificServ();
-
-	
+		bool hasIndexFile(std::string url);
+		void isDirHasIndexFile();
+		
 	private :
 		std::ofstream ftype;
 		std::string nextchunk;

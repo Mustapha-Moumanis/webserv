@@ -136,9 +136,10 @@ void Request::matchingURL(std::string url) {
 
 	size_t pos = url.find("?");
 	if (pos != std::string::npos) {
-		queryString = url.substr(pos + 1);
+		queryString = url.substr(pos);
 		url = url.substr(0, pos);
 	}
+	reqURL = url;
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if (CompareURL(it1->getPath(), url)) {
 			if (it1->getPath().length() > res.length()) {
@@ -148,17 +149,22 @@ void Request::matchingURL(std::string url) {
 		}
 	}
 	if (!res.empty()) {
-		if (!root.empty() && root[root.length() - 1] != '/')
-			root += '/';
-		if (url[res.length()] == '/')
-			res += '/';
-		else {
-			pos = url.find("/", res.length());
-			if (pos != std::string::npos)
-				res = url.substr(0, pos + 1);
-			else
-				res = url;
+		if (!root.empty() && root[root.length() - 1] == '/')
+			root = root.substr(0, root.length() - 1);
+
+		if (res == "/") {
+			this->url = url.replace(0, 1, root.append("/"));
+			return ;
 		}
+		if (!res.empty() && res[res.length() - 1] == '/')
+			res = res.substr(0, res.length() - 1);
+
+		pos = url.find("/", res.length());
+		if (pos != std::string::npos)
+			res = url.substr(0, pos);
+		else
+			res = url;
+
 		this->url = url.replace(0, res.length(), root);
 	}
 	else
@@ -179,7 +185,7 @@ void Request::setRequest(std::string req) {
 			}
 			req.erase(0, req.find(": ") + 2);
 			std::string val =  req.substr(0, req.find("\r\n"));
-			HeadReq.insert(std::pair<std::string,std::string>(key,val));
+			HeadReq.insert(std::pair<std::string,std::string>(key, val));
 			req.erase(0, req.find("\r\n") + 2);
 		}
         body = req;
@@ -203,29 +209,109 @@ void Request::setRequest(std::string req) {
 		Delete();
 }
 
-void Request::Get(){
-
-	struct stat buffer;
-	int st;
-
-	st = stat(url.c_str(), &buffer);
-	if (st == -1)
-		throw StatusCodeExcept(404);
-
-	if (S_ISDIR(buffer.st_mode)){
-		std::cout << "is Dir" << std::endl;
-		std::string index = url + "index.html";
-		if (stat(index.c_str(), &buffer) != -1){
-			throw StatusCodeExcept(200);
-		}
+bool Request::hasIndexFile(std::string url) { // remove
+	struct dirent* directoryEntries;
+	
+	DIR* dir = opendir(url.c_str());
+	if (!dir)
 		throw StatusCodeExcept(403);
-
+	while ((directoryEntries = readdir(dir))){
+		std::string name = directoryEntries->d_name;
+		if (name != "." && name != "..") {
+			if (name.substr(0, name.find('.')) == "index") {
+				url += name;
+				std::cout << ">> " << url << std::endl;
+				closedir(dir);
+				return 1;
+			}
+		}
 	}
-	else {
-		std::cout << "is file" << std::endl;
+	closedir(dir);
+	return 0;
+}
+
+void Request::isDirHasIndexFile() {
+	std::ifstream ifs;
+	std::vector<std::string> index = location->getIndex();
+	std::string token;
+	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
+		token = url + *it;
+		std::cout << token << std::endl;
+
+		if (!isRegFile(token)) {
+			continue ;
+		}
+		ifs.open(token.c_str());
+		if (!ifs.is_open()) {
+			continue ;
+		}
+		ifs.close();
 		throw StatusCodeExcept(200);
 	}
 }
+
+void Request::Get(){
+	if (isDir(url)){
+		std::cout << "is Dir" << std::endl;
+		// rediraction
+		if (location->getRediractionStatusCode() != 0)
+			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
+		if (!reqURL.empty() && reqURL[reqURL.size() - 1] != '/')
+			throw rediractionExcept(301, reqURL + "/" + queryString);
+		
+		// get index from configfile
+		isDirHasIndexFile();
+
+		// std::string index = getAvailableIndex(url);
+		// if (!index.empty()) {
+		// 	url += index;
+		// 	std::cout << url << std::endl;
+		// 	throw StatusCodeExcept(200);
+		// }
+		if (location->getAutoIndex() == "on") {
+			// if (hasIndexFile(url)) // get index insind folder 
+			// 	throw StatusCodeExcept(200);
+			// else // list folders
+			// generateDirAutoIndex();
+			throw responseGetExcept(200, url, 0);
+		}
+		throw StatusCodeExcept(403); // Forbidden
+
+	}
+	else if (isRegFile(url)) {
+		std::cout << "is reg file" << std::endl;
+		throw StatusCodeExcept(200);
+	}
+	else
+		throw StatusCodeExcept(404);
+}
+
+// void Request::Get(){
+
+// 	struct stat buffer;
+// 	int st;
+
+// 	st = stat(url.c_str(), &buffer);
+// 	if (st == -1)
+// 		throw StatusCodeExcept(404);
+
+// 	if (S_ISDIR(buffer.st_mode)){
+// 		std::cout << "is Dir" << std::endl;
+// 		if (!url.empty() && url[url.size() - 1] != '/')
+// 			throw rediractionExcept(301, reqURL + "/" + queryString);
+// 		if ()
+// 		std::string index = url + "index.html";
+// 		if (stat(index.c_str(), &buffer) != -1){
+// 			throw StatusCodeExcept(200);
+// 		}
+// 		throw StatusCodeExcept(403);
+
+// 	}
+// 	else {
+// 		std::cout << "is file" << std::endl;
+// 		throw StatusCodeExcept(200);
+// 	}
+// }
 
 void	Request::RemoveContentDir(std::string str){
 	

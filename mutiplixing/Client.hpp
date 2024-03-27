@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/25 00:53:41 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/27 03:02:30 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 #define CLIENT_HPP
 
 #include <fstream>
+#include <dirent.h>
 #include <cctype>
 #include "StatusCodeExcept.hpp"
 #include "rediractionExcept.hpp"
+#include "responseGetExcept.hpp"
 #include "../parse/Server.hpp"
 #include "Request.hpp"
 
@@ -47,6 +49,7 @@ class Client {
 		std::vector<Server *> &getDoublicateServer();
 		
 		std::string generateResponse(int Code, std::string const Msg, std::string mimeType);
+		std::string generateDirResponse(int Code, std::string const Msg, std::string path);
 		
 		// std::string getNewName();
 };
