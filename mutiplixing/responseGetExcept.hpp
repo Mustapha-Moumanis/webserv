@@ -7,26 +7,25 @@
 
 class responseGetExcept: public std::exception {
     int statusCode;
-    std::string url;
+    std::string stock;
     bool isFile;
-    // std::string filePath;
     
     public :
-        responseGetExcept(int code, std::string url, bool isFile) : statusCode(code), url(url), isFile(isFile) {}
+        responseGetExcept(int code, std::string stock, bool isFile) : statusCode(code), stock(stock), isFile(isFile){}
         virtual ~responseGetExcept() throw() { return ; }
         
         int getStatusCode() const {
             return statusCode;
         };
         
-        std::string getURL() const {
-            return url;
+        std::string getStock() const {
+            return stock;
         };
 
         bool getIsFile() const {
             return isFile;
         };
-        
+
         const char* what() const throw() {
             return reasonPhrase(this->statusCode);
         }

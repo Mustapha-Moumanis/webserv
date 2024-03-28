@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/27 03:17:15 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/28 03:15:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,13 @@ std::vector<Server *> &Client::getDoublicateServer() {
     return doublicateServer;
 }
 
+std::string Client::generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType) {
+    std::string header;
+    header = "HTTP/1.1 " + Code + " " + Msg + "\r\n";
+    header += "Content-Type: " + mimeType + "\r\n\r\n";
+    return header;
+}
+
 std::string Client::generateResponse(int Code, std::string Msg, std::string mimeType) {
     std::string resp;
     std::stringstream ss;
@@ -81,8 +88,7 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     ss << Code;
     ss >> sCode;
     
-    resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
-    resp += "Content-Type: " + mimeType + "\r\n\r\n";
+    resp = generateHeaderResponse(sCode, Msg, mimeType);
     if (Code == 204) 
         return resp;
     
@@ -92,40 +98,20 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     resp += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
     resp += "</head>\n<body>\n<div class='container'>\n";
     resp += "<h1>" + sCode + "</h1>\n";
-    resp += "<h3> " + Msg + "</h3>\n";
+    resp += "<h3>" + Msg + "</h3>\n";
     resp += "</div>\n</body>\n</html>";
     return resp;
 }
 
-std::string Client::generateDirResponse(int Code, std::string const Msg, std::string path) {
+std::string Client::generateDirResponse(int Code, std::string const Msg, std::string body) {
     std::string resp;
     std::stringstream ss;
     std::string sCode;
-	
     ss << Code;
     ss >> sCode;
-    struct dirent* directoryEntries;
-	DIR* dir = opendir(path.c_str());
     
-    resp = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
-    resp += "Content-Type: text/html\r\n\r\n";
-    if (Code == 204) 
-        return resp;
-    
-    resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
-    resp += sCode + " " + Msg;
-    resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
-    resp += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
-    resp += "</head>\n<body>\n<div class='container'>\n";
-    if (!dir)
-        throw StatusCodeExcept(403);
-    while ((directoryEntries = readdir(dir))){
-        std::string name = directoryEntries->d_name;
-        std::cout << ">> " << name << std::endl;
-        
-    }
-    closedir(dir);
-    resp += "</div>\n</body>\n</html>";
+    resp = generateHeaderResponse(sCode, Msg, "text/html");
+    resp += body;
     return resp;
 }
 
@@ -134,7 +120,6 @@ void Client::SentRequest(std::string tmp){
         request.setRequest(tmp);
     }
     catch (const StatusCodeExcept &e) {
-
         Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
         // std::cout << Response << std::endl;
         setStatus(0);
@@ -151,21 +136,19 @@ void Client::SentRequest(std::string tmp){
         Response += e.what();
         Response += "\r\nLocation: " + e.getURL() + "\r\n";
         Response += "Content-Type: text/html\r\n\r\n";
-        std::cout << Response << std::endl;
+        // std::cout << Response << std::endl;
         setStatus(0);
     }
     catch (const responseGetExcept &e){
-        if (e.getIsFile())
+        if (e.getIsFile()) {
             std::cout << "is file\n";
+            std::cout << e.getStock() << std::endl;
+            
+        }
         else {
             std::cout << "is folder\n";
-            Response = generateDirResponse(e.getStatusCode(), e.what(), e.getURL());
-            std::cout << Response << std::endl;
+            Response = generateDirResponse(e.getStatusCode(), e.what(), e.getStock());
         }
-        setStatus(0);
-    }
-    catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
         setStatus(0);
     }
 }

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/27 16:55:15 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/28 00:56:35 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Request {
 		void specificServ();
 		bool hasIndexFile(std::string url);
 		void isDirHasIndexFile();
+		void generateDirAutoIndex();
 		
 	private :
 		std::ofstream ftype;

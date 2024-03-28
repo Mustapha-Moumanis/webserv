@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/27 03:02:30 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/28 03:04:42 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,9 @@ class Client {
 		std::string getResponse();
 		std::vector<Server *> &getDoublicateServer();
 		
+		std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);
 		std::string generateResponse(int Code, std::string const Msg, std::string mimeType);
-		std::string generateDirResponse(int Code, std::string const Msg, std::string path);
+		std::string generateDirResponse(int Code, std::string const Msg, std::string body);
 		
 		// std::string getNewName();
 };
