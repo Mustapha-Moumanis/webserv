@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/28 03:04:42 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 00:02:25 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,16 @@ class Client {
 	private :
 		Server *serv;
 		std::vector<Server *> doublicateServer;
-		
 		bool status;
+		
 		Request request;
+		
 		// response atribuite
 		std::string Response;
-		// std::fstream Response;
+		
+		std::ifstream ifs;
+		std::string header;
+		bool isThingsToRes;
 
 	public :
 		Client();
@@ -40,12 +44,18 @@ class Client {
 		void setServ(Server *serv);
 		void setStatus(bool status);
 		void SentRequest(std::string);
+		void setThingsToRes(bool isThingsToRes);
 		void setDoublicateServer(std::vector<Server *> &vec);
+		
 		
 		Server *getServ();
 		bool getStatus();
+		bool getThingsToRes();
 		Request &getRequest();
+		std::string getHeader();
 		std::string getResponse();
+		std::ifstream &getInFileStream();
+	
 		std::vector<Server *> &getDoublicateServer();
 		
 		std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);

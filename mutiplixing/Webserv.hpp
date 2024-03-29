@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/20 21:32:31 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 01:10:30 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ class Webserv {
 		std::map<int, Client *> Clients;
 		std::vector<int> fds; // close
 		std::map<int, int> indexFD;
-
+		std::string response;
+		bool headerIsDone;
 	public :
 		Webserv(std::ifstream &ifs);
 		~Webserv();

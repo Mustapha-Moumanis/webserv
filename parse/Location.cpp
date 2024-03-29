@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/26 21:14:42 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/28 20:44:22 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void Location::setUpload(std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
-	std::ifstream ifs;
+	// std::ifstream ifs;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -177,10 +177,12 @@ void Location::setUpload(std::string value) {
 		return ;
 	if (!isDir(path))
 		return ;
-	ifs.open(path.c_str());
-	if (!ifs.is_open())
+	if (access(path.c_str(), R_OK) != 0)
 		return ;
-	ifs.close();
+	// ifs.open(path.c_str());
+	// if (!ifs.is_open())
+	// 	return ;
+	// ifs.close();
 	uploadPath = path;
 }
 
@@ -197,7 +199,7 @@ void Location::setIndex(std::string value) {
 
 void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
-	std::ifstream ifs;
+	// std::ifstream ifs;
 	std::string token;
 	std::string path;
 	int statusCode;
@@ -216,11 +218,12 @@ void Location::insertErrorPages(std::string line, std::string value) {
 
 	if (!isRegFile(path))
 		return ;
-	ifs.open(path.c_str());
-	if (!ifs.is_open())
+	// ifs.open(path.c_str());
+	// if (!ifs.is_open())
+	// 	return ;
+	// ifs.close();
+	if (access(path.c_str(), R_OK) != 0)
 		return ;
-	ifs.close();
-
 	pos = value.find_first_not_of(" ");
 	if (pos == std::string::npos)
 		throw std::runtime_error("error_pages : invalid value " + line);

@@ -236,10 +236,12 @@ bool Request::hasIndexFile(std::string url) { // remove
 }
 
 void Request::isDirHasIndexFile() {
-	std::ifstream ifs;
+	// std::ifstream ifs;
 	std::vector<std::string> index = location->getIndex();
 	std::string token;
-
+	DIR* dir = opendir(url.c_str());
+	if (!dir)
+		throw StatusCodeExcept(403);
 
 	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
 		token = url + *it;
@@ -247,16 +249,16 @@ void Request::isDirHasIndexFile() {
 		if (!isRegFile(token)) {
 			continue ;
 		}
-		ifs.open(token.c_str());
-		if (!ifs.is_open()) {
-			continue ;
-		}
-		ifs.close();
+		if (access(token.c_str(), R_OK) != 0)
+			throw StatusCodeExcept(403); // Forbidden
+		// ifs.open(token.c_str());
+		// if (!ifs.is_open())
+
+		// ifs.close();
 		std::cout << "GET : Has Index File" << std::endl;
 		throw responseGetExcept(200, reqURL, 1);
 	}
 }
-
 
 void Request::generateDirAutoIndex() {
     std::string body;
@@ -270,7 +272,7 @@ void Request::generateDirAutoIndex() {
     body += "</title>\n<style>body{font-family:Arial,sans-serif;background:#f5f5f5}a{text-decoration:none;color:#333;display:flex;align-items:center}";
     body += "h3{color:#599ac2;font-size:32px;line-height: 1.5;margin:0;padding:0 2.5rem;background:#d2edf7bd;font-weight:600;letter-spacing:1px}";
     body += ".collection{padding:0}.collection-item{list-style-type:none;line-height:1.5rem;padding:10px 20px;margin:0;border-bottom:1px solid #e0e0e0}";
-    body += ".directory-icon{width:30px;margin-right:10px}.name{margin:0;font-size:16px}</style>";
+    body += ".directory-icon{width:30px;min-width: 30px;margin-right:10px}.name{margin:0;font-size:16px}</style>";
     body += "</head>\n<body>\n<h3>index of ";
 	body += reqURL;
 	body += "</h3>";
@@ -302,7 +304,7 @@ void Request::generateDirAutoIndex() {
 
 
 void Request::Get(){
-	if (isDir(url)){
+	if (isDir(url)) {
 		// rediraction
 		if (location->getRediractionStatusCode() != 0)
 			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
@@ -324,7 +326,9 @@ void Request::Get(){
 	}
 	else if (isRegFile(url)) {
 		std::cout << "GET : is reg file" << std::endl;
-		throw StatusCodeExcept(200);
+		if (access(url.c_str(), R_OK) != 0)
+			throw StatusCodeExcept(403);
+		throw responseGetExcept(200, url, 1);
 	}
 	else
 		throw StatusCodeExcept(404);

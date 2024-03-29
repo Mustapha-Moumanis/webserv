@@ -6,13 +6,13 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/28 03:15:15 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 01:08:38 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : status(1), Response("") {
+Client::Client() : status(1), Response(""), header(""), isThingsToRes(0) {
     // fileName = "Data/" + getNewName() + ".txt";
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
@@ -26,6 +26,10 @@ void Client::setServ(Server *serv) {
 
 void Client::setStatus(bool status) {
     this->status = status;
+}
+
+void Client::setThingsToRes(bool isThingsToRes) {
+    this->isThingsToRes = isThingsToRes;
 }
 
 void Client::setDoublicateServer(std::vector<Server *> &vec) {
@@ -58,8 +62,16 @@ bool Client::getStatus() {
     return status;
 }
 
+bool Client::getThingsToRes() {
+    return isThingsToRes;
+}
+
 Server *Client::getServ() {
     return serv;
+}
+
+std::string Client::getHeader() {
+    return header;
 }
 
 Request &Client::getRequest() {
@@ -68,6 +80,10 @@ Request &Client::getRequest() {
 
 std::string Client::getResponse() {
     return Response;
+}
+
+std::ifstream &Client::getInFileStream() {
+    return ifs;
 }
 
 std::vector<Server *> &Client::getDoublicateServer() {
@@ -141,9 +157,24 @@ void Client::SentRequest(std::string tmp){
     }
     catch (const responseGetExcept &e){
         if (e.getIsFile()) {
+            std::string url = e.getStock();
+            std::string type = "html";
+            std::string mimeType;
             std::cout << "is file\n";
-            std::cout << e.getStock() << std::endl;
+            ifs.open(url.c_str(), std::ios::binary);
             
+            size_t pos = url.find_last_of(".");
+            if (pos != std::string::npos)
+                type = url.substr(pos + 1);
+            if (MimeTypes::getType(type.c_str()))
+                mimeType = MimeTypes::getType(type.c_str());
+            else
+                mimeType = "text/html";
+            
+            header = "HTTP/1.1 200 OK\r\n";
+            header += "Content-Type: " + mimeType + "\r\n\r\n";
+            
+            setThingsToRes(1);
         }
         else {
             std::cout << "is folder\n";

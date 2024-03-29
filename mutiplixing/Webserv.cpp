@@ -6,13 +6,13 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/24 03:32:28 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 01:23:21 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-Webserv::Webserv(std::ifstream &ifs){
+Webserv::Webserv(std::ifstream &ifs) : response(""), headerIsDone(0){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
 		initDoublicateServer();
@@ -145,15 +145,46 @@ void Webserv::multiplixing() {
 				{
 					// response
 					std::cout << "------ response ------" << std::endl;
-					std::string res = Clients[events[i].data.fd]->getResponse();
 					
-					if (res.empty())
-						res = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
-					send(events[i].data.fd, res.c_str(), res.length(), 0);
+					if (Clients[events[i].data.fd]->getThingsToRes()) {
+						std::cout << "------ Things To response on Get ------" << std::endl;
+						if (!headerIsDone) {
+							// create header insinde client exception;
+							response = Clients[events[i].data.fd]->getHeader();
+							headerIsDone = 1;
+						}
+						std::ifstream &ifs = Clients[events[i].data.fd]->getInFileStream();
+						char buffer[1024] = {0};
+						size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
 
-					close(events[i].data.fd);
-					delete Clients[events[i].data.fd];
-					Clients.erase(events[i].data.fd);
+						if (valueRead != 0) {
+							std::string tmp(buffer, valueRead);
+							response += tmp;
+						}
+						
+						send(events[i].data.fd, response.c_str(), response.length(), 0);
+						if (ifs.eof()) {
+							close(events[i].data.fd);
+							delete Clients[events[i].data.fd];
+							Clients.erase(events[i].data.fd);
+							ifs.close();
+							headerIsDone = 0;
+						}
+						response = "";
+						// response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>1337</h1>\n</div>\n</body>\n</html>";
+						
+					}
+					else {
+						response = Clients[events[i].data.fd]->getResponse();
+					
+						// if (response.empty())
+						// 	response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
+						send(events[i].data.fd, response.c_str(), response.length(), 0);
+						response = "";
+						close(events[i].data.fd);
+						delete Clients[events[i].data.fd];
+						Clients.erase(events[i].data.fd);
+					}
 				}
 				// else {
 				// 	close(events[i].data.fd);
