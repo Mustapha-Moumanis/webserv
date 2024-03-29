@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/29 01:08:38 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 22:31:17 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@ Client::Client() : status(1), Response(""), header(""), isThingsToRes(0) {
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
 
-Client::~Client() {}
+Client::~Client() {
+    if (ifs.is_open())
+        ifs.close();
+}
 
 void Client::setServ(Server *serv) {
     request.setServ(*serv);
@@ -28,6 +31,10 @@ void Client::setStatus(bool status) {
     this->status = status;
 }
 
+void Client::setHeader(std::string header) {
+    this->header = header;
+}
+
 void Client::setThingsToRes(bool isThingsToRes) {
     this->isThingsToRes = isThingsToRes;
 }
@@ -36,27 +43,6 @@ void Client::setDoublicateServer(std::vector<Server *> &vec) {
     request.setDoublicateServer(vec);
     this->doublicateServer = vec;
 }
-
-// std::string Client::getNewName()
-// {
-//     std::string name;
-//     char c;
-
-//     std::ifstream randomFile("/dev/random", std::ios::binary);
-//     if (!randomFile.is_open())
-//         return "";
-    
-//     while (name.length() < 8)
-//     {
-//         randomFile.read(&c, 1);
-//         if (randomFile.fail())
-//             return "";
-//         if (std::isalpha(c))
-//             name += c;
-//     }
-//     randomFile.close();
-//     return name;
-// }
 
 bool Client::getStatus() {
     return status;
@@ -173,8 +159,8 @@ void Client::SentRequest(std::string tmp){
             
             header = "HTTP/1.1 200 OK\r\n";
             header += "Content-Type: " + mimeType + "\r\n\r\n";
-            
-            setThingsToRes(1);
+
+            isThingsToRes = 1;
         }
         else {
             std::cout << "is folder\n";

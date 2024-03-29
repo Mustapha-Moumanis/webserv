@@ -6,13 +6,13 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/29 01:23:21 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/29 22:23:56 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-Webserv::Webserv(std::ifstream &ifs) : response(""), headerIsDone(0){
+Webserv::Webserv(std::ifstream &ifs) : response(""){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
 		initDoublicateServer();
@@ -91,6 +91,7 @@ void Webserv::multiplixing() {
 	int numEvents;
 	while (404) {
 		// add pip ignord get problem program exit when i refresh page |!|
+		signal(SIGPIPE, SIG_IGN);
 		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
 			throw std::runtime_error("epoll wait field");
 		for (int i = 0; i < numEvents; i++) {
@@ -101,7 +102,8 @@ void Webserv::multiplixing() {
 					continue;
 				}
 				// std::cout << "\n------  wait for new connection  ------\n\n";
-				event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+				// event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+				event.events = EPOLLIN | EPOLLOUT;
 				event.data.fd = newSocket;
 				
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, newSocket, &event) == -1) {
@@ -120,19 +122,21 @@ void Webserv::multiplixing() {
 				Clients[newSocket]->setServ(serv);
 			}
 			else {
-				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
-					close(events[i].data.fd);
-					delete Clients[events[i].data.fd];
-					Clients.erase(events[i].data.fd);
-				}
-				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
+				// if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
+				// 	std::cout << "EPOLL ERRORS" << std::endl;
+				// 	close(events[i].data.fd);
+				// 	delete Clients[events[i].data.fd];
+				// 	Clients.erase(events[i].data.fd);
+				// }
+				// else
+				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
 					// request
 					// std::cout << "------ request ------" << std::endl;
-
 					char buffer[1024] = {0};
 
 					ssize_t valueRead = recv(events[i].data.fd, buffer, 1023, 0);
-					if (valueRead == 0 || valueRead == -1) {
+					if (valueRead == -1) {
+						std::cout << "filed : read " << std::endl;
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
 						Clients.erase(events[i].data.fd);
@@ -143,44 +147,59 @@ void Webserv::multiplixing() {
 				}
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
 				{
-					// response
-					std::cout << "------ response ------" << std::endl;
-					
+					// // response
+					// std::cout << "------ response ------" << std::endl;
 					if (Clients[events[i].data.fd]->getThingsToRes()) {
-						std::cout << "------ Things To response on Get ------" << std::endl;
-						if (!headerIsDone) {
-							// create header insinde client exception;
-							response = Clients[events[i].data.fd]->getHeader();
-							headerIsDone = 1;
+						// std::cout << "------ Things To response on Get ------" << std::endl;
+						response = Clients[events[i].data.fd]->getHeader();
+						if (!response.empty()) {
+							// get header from client 
+							Clients[events[i].data.fd]->setHeader("");
+							if(send(events[i].data.fd, response.c_str(), response.length(), 0) == -1) {
+								// std::cout << "Error: sending header response" << std::endl;
+								close(events[i].data.fd);
+								delete Clients[events[i].data.fd];
+								Clients.erase(events[i].data.fd);
+							}
 						}
-						std::ifstream &ifs = Clients[events[i].data.fd]->getInFileStream();
-						char buffer[1024] = {0};
-						size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
+						else {
+							std::ifstream &ifs = Clients[events[i].data.fd]->getInFileStream();
 
-						if (valueRead != 0) {
-							std::string tmp(buffer, valueRead);
-							response += tmp;
+							char buffer[1024] = {0};
+							size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
+
+							if (valueRead > 0) {
+								if (send(events[i].data.fd, buffer, valueRead, 0) == -1) {
+									// std::cout << "Error: send field" << std::endl;
+									close(events[i].data.fd);
+									delete Clients[events[i].data.fd];
+									Clients.erase(events[i].data.fd);
+									continue ;
+								}
+								// if (!ifs.is_open())
+									// std::cout << "Error: file is closed" << std::endl;
+								if (ifs.eof()) {
+									// std::cout << "Success: File transmission complete" << std::endl;
+									close(events[i].data.fd);
+									delete Clients[events[i].data.fd];
+									Clients.erase(events[i].data.fd);
+								}
+							}
+							else {
+								// std::cout << "filed : read " << std::endl; 
+								close(events[i].data.fd);
+								delete Clients[events[i].data.fd];
+								Clients.erase(events[i].data.fd);
+								continue ;
+							}
+							
 						}
-						
-						send(events[i].data.fd, response.c_str(), response.length(), 0);
-						if (ifs.eof()) {
-							close(events[i].data.fd);
-							delete Clients[events[i].data.fd];
-							Clients.erase(events[i].data.fd);
-							ifs.close();
-							headerIsDone = 0;
-						}
-						response = "";
-						// response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>1337</h1>\n</div>\n</body>\n</html>";
-						
 					}
 					else {
 						response = Clients[events[i].data.fd]->getResponse();
-					
-						// if (response.empty())
-						// 	response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
+						if (response.empty())
+							response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
 						send(events[i].data.fd, response.c_str(), response.length(), 0);
-						response = "";
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
 						Clients.erase(events[i].data.fd);
