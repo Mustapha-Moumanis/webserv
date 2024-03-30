@@ -8,7 +8,7 @@ IHFILES = Utils.hpp MimeTypes.hpp
 PFILES = ParsConfigFile.cpp Server.cpp Location.cpp
 PHFILES = ParsConfigFile.hpp Server.hpp Location.hpp
 
-MFILES = Webserv.cpp Client.cpp Request.cpp
+MFILES = Webserv.cpp Client.cpp Request.cpp Get.cpp Post.cpp Delete.cpp Cgi.cpp 
 MHFILES = Webserv.hpp Client.hpp Request.hpp StatusCodeExcept.hpp rediractionExcept.hpp responseGetExcept.hpp
 
 IFILES := $(addprefix include/, $(IFILES))

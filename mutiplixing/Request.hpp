@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/28 00:56:35 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/30 00:44:40 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <fstream>
 #include <dirent.h>
-#include <unistd.h>
+#include <sys/wait.h>
 #include "../parse/Server.hpp"
 #include "../include/Utils.hpp"
 #include "../include/MimeTypes.hpp"
@@ -44,17 +44,14 @@ class Request {
 		void setServ(Server&);
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
-		void CheckRequest();
+		void CheckRequest(void);
 		void matchingURL(std::string b);
 		bool CompareURL(std::string s1, std::string s2);
 		void setDoublicateServer(std::vector<Server *> &vec);
-		void specificServ();
-		bool hasIndexFile(std::string url);
-		void isDirHasIndexFile();
-		void generateDirAutoIndex();
+		void specificServ(void);
 		
 	private :
-		std::ofstream ftype;
+		FILE* ftype;
 		std::string nextchunk;
 		std::string type;
 		std::string path;
@@ -66,16 +63,24 @@ class Request {
 	public :
 		// Get 
 		void Get(void);
-		
+		bool hasIndexFile(std::string url); // remove
+		void isDirHasIndexFile(void);
+		void generateDirAutoIndex(void);
+				
 		// Post
 		void Post(std::string);
-		void PostChunked(std::string);
-		void setfirstBody();
-		void getBuffer(std::string);
+		int postChunked(std::string);
+		int postBinary(std::string);
+		int setfirstBody(void);
+		int getBuffer(std::string);
 
 		// Delete
 		void Delete(void);
 		void RemoveContentDir(std::string);
+
+		// CGI
+		void cgitest(int, std::string, std::string);
+		void rediractionCGI(void);
 };
 
 #endif
