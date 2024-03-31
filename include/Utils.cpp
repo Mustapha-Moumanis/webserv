@@ -128,6 +128,6 @@ const char * reasonPhrase(int code) {
         case 508: return "Loop Detected";
         case 510: return "Not Extended";
         case 511: return "Network Authentication Required";
-        default:  return NULL;
+        default:  return "";
     }
 }

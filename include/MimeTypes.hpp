@@ -1,19 +1,20 @@
-#ifndef MIMETYPES_H_
-#define MIMETYPES_H_
+#ifndef MIMETYPES_HPP
+#define MIMETYPES_HPP
 #include <cstring>
+#include <string>
 
 class MimeTypes {
   public:
-    static const char* getType(const char * path);
-    static const char* getExtension(const char * type, int skip = 0);
+	static std::string getType(const std::string &extension);
+	static std::string getExtension(const std::string &type);
 
   private:
-    struct entry {
-      const char* fileExtension;
-      const char* mimeType;
-    };
-    static MimeTypes::entry types[348];
-    static int strcmpi(const char *s1, const char *s2);
+	struct entry {
+		std::string fileExtension;
+		std::string mimeType;
+	};
+
+	static MimeTypes::entry types[32];
 };
 
 #endif

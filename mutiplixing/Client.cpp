@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/29 22:31:17 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/31 21:51:53 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,6 @@ void Client::SentRequest(std::string tmp){
         Response += e.what();
         Response += "\r\nLocation: " + e.getURL() + "\r\n";
         Response += "Content-Type: text/html\r\n\r\n";
-        // std::cout << Response << std::endl;
         setStatus(0);
     }
     catch (const responseGetExcept &e){
@@ -152,11 +151,10 @@ void Client::SentRequest(std::string tmp){
             size_t pos = url.find_last_of(".");
             if (pos != std::string::npos)
                 type = url.substr(pos + 1);
-            if (MimeTypes::getType(type.c_str()))
-                mimeType = MimeTypes::getType(type.c_str());
+            if (!MimeTypes::getType(type).empty())
+                mimeType = MimeTypes::getType(type);
             else
                 mimeType = "text/html";
-            
             header = "HTTP/1.1 200 OK\r\n";
             header += "Content-Type: " + mimeType + "\r\n\r\n";
 

@@ -113,6 +113,13 @@ void Request::Get(){
 		std::cout << "GET : is reg file" << std::endl;
 		if (access(url.c_str(), R_OK) != 0)
 			throw StatusCodeExcept(403);
+
+		size_t found = url.find_last_of(".");
+		if (found != std::string::npos) {
+			std::string tmp = url.substr(found + 1);
+			if (MimeTypes::getType(tmp).empty())
+				throw StatusCodeExcept(415);
+		}
 		throw responseGetExcept(200, url, 1);
 	}
 	else

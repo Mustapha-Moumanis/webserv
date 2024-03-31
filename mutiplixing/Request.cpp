@@ -90,9 +90,9 @@ void Request::CheckRequest(){
 	it = HeadReq.find("Content-Type");
 	if (it != HeadReq.end()){
 		type = ".";
-		if (MimeTypes::getExtension(it->second.c_str()) == NULL)
+		if (MimeTypes::getExtension(it->second).empty())
 			throw StatusCodeExcept(415);
-		type += MimeTypes::getExtension(it->second.c_str());
+		type += MimeTypes::getExtension(it->second);
 	}
 }
 

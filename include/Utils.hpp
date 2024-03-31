@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fstream>
 #include <string>
+#include <map>
 
 bool isInformational(int code);
 bool isSuccessful(int code);
