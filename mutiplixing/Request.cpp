@@ -17,6 +17,7 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	nextchunk = "";
 	type = "";
 	path = "";
+	fileName = "";
 	ContentLength = 0;
 	HeaderIsDone = 0;
 	IsChunked = 0;

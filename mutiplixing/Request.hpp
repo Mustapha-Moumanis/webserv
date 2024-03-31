@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/30 23:00:41 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/03/31 23:52:36 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class Request {
 		std::string nextchunk;
 		std::string type;
 		std::string path;
+		std::string fileName;
 		long long ContentLength;
 		long long length;
 		bool IsChunked;
@@ -82,6 +83,7 @@ class Request {
 		// CGI
 		void cgitest(int, std::string, std::string);
 		void rediractionCGI(void);
+		void parssRspCGI(FILE*);
 };
 
 #endif

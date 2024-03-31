@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:41:29 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/30 00:42:54 by shilal           ###   ########.fr       */
+/*   Updated: 2024/03/31 23:48:51 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int Request::setfirstBody(){
 	
-	std::string fileName = path + "/" + getNewName() + type;
+	fileName = path + "/" + getNewName() + type;
 	ftype = fopen(fileName.c_str(), "w+");
 	if (ftype == NULL) 
 		throw StatusCodeExcept(403);
@@ -102,7 +102,7 @@ int Request::postChunked(std::string req){
 int Request::postBinary(std::string req){
 
 	if (!body.empty()){
-		std::string fileName = path + "/" + getNewName() + type;
+		fileName = path + "/" + getNewName() + type;
 		ftype = fopen(fileName.c_str(), "w+");
 		if (ftype == NULL) 
 			throw StatusCodeExcept(403);
