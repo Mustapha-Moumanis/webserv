@@ -133,6 +133,41 @@ void Request::specificServ() {
 	// server->printArg();
 }
 
+void Request::parseURL(std::string &url) {
+	std::stringstream ss(url);
+	std::vector<std::string> vec;
+	std::string token;
+	std::string res = "/";
+
+	while (getline(ss, token, '/')) {
+		if (token.empty())
+			continue ;
+		if (token == "..") {
+			if(vec.empty())
+				throw StatusCodeExcept(403);
+			vec.pop_back();
+		}
+		else
+			vec.push_back(token);
+	}
+
+	if (vec.empty()) {
+		url = "";
+		return ;
+	}
+
+	for(std::vector<std::string>::iterator it = vec.begin(); it != vec.end(); it++) {
+		res += *it;
+		if (it + 1 != vec.end())
+			res += "/";
+	}
+	
+	if (url.at(url.size() - 1) == '/')
+		res += "/";
+
+	url = res;
+}
+
 void Request::matchingURL(std::string url) {
 	std::string res;
 	std::string res2;
@@ -167,13 +202,19 @@ void Request::matchingURL(std::string url) {
 			res2 = res;
 		}
 		pos = url.find("/", res.length());
-		if (pos != std::string::npos)
+		if (pos != std::string::npos) {
 			res = url.substr(0, pos);
-		else
+			url.erase(0, pos);
+		}
+		else {
 			res = url;
-
-		this->url.replace(0, res.length(), root);
-		reqURL = url.replace(0, res.length(), res2);
+			url = "";
+		}
+		
+		if (this->url.find("/..") != std::string::npos)
+			parseURL(url);
+		this->url = root + url;
+		reqURL = res2 + url;
 	}
 	else
 		throw StatusCodeExcept(404);
