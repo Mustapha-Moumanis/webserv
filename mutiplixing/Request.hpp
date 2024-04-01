@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/31 23:52:36 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/01 03:27:59 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Request {
 		~Request();
 	
 		void setServ(Server&);
+		Location *getLocation();
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
 		void CheckRequest(void);
@@ -84,6 +85,7 @@ class Request {
 		void cgitest(int, std::string, std::string);
 		void rediractionCGI(void);
 		void parssRspCGI(FILE*);
+		std::string genGetFileHeader(int code, std::string url);
 };
 
 #endif

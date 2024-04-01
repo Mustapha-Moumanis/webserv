@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/31 21:51:53 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/01 20:23:27 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,13 @@ std::vector<Server *> &Client::getDoublicateServer() {
     return doublicateServer;
 }
 
+void Client::responseFile(std::string header, std::string path) {
+    ifs.open(path.c_str(), std::ios::binary);
+
+    this->header = header;
+    isThingsToRes = 1;
+}
+
 std::string Client::generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType) {
     std::string header;
     header = "HTTP/1.1 " + Code + " " + Msg + "\r\n";
@@ -87,13 +94,31 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     std::string resp;
     std::stringstream ss;
     std::string sCode;
+    std::string errorPath;
+    Location *location = request.getLocation();
     ss << Code;
     ss >> sCode;
     
     resp = generateHeaderResponse(sCode, Msg, mimeType);
     if (Code == 204) 
         return resp;
-    
+    if (isError(Code)) {
+        if (location) {
+            errorPath = location->getErrorPagesByKey(Code);
+            if (!errorPath.empty()){
+                responseFile(resp, errorPath);
+                return "";
+            }
+        }
+        else {
+            errorPath = serv->getErrorPagesByKey(Code);
+            if (!errorPath.empty()){
+                responseFile(resp, errorPath);
+                return "";
+            }
+        }
+    }
+        
     resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
     resp += sCode + " " + Msg;
     resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
@@ -142,27 +167,28 @@ void Client::SentRequest(std::string tmp){
     }
     catch (const responseGetExcept &e){
         if (e.getIsFile()) {
-            std::string url = e.getStock();
-            std::string type = "html";
-            std::string mimeType;
-            std::cout << "is file\n";
-            ifs.open(url.c_str(), std::ios::binary);
+            // std::string url = e.getStock();
+            // std::string type = "html";
+            // std::string mimeType;
             
-            size_t pos = url.find_last_of(".");
-            if (pos != std::string::npos)
-                type = url.substr(pos + 1);
-            if (!MimeTypes::getType(type).empty())
-                mimeType = MimeTypes::getType(type);
-            else
-                mimeType = "text/html";
-            header = "HTTP/1.1 200 OK\r\n";
-            header += "Content-Type: " + mimeType + "\r\n\r\n";
-
-            isThingsToRes = 1;
+            // std::cout << "is file\n";
+            
+            // size_t pos = url.find_last_of(".");
+            // if (pos != std::string::npos)
+            //     type = url.substr(pos + 1);
+            // if (!MimeTypes::getType(type).empty())
+            //     mimeType = MimeTypes::getType(type);
+            // else
+            //     mimeType = "text/html";
+            // header = "HTTP/1.1 200 OK\r\n";
+            // header += "Content-Type: " + mimeType + "\r\n\r\n";
+            
+            responseFile(e.getHeader(), e.getStock());
+            // isThingsToRes = 1;
         }
         else {
             std::cout << "is folder\n";
-            Response = generateDirResponse(e.getStatusCode(), e.what(), e.getStock());
+            Response = generateDirResponse(200, e.what(), e.getStock());
         }
         setStatus(0);
     }

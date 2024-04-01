@@ -21,6 +21,30 @@ bool Request::hasIndexFile(std::string url) { // remove
 	return 0;
 }
 
+std::string Request::genGetFileHeader(int code, std::string url) {
+	std::stringstream ss;
+    std::string header;
+	std::string sCode;
+
+	ss << code;
+	ss >> sCode;
+
+	std::string type = "html";
+	std::string mimeType;
+	
+	size_t pos = url.find_last_of(".");
+	if (pos != std::string::npos)
+		type = url.substr(pos + 1);
+	if (!MimeTypes::getType(type).empty())
+		mimeType = MimeTypes::getType(type);
+	else
+		mimeType = "text/html";
+
+    header = "HTTP/1.1 " + sCode + " " + reasonPhrase(code) + "\r\n";
+    header += "Content-Type: " + mimeType + "\r\n\r\n";
+    return header;
+}
+
 void Request::isDirHasIndexFile() {
 	// std::ifstream ifs;
 	std::vector<std::string> index = location->getIndex();
@@ -42,7 +66,23 @@ void Request::isDirHasIndexFile() {
 
 		// ifs.close();
 		std::cout << "GET : Has Index File" << std::endl;
-		throw responseGetExcept(200, reqURL, 1);
+		////
+		// std::string type = "html";
+		// std::string mimeType;
+		
+		// std::cout << "is file\n";
+		
+		// size_t pos = reqURL.find_last_of(".");
+		// if (pos != std::string::npos)
+		// 	type = reqURL.substr(pos + 1);
+		// if (!MimeTypes::getType(type).empty())
+		// 	mimeType = MimeTypes::getType(type);
+		// else
+		// 	mimeType = "text/html";
+		// std::string header = "HTTP/1.1 200 OK\r\n";
+		// header += "Content-Type: " + mimeType + "\r\n\r\n";
+
+		throw responseGetExcept(genGetFileHeader(200, reqURL), reqURL, 1);
 	}
 }
 
@@ -85,7 +125,7 @@ void Request::generateDirAutoIndex() {
     }
     body += "</body>\n</html>";
     closedir(dir);
-	throw responseGetExcept(200, body, 0);
+	throw responseGetExcept("", body, 0);
 }
 
 void Request::Get(){
@@ -120,7 +160,9 @@ void Request::Get(){
 			if (MimeTypes::getType(tmp).empty())
 				throw StatusCodeExcept(415);
 		}
-		throw responseGetExcept(200, url, 1);
+		throw responseGetExcept(genGetFileHeader(200, url), url, 1);
+
+		// throw responseGetExcept(200, url, 1);
 	}
 	else
 		throw StatusCodeExcept(404);

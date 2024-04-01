@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/29 22:30:59 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/01 00:37:54 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,9 @@ class Client {
 		std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);
 		std::string generateResponse(int Code, std::string const Msg, std::string mimeType);
 		std::string generateDirResponse(int Code, std::string const Msg, std::string body);
+
+
+		void responseFile(std::string header, std::string path);
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include "Request.hpp"
 
 Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
+	location = NULL;
 	nextchunk = "";
 	type = "";
 	path = "";
@@ -28,6 +29,11 @@ Request::~Request() {
 	if (ftype != NULL)
 		fclose(ftype);
 }
+
+Location *Request::getLocation() {
+	return location;
+}
+
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;

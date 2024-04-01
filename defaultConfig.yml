@@ -10,14 +10,14 @@ server :
     # index : index.html index.htmld
     # index : home.html index.htmld2 # is dir
     time_out : 1m
-    error_pages : [[400 500 502 503 504, error_pages/custom_50x.html]]
+    error_pages : [[404 500 502 503 504, error_pages/custom_40x.html]]
 
     location :   
         - path : /home
         - autoindex : ON    
         - upload : on
         - index : index.html
-        - error_pages : [[400, error_pages/custom_40x.html]]  
+        - error_pages : [[404, error_pages/custom_40x.html]]  
     location :
         - path:  /
         # - methods:  POST

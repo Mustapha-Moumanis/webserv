@@ -6,18 +6,18 @@
 #include "../include/Utils.hpp"
 
 class responseGetExcept: public std::exception {
-    int statusCode;
+    std::string header;
     std::string stock;
     bool isFile;
     
     public :
-        responseGetExcept(int code, std::string stock, bool isFile) : statusCode(code), stock(stock), isFile(isFile){}
+        responseGetExcept(std::string header, std::string stock, bool isFile) : header(header), stock(stock), isFile(isFile){}
         virtual ~responseGetExcept() throw() { return ; }
-        
-        int getStatusCode() const {
-            return statusCode;
+
+        std::string getHeader() const {
+            return header;
         };
-        
+
         std::string getStock() const {
             return stock;
         };
@@ -26,9 +26,9 @@ class responseGetExcept: public std::exception {
             return isFile;
         };
 
-        const char* what() const throw() {
-            return reasonPhrase(this->statusCode);
-        }
+        // const char* what() const throw() {
+        //     return reasonPhrase(this->statusCode);
+        // }
 
 };
 
