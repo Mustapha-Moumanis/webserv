@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/01 20:23:27 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/01 23:53:28 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,17 +130,17 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     return resp;
 }
 
-std::string Client::generateDirResponse(int Code, std::string const Msg, std::string body) {
-    std::string resp;
-    std::stringstream ss;
-    std::string sCode;
-    ss << Code;
-    ss >> sCode;
+// std::string Client::generateDirResponse(int Code, std::string const Msg, std::string body) {
+//     std::string resp;
+//     std::stringstream ss;
+//     std::string sCode;
+//     ss << Code;
+//     ss >> sCode;
     
-    resp = generateHeaderResponse(sCode, Msg, "text/html");
-    resp += body;
-    return resp;
-}
+//     resp = generateHeaderResponse(sCode, Msg, "text/html");
+//     resp += body;
+//     return resp;
+// }
 
 void Client::SentRequest(std::string tmp){
     try {
@@ -167,28 +167,12 @@ void Client::SentRequest(std::string tmp){
     }
     catch (const responseGetExcept &e){
         if (e.getIsFile()) {
-            // std::string url = e.getStock();
-            // std::string type = "html";
-            // std::string mimeType;
-            
-            // std::cout << "is file\n";
-            
-            // size_t pos = url.find_last_of(".");
-            // if (pos != std::string::npos)
-            //     type = url.substr(pos + 1);
-            // if (!MimeTypes::getType(type).empty())
-            //     mimeType = MimeTypes::getType(type);
-            // else
-            //     mimeType = "text/html";
-            // header = "HTTP/1.1 200 OK\r\n";
-            // header += "Content-Type: " + mimeType + "\r\n\r\n";
-            
             responseFile(e.getHeader(), e.getStock());
             // isThingsToRes = 1;
         }
         else {
             std::cout << "is folder\n";
-            Response = generateDirResponse(200, e.what(), e.getStock());
+            Response = e.getHeader() + e.getStock();
         }
         setStatus(0);
     }

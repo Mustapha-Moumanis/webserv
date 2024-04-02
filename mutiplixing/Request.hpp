@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/01 03:27:59 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/01 23:57:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ class Request {
 		bool hasIndexFile(std::string url); // remove
 		void isDirHasIndexFile(void);
 		void generateDirAutoIndex(void);
-				
+		std::string genGetDirHeader(int code, std::string mimeType);
+
 		// Post
 		void Post(std::string);
 		int postChunked(std::string);

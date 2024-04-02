@@ -45,6 +45,18 @@ std::string Request::genGetFileHeader(int code, std::string url) {
     return header;
 }
 
+std::string Request::genGetDirHeader(int code, std::string mimeType) {
+	std::stringstream ss;
+    std::string header;
+	std::string sCode;
+
+	ss << code;
+	ss >> sCode;
+    header = "HTTP/1.1 " + sCode + " " + reasonPhrase(code) + "\r\n";
+    header += "Content-Type: " + mimeType + "\r\n\r\n";
+    return header;
+}
+
 void Request::isDirHasIndexFile() {
 	// std::ifstream ifs;
 	std::vector<std::string> index = location->getIndex();
@@ -125,7 +137,7 @@ void Request::generateDirAutoIndex() {
     }
     body += "</body>\n</html>";
     closedir(dir);
-	throw responseGetExcept("", body, 0);
+	throw responseGetExcept(genGetDirHeader(200, "text/html"), body, 0);
 }
 
 void Request::Get(){
