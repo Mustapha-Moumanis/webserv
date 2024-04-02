@@ -94,7 +94,7 @@ void Request::isDirHasIndexFile() {
 		// std::string header = "HTTP/1.1 200 OK\r\n";
 		// header += "Content-Type: " + mimeType + "\r\n\r\n";
 
-		throw responseGetExcept(genGetFileHeader(200, reqURL), reqURL, 1);
+		throw responseGetExcept(genGetFileHeader(200, reqURL), reqURL, 1, 0);
 	}
 }
 
@@ -137,7 +137,7 @@ void Request::generateDirAutoIndex() {
     }
     body += "</body>\n</html>";
     closedir(dir);
-	throw responseGetExcept(genGetDirHeader(200, "text/html"), body, 0);
+	throw responseGetExcept(genGetDirHeader(200, "text/html"), body, 0, 0);
 }
 
 void Request::Get(){
@@ -172,7 +172,7 @@ void Request::Get(){
 			if (MimeTypes::getType(tmp).empty())
 				throw StatusCodeExcept(415);
 		}
-		throw responseGetExcept(genGetFileHeader(200, url), url, 1);
+		throw responseGetExcept(genGetFileHeader(200, url), url, 1, 0);
 
 		// throw responseGetExcept(200, url, 1);
 	}

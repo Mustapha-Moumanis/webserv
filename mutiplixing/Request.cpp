@@ -234,30 +234,34 @@ void Request::matchingURL(std::string url) {
 void Request::setRequest(std::string req) {
 
     if (HeaderIsDone == 0){
-		CheckFirstLine(req.substr(0, req.find("\r\n")));
-		req.erase(0, req.find("\r\n") + 2);
-		while (404) {
-			std::string key = req.substr(0, req.find(": "));
-			if (req.substr(0, req.find("\r\n")) == ""){
-				req.erase(0, req.find("\r\n") + 2);
-				// if no "\r\n\r\n" should be timeout ==> |!|
-				break;
-			}
-			req.erase(0, req.find(": ") + 2);
-			std::string val =  req.substr(0, req.find("\r\n"));
-			HeadReq.insert(std::pair<std::string,std::string>(key, val));
+		size_t pos = req.find("\r\n\r\n");
+		if (pos != std::string::npos){
+			CheckFirstLine(req.substr(0, req.find("\r\n")));
 			req.erase(0, req.find("\r\n") + 2);
+			while (404) {
+				std::string key = req.substr(0, req.find(": "));
+				if (req.substr(0, req.find("\r\n")) == ""){
+					req.erase(0, req.find("\r\n") + 2);
+					break;
+				}
+				req.erase(0, req.find(": ") + 2);
+				std::string val =  req.substr(0, req.find("\r\n"));
+				HeadReq.insert(std::pair<std::string,std::string>(key, val));
+				req.erase(0, req.find("\r\n") + 2);
+			}
+			body = req;
+			HeaderIsDone = 1;
+			specificServ();
+			matchingURL(url);
+			if (this->location->getRediractionStatusCode() != 0) {
+				throw rediractionExcept(this->location->getRediractionStatusCode(), this->location->getRediractionURL());
+			}
+			if (this->location->getMethods().find(Method) == std::string::npos)
+				throw StatusCodeExcept(405);
+			CheckRequest();
 		}
-        body = req;
-        HeaderIsDone = 1;
-		specificServ();
-		matchingURL(url);
-		if (this->location->getRediractionStatusCode() != 0) {
-			throw rediractionExcept(this->location->getRediractionStatusCode(), this->location->getRediractionURL());
-		}
-		if (this->location->getMethods().find(Method) == std::string::npos)
-			throw StatusCodeExcept(405);
-        CheckRequest();
+		// else
+			// if no "\r\n\r\n" should be timeout ==> |!|
 	}
 	if (Method == "POST"){
 		Post(req);

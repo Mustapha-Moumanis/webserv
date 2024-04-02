@@ -1,6 +1,7 @@
 <?php
-    header("Content-klll text/html");
-    header("Content-: text/html");
+    // header("Content-klll text/html");
+    header("Content- text/html");
+    header("Location http://www.google.com/");
 
     echo "CGI PHP";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

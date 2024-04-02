@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/30 20:26:20 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/02 01:20:27 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,7 @@ void Webserv::multiplixing() {
 							size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
 
 							if (valueRead > 0) {
+								std::cout << ">>>>>> " << buffer << std::endl;
 								if (send(events[i].data.fd, buffer, valueRead, 0) == -1) {
 									// std::cout << "Error: send field" << std::endl;
 									close(events[i].data.fd);

@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/02 00:31:52 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/02 02:16:44 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void Request::rediractionCGI(){
 		if (location->getRediractionStatusCode() != 0)
 			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
 		if (S_ISREG(buffer.st_mode)){
+			// ============= take IT
 			size_t found = url.find_last_of(".");
 			if (found != std::string::npos){
 				std::string extention = url.substr(found);
@@ -31,6 +32,7 @@ void Request::rediractionCGI(){
 					cgiPost(fileno(ftype), it->second);
 				}
 			}
+			// ===========================
 		}
 	}
 }
@@ -40,24 +42,31 @@ void Request::parssRspCGI(FILE *type){
 	char buffer[1024] = {0};
 	int j = fread(buffer, sizeof(buffer[0]), 1024, type);
 	std::string str(buffer, j);
+
 	size_t pos = str.find("\r\n\r\n");
 	if (pos != std::string::npos){
-		std::string header = str.substr(0, pos + 2);
+		str = str.substr(0, pos + 4);
+		std::string header = str.substr(0, pos + 4);
 		while (!header.empty()) {
 			std::string key = header.substr(0, header.find(": "));
 			header.erase(0, header.find(": ") + 2);
-			std::string val = header.substr(0, header.find("\r\n"));
-			HeaderCgi.insert(std::pair<std::string,std::string>(key, val));
+			if (key == "Status"){
+				std::string val = header.substr(0, header.find("\r\n"));
+				header = "HTTP/1.1 " + val + "\r\n";
+				break ;
+			}
 			header.erase(0, header.find("\r\n") + 2);
 		}
-		for (std::map<std::string, std::string>::iterator it = HeaderCgi.begin(); it != HeaderCgi.end(); it++){
-			std::cout << it->first << " " << it->second << std::endl;
- 		}
+		if (header.empty())
+			header = "HTTP/1.1 200 OK\r\n";
+		header += str;
+		fclose(type);
+		throw responseGetExcept(header, "cgi.txt", 1, pos + 4);
 	}
-	else{
-		std::cout << "this is py" << std::endl;
-		std::cout << str << std::endl;
-		// generate header
+	else {
+		std::cout << "If no header" << std::endl;
+		fclose(type);
+		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", 1, 0);
 	}
 }
 
@@ -73,11 +82,6 @@ void Request::cgiPost(int fd, std::string path){
 	ss << this->length;
 	ss >> len;
 	std::string ContentLength = "CONTENT_LENGTH=" + len;
-
-	std::cout << script << std::endl;
-	std::cout << scriptFile << std::endl;
-	std::cout << ContentLength << std::endl;
-	std::cout << ContentType << "\n" << std::endl;
 
 	char *envp[] = {
 		(char*) ContentLength.c_str(),
@@ -98,13 +102,15 @@ void Request::cgiPost(int fd, std::string path){
 
 	
 	FILE *type = fopen("cgi.txt", "wb+");
-	if (type == NULL) 
+	if (type == NULL)
 		throw StatusCodeExcept(403);
 	int f = fileno(type);
     pid_t p;
     p = fork();
-    if (p < 0)
+    if (p < 0){
+		fclose(type);
       throw StatusCodeExcept(403);
+	}
     else if ( p == 0){
         dup2(fd, 0);
 		dup2(f, 1);
@@ -118,14 +124,14 @@ void Request::cgiPost(int fd, std::string path){
 		waitpid(p, &status, 0);
 		kill(p,9);
 		if (WIFEXITED(status)){
-			if (WEXITSTATUS(status) != 0)
+			if (WEXITSTATUS(status) != 0){
+				fclose(type);
 				throw StatusCodeExcept(500);
+			}
 		}
 	}
 	fseek(type, 0, SEEK_SET);
 	parssRspCGI(type);
-	fclose(type);
-	std::remove(fileName.c_str());
 }
 
 void Request::cgiGet(std::string path){
@@ -157,7 +163,6 @@ void Request::cgiGet(std::string path){
         NULL
     };
 
-	
 	FILE *type = fopen("cgi.txt", "wb+");
 	if (type == NULL) 
 		throw StatusCodeExcept(403);
@@ -184,5 +189,4 @@ void Request::cgiGet(std::string path){
 	}
 	fseek(type, 0, SEEK_SET);
 	parssRspCGI(type);
-	fclose(type);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/01 00:37:54 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/02 01:13:01 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ class Client {
 		std::string generateDirResponse(int Code, std::string const Msg, std::string body);
 
 
-		void responseFile(std::string header, std::string path);
+		void responseFile(std::string header, std::string path, size_t pos);
 };
 
 #endif

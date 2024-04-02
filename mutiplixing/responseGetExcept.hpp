@@ -9,9 +9,10 @@ class responseGetExcept: public std::exception {
     std::string header;
     std::string stock;
     bool isFile;
+    size_t pos;
     
     public :
-        responseGetExcept(std::string header, std::string stock, bool isFile) : header(header), stock(stock), isFile(isFile){}
+        responseGetExcept(std::string header, std::string stock, bool isFile, size_t pos) : header(header), stock(stock), isFile(isFile), pos(pos){}
         virtual ~responseGetExcept() throw() { return ; }
 
         std::string getHeader() const {
@@ -26,9 +27,13 @@ class responseGetExcept: public std::exception {
             return isFile;
         };
 
-        // const char* what() const throw() {
-        //     return reasonPhrase(this->statusCode);
-        // }
+        size_t getPos() const {
+            return pos;
+        };
+        
+        const char* what() const throw() {
+            return "Respose exception";
+        }
 
 };
 

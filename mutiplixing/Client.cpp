@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/01 23:53:28 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/02 01:22:45 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,10 @@ std::vector<Server *> &Client::getDoublicateServer() {
     return doublicateServer;
 }
 
-void Client::responseFile(std::string header, std::string path) {
+void Client::responseFile(std::string header, std::string path, size_t pos) {
     ifs.open(path.c_str(), std::ios::binary);
-
+    ifs.seekg(pos, std::ios_base::beg);
+    
     this->header = header;
     isThingsToRes = 1;
 }
@@ -106,14 +107,14 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
         if (location) {
             errorPath = location->getErrorPagesByKey(Code);
             if (!errorPath.empty()){
-                responseFile(resp, errorPath);
+                responseFile(resp, errorPath, 0);
                 return "";
             }
         }
         else {
             errorPath = serv->getErrorPagesByKey(Code);
             if (!errorPath.empty()){
-                responseFile(resp, errorPath);
+                responseFile(resp, errorPath, 0);
                 return "";
             }
         }
@@ -167,7 +168,7 @@ void Client::SentRequest(std::string tmp){
     }
     catch (const responseGetExcept &e){
         if (e.getIsFile()) {
-            responseFile(e.getHeader(), e.getStock());
+            responseFile(e.getHeader(), e.getStock(), e.getPos());
             // isThingsToRes = 1;
         }
         else {
