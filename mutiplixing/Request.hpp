@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/01 23:57:15 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/02 00:24:02 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,13 @@ class Request {
 		void specificServ(void);
 		
 	private :
+		std::map<std::string, std::string> HeaderCgi;
 		FILE* ftype;
+		std::string contentType;
 		std::string nextchunk;
+		std::string fileName;
 		std::string type;
 		std::string path;
-		std::string fileName;
 		long long ContentLength;
 		long long length;
 		bool IsChunked;
@@ -83,9 +85,11 @@ class Request {
 		void RemoveContentDir(std::string);
 
 		// CGI
-		void cgitest(int, std::string, std::string);
+		void cgiPost(int, std::string);
+		void cgiGet(std::string);
 		void rediractionCGI(void);
 		void parssRspCGI(FILE*);
+
 		std::string genGetFileHeader(int code, std::string url);
 };
 

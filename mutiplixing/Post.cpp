@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:41:29 by shilal            #+#    #+#             */
-/*   Updated: 2024/03/31 23:48:51 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/02 00:26:38 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,8 @@ void Request::Post(std::string req) {
 	else
 		check = postBinary(req);
 	// check if ther's cgi script
-	if (check == 201)
+	if (check == 201){
 		rediractionCGI();
+		throw StatusCodeExcept(201);
+	}
 }

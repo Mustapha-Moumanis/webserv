@@ -15,10 +15,11 @@
 
 Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	location = NULL;
+	contentType = "";
 	nextchunk = "";
+	fileName = "";
 	type = "";
 	path = "";
-	fileName = "";
 	ContentLength = 0;
 	HeaderIsDone = 0;
 	IsChunked = 0;
@@ -33,7 +34,6 @@ Request::~Request() {
 Location *Request::getLocation() {
 	return location;
 }
-
 
 void Request::setServ(Server &serv) {
 	this->server = &serv;
@@ -96,10 +96,14 @@ void Request::CheckRequest(){
 
 	it = HeadReq.find("Content-Type");
 	if (it != HeadReq.end()){
-		type = ".";
-		if (MimeTypes::getExtension(it->second).empty())
-			throw StatusCodeExcept(415);
-		type += MimeTypes::getExtension(it->second);
+		if (it->second != "application/x-www-form-urlencoded"){
+			type = ".";
+			if (MimeTypes::getExtension(it->second).empty())
+				throw StatusCodeExcept(415);
+			type += MimeTypes::getExtension(it->second);
+		}
+		if (!it->second.empty())
+			contentType = it->second;
 	}
 }
 

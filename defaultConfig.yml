@@ -17,6 +17,7 @@ server :
         - autoindex : ON    
         - upload : on
         - index : index.html
+        - cgi_paths : [[.py , /usr/bin/python3], [.php, /usr/bin/php-cgi]]
         - error_pages : [[404, error_pages/custom_40x.html]]  
     location :
         - path:  /
