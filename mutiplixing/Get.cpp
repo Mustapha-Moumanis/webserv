@@ -58,7 +58,6 @@ std::string Request::genGetDirHeader(int code, std::string mimeType) {
 }
 
 void Request::isDirHasIndexFile() {
-	// std::ifstream ifs;
 	std::vector<std::string> index = location->getIndex();
 	std::string token;
 	DIR* dir = opendir(url.c_str());
@@ -67,34 +66,13 @@ void Request::isDirHasIndexFile() {
 
 	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
 		token = url + *it;
+		if (isDir(token))
+			throw rediractionExcept(302, reqURL + *it + "/");
 
-		if (!isRegFile(token)) {
-			continue ;
-		}
 		if (access(token.c_str(), R_OK) != 0)
-			throw StatusCodeExcept(403); // Forbidden
-		// ifs.open(token.c_str());
-		// if (!ifs.is_open())
-
-		// ifs.close();
-		std::cout << "GET : Has Index File" << std::endl;
-		////
-		// std::string type = "html";
-		// std::string mimeType;
+			continue ;
 		
-		// std::cout << "is file\n";
-		
-		// size_t pos = reqURL.find_last_of(".");
-		// if (pos != std::string::npos)
-		// 	type = reqURL.substr(pos + 1);
-		// if (!MimeTypes::getType(type).empty())
-		// 	mimeType = MimeTypes::getType(type);
-		// else
-		// 	mimeType = "text/html";
-		// std::string header = "HTTP/1.1 200 OK\r\n";
-		// header += "Content-Type: " + mimeType + "\r\n\r\n";
-
-		throw responseGetExcept(genGetFileHeader(200, reqURL), reqURL, 1, 0);
+		throw responseGetExcept(genGetFileHeader(200, token), token, 1, 0);
 	}
 }
 
@@ -106,7 +84,7 @@ void Request::generateDirAutoIndex() {
 	DIR* dir = opendir(url.c_str());
 
     body += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>index of ";
-    body += url;
+    body += reqURL;
     body += "</title>\n<style>body{font-family:Arial,sans-serif;background:#f5f5f5}a{text-decoration:none;color:#333;display:flex;align-items:center}";
     body += "h3{color:#599ac2;font-size:32px;line-height: 1.5;margin:0;padding:0 2.5rem;background:#d2edf7bd;font-weight:600;letter-spacing:1px}";
     body += ".collection{padding:0}.collection-item{list-style-type:none;line-height:1.5rem;padding:10px 20px;margin:0;border-bottom:1px solid #e0e0e0}";
@@ -146,7 +124,7 @@ void Request::Get(){
 		if (location->getRediractionStatusCode() != 0)
 			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
 		if (!reqURL.empty() && reqURL[reqURL.size() - 1] != '/')
-			throw rediractionExcept(301, reqURL + "/" + queryString);
+			throw rediractionExcept(302, reqURL + "/" + queryString);
 		
 		// get index from configfile
 		isDirHasIndexFile();

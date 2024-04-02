@@ -149,6 +149,10 @@ void Request::parseURL(std::string &url) {
 	std::vector<std::string> vec;
 	std::string token;
 	std::string res = "/";
+	bool haveSlash = 0;
+
+	if (url.at(url.size() - 1) == '/')
+		haveSlash = 1;
 
 	while (getline(ss, token, '/')) {
 		if (token.empty())
@@ -163,7 +167,7 @@ void Request::parseURL(std::string &url) {
 	}
 
 	if (vec.empty()) {
-		url = "";
+		url = "/";
 		return ;
 	}
 
@@ -173,7 +177,7 @@ void Request::parseURL(std::string &url) {
 			res += "/";
 	}
 	
-	if (url.at(url.size() - 1) == '/')
+	if (haveSlash == 1)
 		res += "/";
 
 	url = res;
@@ -189,8 +193,15 @@ void Request::matchingURL(std::string url) {
 		queryString = url.substr(pos);
 		url = url.substr(0, pos);
 	}
-	this->url = url;
-	reqURL = url;
+
+	pos = url.find_first_not_of("/");
+	if (pos != std::string::npos)
+		url = url.substr(pos - 1);
+	else
+		url = "/";
+
+	// this->url = url;
+	// reqURL = url;
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if (CompareURL(it1->getPath(), url)) {
 			if (it1->getPath().length() > res.length()) {
@@ -204,25 +215,17 @@ void Request::matchingURL(std::string url) {
 		if (!root.empty() && root[root.length() - 1] == '/')
 			root = root.substr(0, root.length() - 1);
 
-		if (res == "/") {
-			this->url.replace(0, 1, root.append("/"));
-			return ;
-		}
 		if (!res.empty() && res[res.length() - 1] == '/') {
 			res = res.substr(0, res.length() - 1);
 			res2 = res;
 		}
 		pos = url.find("/", res.length());
-		if (pos != std::string::npos) {
-			res = url.substr(0, pos);
+		if (pos != std::string::npos)
 			url.erase(0, pos);
-		}
-		else {
-			res = url;
+		else
 			url = "";
-		}
-		
-		if (this->url.find("/..") != std::string::npos)
+
+		if (!url.empty())
 			parseURL(url);
 		this->url = root + url;
 		reqURL = res2 + url;
