@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/03 03:51:06 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 20:39:49 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,9 @@ void Request::parssRspCGI(FILE *type){
 	char buffer[1024] = {0};
 	int j = fread(buffer, sizeof(buffer[0]), 1024, type);
 	std::string str(buffer, j);
-
+	
+	std::cout << str << std::endl;
+	
 	size_t pos = str.find("\r\n\r\n");
 	if (pos != std::string::npos){
 		str = str.substr(0, pos + 4);
@@ -133,17 +135,19 @@ void Request::cgiPost(int fd, std::string path){
 	parssRspCGI(type);
 }
 
-void Request::cgiGet(std::string path){
+void Request::cgiGet(std::string path, std::string url){
 
 	std::string script = "SCRIPT_NAME=" + url;
 	std::string scriptFile = "SCRIPT_FILENAME=" + url;
 	std::string ContentType = "CONTENT_TYPE=" + this->contentType;
+	if (!queryString.empty())
+		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
 
-	// std::cout << script << std::endl;
-	// std::cout << scriptFile << std::endl;
-	// std::cout << query << std::endl;
-	// std::cout << ContentType << std::endl;
+	std::cout << script << std::endl;
+	std::cout << scriptFile << std::endl;
+	std::cout << query << std::endl;
+	std::cout << ContentType << std::endl;
 	
 	char *envp[] = {
 		(char*) query.c_str(),
@@ -182,8 +186,10 @@ void Request::cgiGet(std::string path){
 		waitpid(p, &status, 0);
 		kill(p,9);
 		if (WIFEXITED(status)){
-			if (WEXITSTATUS(status) != 0)
+			if (WEXITSTATUS(status) != 0){
+				fclose(type);
 				throw StatusCodeExcept(500);
+			}
 		}
 	}
 	fseek(type, 0, SEEK_SET);

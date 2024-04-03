@@ -71,7 +71,18 @@ void Request::isDirHasIndexFile() {
 
 		if (access(token.c_str(), R_OK) != 0)
 			continue ;
-		
+		size_t found = token.find_last_of(".");
+		if (found != std::string::npos){
+			std::string tmp = token.substr(found + 1);
+			std::string extention = "." + tmp;
+			std::map<std::string, std::string> cgiPath = location->getCgiPaths();
+			std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
+			if (it != cgiPath.end())
+				cgiGet(it->second, token);
+			if (MimeTypes::getType(tmp).empty())
+				throw StatusCodeExcept(415);
+		}
+
 		throw responseGetExcept(genGetFileHeader(200, token), token, 1, 0);
 	}
 }
@@ -145,14 +156,17 @@ void Request::Get(){
 			throw StatusCodeExcept(403);
 
 		size_t found = url.find_last_of(".");
-		if (found != std::string::npos) {
+		if (found != std::string::npos){
 			std::string tmp = url.substr(found + 1);
+			std::string extention = "." + tmp;
+			std::map<std::string, std::string> cgiPath = location->getCgiPaths();
+			std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
+			if (it != cgiPath.end())
+				cgiGet(it->second, url);
 			if (MimeTypes::getType(tmp).empty())
 				throw StatusCodeExcept(415);
 		}
 		throw responseGetExcept(genGetFileHeader(200, url), url, 1, 0);
-
-		// throw responseGetExcept(200, url, 1);
 	}
 	else
 		throw StatusCodeExcept(404);

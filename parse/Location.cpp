@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/28 20:44:22 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/03 20:32:19 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ Location::Location(Server &serv){
     uploadPath = serv.getUploadPath();
     autoIndex = serv.getAutoIndex();
 	errorPages = serv.getErrorPages();
+	cgiPaths = serv.getCgiPaths();
 }
 
 Location::~Location(){}
@@ -421,4 +422,3 @@ void Location::printArg() {
 		}
 	}
 }
-

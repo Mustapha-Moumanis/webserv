@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/03 03:06:58 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 20:40:14 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ class Request {
 
 		// CGI
 		void cgiPost(int, std::string);
-		void cgiGet(std::string);
+		void cgiGet(std::string, std::string);
 		void rediractionCGI(void);
 		void parssRspCGI(FILE*);
 
