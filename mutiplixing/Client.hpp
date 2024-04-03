@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/02 01:13:01 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 03:15:39 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <fstream>
 #include <dirent.h>
 #include <cctype>
+#include <time.h>
 #include "StatusCodeExcept.hpp"
 #include "rediractionExcept.hpp"
 #include "responseGetExcept.hpp"
@@ -36,6 +37,9 @@ class Client {
 		std::ifstream ifs;
 		std::string header;
 		bool isThingsToRes;
+		// Timeout
+		clock_t time;
+		bool ifTimeOut;
 
 	public :
 		Client();
@@ -43,6 +47,8 @@ class Client {
 		
 		void setServ(Server *serv);
 		void setStatus(bool status);
+		void setIfTimeOut(bool ifTimeOut);
+		void setTime(clock_t time);
 		void SentRequest(std::string);
 		void setHeader(std::string header);
 		void setThingsToRes(bool isThingsToRes);
@@ -51,7 +57,9 @@ class Client {
 		
 		Server *getServ();
 		bool getStatus();
+		clock_t getTime();
 		bool getThingsToRes();
+		bool getIfTimeOut();
 		Request &getRequest();
 		std::string getHeader();
 		std::string getResponse();

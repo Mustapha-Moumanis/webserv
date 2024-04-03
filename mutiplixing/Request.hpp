@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/02 00:24:02 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 03:06:58 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Request {
 		bool CompareURL(std::string s1, std::string s2);
 		void setDoublicateServer(std::vector<Server *> &vec);
 		void specificServ(void);
+		void checkTimeOut(void);
 		
 	private :
 		std::map<std::string, std::string> HeaderCgi;

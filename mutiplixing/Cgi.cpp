@@ -6,12 +6,11 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/02 02:16:44 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 03:51:06 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
 
 void Request::rediractionCGI(){
 	

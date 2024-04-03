@@ -43,6 +43,11 @@ void Request::setDoublicateServer(std::vector<Server *> &vec) {
     doublicateServer = vec;
 }
 
+void Request::checkTimeOut() {
+	// check cgi if runing
+	throw StatusCodeExcept(408);
+}
+
 void Request::CheckFirstLine(std::string Fline){
 
 	std::stringstream ss(Fline);
@@ -69,6 +74,7 @@ void Request::CheckRequest(){
 	std::map<std::string, std::string>::iterator it;
 	if (Method == "POST"){
 		path = this->location->getUploadPath();
+		std::cout << path << std::endl;
 		// check if path end with "/" or not |!|
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
@@ -235,23 +241,30 @@ void Request::matchingURL(std::string url) {
 }
 
 void Request::setRequest(std::string req) {
-
+	// if request empty 500 |!|
     if (HeaderIsDone == 0){
+		if (!body.empty())
+			req = body + req;
+	
 		size_t pos = req.find("\r\n\r\n");
 		if (pos != std::string::npos){
 			CheckFirstLine(req.substr(0, req.find("\r\n")));
 			req.erase(0, req.find("\r\n") + 2);
 			while (404) {
-				std::string key = req.substr(0, req.find(": "));
 				if (req.substr(0, req.find("\r\n")) == ""){
 					req.erase(0, req.find("\r\n") + 2);
 					break;
 				}
+				if (req.find(": ") == std::string::npos)
+					throw StatusCodeExcept(400);
+				std::string key = req.substr(0, req.find(": "));
 				req.erase(0, req.find(": ") + 2);
 				std::string val =  req.substr(0, req.find("\r\n"));
 				HeadReq.insert(std::pair<std::string,std::string>(key, val));
 				req.erase(0, req.find("\r\n") + 2);
 			}
+			if (HeadReq.empty())
+				throw StatusCodeExcept(400);
 			body = req;
 			HeaderIsDone = 1;
 			specificServ();
@@ -263,8 +276,10 @@ void Request::setRequest(std::string req) {
 				throw StatusCodeExcept(405);
 			CheckRequest();
 		}
-		// else
-			// if no "\r\n\r\n" should be timeout ==> |!|
+		else {
+			body = req;
+			return ;
+		}
 	}
 	if (Method == "POST"){
 		Post(req);

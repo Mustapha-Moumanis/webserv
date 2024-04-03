@@ -6,13 +6,15 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/02 01:22:45 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 03:15:24 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client() : status(1), Response(""), header(""), isThingsToRes(0) {
+Client::Client() : status(1), Response(""), header(""), isThingsToRes(0), ifTimeOut(0) {
+    time = clock();
+  
     // fileName = "Data/" + getNewName() + ".txt";
     // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
 }
@@ -29,6 +31,14 @@ void Client::setServ(Server *serv) {
 
 void Client::setStatus(bool status) {
     this->status = status;
+}
+
+void Client::setIfTimeOut(bool t) {
+    this->ifTimeOut = t;
+}
+
+void Client::setTime(clock_t time) {
+    this->time = time;
 }
 
 void Client::setHeader(std::string header) {
@@ -48,8 +58,16 @@ bool Client::getStatus() {
     return status;
 }
 
+clock_t Client::getTime(){
+    return time;
+}
+
 bool Client::getThingsToRes() {
     return isThingsToRes;
+}
+
+bool Client::getIfTimeOut() {
+    return ifTimeOut;
 }
 
 Server *Client::getServ() {
@@ -145,6 +163,9 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
 
 void Client::SentRequest(std::string tmp){
     try {
+        if (ifTimeOut == 1){
+           request.checkTimeOut();
+        }
         request.setRequest(tmp);
     }
     catch (const StatusCodeExcept &e) {

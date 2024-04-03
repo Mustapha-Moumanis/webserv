@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:41:29 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/02 00:26:38 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/02 21:30:45 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,18 +106,29 @@ int Request::postBinary(std::string req){
 		ftype = fopen(fileName.c_str(), "w+");
 		if (ftype == NULL) 
 			throw StatusCodeExcept(403);
-
+		long long i = this->length + body.length();
+		if (i > ContentLength){
+			i -= ContentLength;
+			i = body.length() - i;
+			body.erase(i);
+		}
 		fwrite (body.c_str() , sizeof(char), body.length(), ftype);
 		this->length = body.length();
-		if (this->length >= ContentLength){
+		if (this->length == ContentLength){
 			return (201);
 		}
 		body.clear();
 	}
 	else {
+		long long i = this->length + body.length();
+		if (i > ContentLength){
+			i -= ContentLength;
+			i = body.length() - i;
+			body.erase(i);
+		}
 		fwrite (req.c_str() , sizeof(char), req.length(), ftype);
 		this->length += req.length();
-		if (this->length >= ContentLength){
+		if (this->length == ContentLength){
 			return (201);
 		}
 	}

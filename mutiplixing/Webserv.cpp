@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/02 01:20:27 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/03 03:47:44 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ void Webserv::multiplixing() {
 					Clients[newSocket]->setDoublicateServer(servVec);
 				
 				Clients[newSocket]->setServ(serv);
+				// Clients[events[i].data.fd]->setTime(clock());
 			}
 			else {
 				// if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
@@ -169,7 +170,7 @@ void Webserv::multiplixing() {
 							size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
 
 							if (valueRead > 0) {
-								std::cout << ">>>>>> " << buffer << std::endl;
+								// std::cout << ">>>>>> " << buffer << std::endl;
 								if (send(events[i].data.fd, buffer, valueRead, 0) == -1) {
 									// std::cout << "Error: send field" << std::endl;
 									close(events[i].data.fd);
@@ -206,11 +207,15 @@ void Webserv::multiplixing() {
 						Clients.erase(events[i].data.fd);
 					}
 				}
-				// else {
-				// 	close(events[i].data.fd);
-				// 	delete Clients[events[i].data.fd];
-				// 	Clients.erase(events[i].data.fd);
-				// }
+				else {
+					clock_t time = Clients[events[i].data.fd]->getTime();
+					time = clock() - time;
+ 					// printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
+					if (((double)time)/CLOCKS_PER_SEC >= Clients[events[i].data.fd]->getServ()->getTimeOut()){
+						Clients[events[i].data.fd]->setIfTimeOut(1);
+						Clients[events[i].data.fd]->SentRequest("");
+					}
+				}
 			}
 		}
 	}

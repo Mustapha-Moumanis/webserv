@@ -9,7 +9,7 @@ server :
     methods: POST GET
     # index : index.html index.htmld
     # index : home.html index.htmld2 # is dir
-    time_out : 1m
+    time_out : 5s
     error_pages : [[404 500 502 503 504, error_pages/custom_40x.html]]
 
     location :   
