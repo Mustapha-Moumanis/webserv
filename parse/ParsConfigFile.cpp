@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/24 03:25:05 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/04 20:25:02 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,11 @@ void ParsConfigFile::getKeyValue(std::string line) {
 		throw std::runtime_error("invalid line : " + line);
 	
 	getline(ss, key, ':');
-	key = key.substr(0, key.find(" "));
+	size_t pos = key.find(" ");
+	if (pos != std::string::npos)
+		if (key.find_first_not_of(" ", pos) != std::string::npos)
+			throw std::runtime_error("invalid line : " + line);
+	key = key.substr(0, pos);
 	ss >> s1;
 	getline(ss, value, '\0');
 	if (!value.empty())

@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/26 21:06:33 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/04 23:42:07 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,16 @@ Server::Server(){
 	port = 0;
 	host = "";
 	methods = "";
-	root = "www/";
+	root = "";
 	upload = "on";
 	uploadPath = "";
 	autoIndex = "off";
 	clientMaxBodySize = 2147483648;
 	timeOut = 30;
+	realPath = "";
+	if (realpath("./", NULL))
+		realPath = realpath("./", NULL);
+	std::cout << realPath << std::endl;
 }
 
 Server::~Server(){}
@@ -30,9 +34,17 @@ Server::~Server(){}
 
 void Server::setRoot(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
+	char actualpath [PATH_MAX + 1];
+	std::string fullPath = "";
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	root = value;
+	if (realpath(value.c_str(), actualpath))
+		fullPath = realpath(value.c_str(), actualpath);
+	if (fullPath.size() < realPath.size())
+		throw std::runtime_error("root : invalid path " + value);
+	if (fullPath.substr(0, realPath.size()) != realPath)
+		throw std::runtime_error("root : invalid path " + value);
+	root = fullPath;
 }
 
 void Server::setMethods(std::string value) {
@@ -183,8 +195,8 @@ void Server::setClientMaxBodySize(std::string value) {
 	std::stringstream ss(value);
 	ss >> clientMaxBodySize;
 	clientMaxBodySize *= convert;
-	if (value.size() > 10 || clientMaxBodySize > 2147483648)
-		throw std::runtime_error("Client_max_body_size too long maximum 2G");
+	if (value.size() > 10)
+		throw std::runtime_error("Client_max_body_size too long");
 }
 
 void Server::setTimeOut(std::string value) {
@@ -208,14 +220,18 @@ void Server::setTimeOut(std::string value) {
 	std::stringstream ss(value);
 	ss >> timeOut;
 	timeOut *= convert;
-	if (value.size() > 4 || timeOut > 1200) // max 20min
-		throw std::runtime_error("time_out too long maximum 20 minute");
+	if (value.size() > 10) // max 20min
+		throw std::runtime_error("time_out too long");
 }
 
 // get variables
 
 std::string Server::getRoot() {
 	return root;
+}
+
+std::string Server::getRealPath() {
+	return realPath;
 }
 
 int Server::getPort() {
@@ -506,8 +522,8 @@ void Server::initEmptyData() {
 }
 
 void Server::checkArg() {
-	if (port == 0 || host.empty())
-		throw std::runtime_error("importent data : port | host ...");
+	if (port == 0  || root.empty() || host.empty())
+		throw std::runtime_error("importent data : port | host | root...");
 	for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
 		it->checkLocation();
 	}

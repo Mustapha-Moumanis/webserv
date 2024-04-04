@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:20 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/19 17:19:57 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/04 22:32:13 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Location {
 		std::string path;
 		std::string upload;
 		std::string methods; 
+		std::string realPath;
 		std::string autoIndex; 
 		std::string uploadPath;
 		int rediractionStatusCode;

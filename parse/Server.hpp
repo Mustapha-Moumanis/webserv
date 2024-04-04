@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:31:08 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/28 20:59:22 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/04 23:39:07 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <cstdlib>
+#include <climits>
 #include "Location.hpp"
 #include "../include/Utils.hpp"
 
@@ -33,6 +34,7 @@ class Server {
 		std::string root;
 		std::string host;
 		std::string hostPort;
+		std::string realPath;
 		std::string upload;
 		std::string uploadPath;
 		std::string methods;
@@ -71,7 +73,7 @@ class Server {
 		double getTimeOut();
 		std::string getRoot();
 		std::string getHost();
-
+		std::string getRealPath();
 		std::string getUpload();
 		std::string getMethods();
 		std::string getHostPort();

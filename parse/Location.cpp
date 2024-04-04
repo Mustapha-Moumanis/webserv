@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:50:23 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/03 20:32:19 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/04 23:43:28 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Location::Location(Server &serv){
 	rediractionURL = "";
 	rediractionStatusCode = 0;
     root = serv.getRoot();
+	realPath = serv.getRealPath();
     upload = serv.getUpload();
     uploadPath = serv.getUploadPath();
     autoIndex = serv.getAutoIndex();
@@ -84,10 +85,19 @@ std::string Location::getMethods() {
 
 void Location::setRoot(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
+	char actualpath [PATH_MAX + 1];
+	std::string fullPath = "";
 	if (pos != std::string::npos)
 		value = value.substr(0, pos + 1);
-	root = value;
+	if (realpath(value.c_str(), actualpath))
+		fullPath = realpath(value.c_str(), actualpath);
+	if (fullPath.size() < realPath.size())
+		throw std::runtime_error("root : invalid path " + value);
+	if (fullPath.substr(0, realPath.size()) != realPath)
+		throw std::runtime_error("root : invalid path " + value);
+	root = fullPath;
 }
+
 
 void Location::setPath(std::string value) {
 	size_t pos = value.find_last_not_of(" ");
@@ -154,7 +164,6 @@ void Location::setUpload(std::string value) {
 	std::stringstream ss;
 	std::string token;
 	std::string path;
-	// std::ifstream ifs;
 
 	size_t pos = value.find_last_not_of(" ");
 	if (pos != std::string::npos)
@@ -180,10 +189,6 @@ void Location::setUpload(std::string value) {
 		return ;
 	if (access(path.c_str(), R_OK) != 0)
 		return ;
-	// ifs.open(path.c_str());
-	// if (!ifs.is_open())
-	// 	return ;
-	// ifs.close();
 	uploadPath = path;
 }
 
@@ -200,7 +205,6 @@ void Location::setIndex(std::string value) {
 
 void Location::insertErrorPages(std::string line, std::string value) {
 	std::stringstream ss;
-	// std::ifstream ifs;
 	std::string token;
 	std::string path;
 	int statusCode;
@@ -219,10 +223,6 @@ void Location::insertErrorPages(std::string line, std::string value) {
 
 	if (!isRegFile(path))
 		return ;
-	// ifs.open(path.c_str());
-	// if (!ifs.is_open())
-	// 	return ;
-	// ifs.close();
 	if (access(path.c_str(), R_OK) != 0)
 		return ;
 	pos = value.find_first_not_of(" ");

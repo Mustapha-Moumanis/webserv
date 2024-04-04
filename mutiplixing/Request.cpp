@@ -78,10 +78,11 @@ void Request::CheckRequest(){
 		// check if path end with "/" or not |!|
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
-		
+
+		// ========== Change this part =============> |!|
 		if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
 			if (it->second.find_first_not_of("0123456789") != std::string::npos)
-				throw StatusCodeExcept(400);
+				throw StatusCodeExcept(411);
 			ContentLength = atol(it->second.c_str());
 			if (ContentLength > server->getClientMaxBodySize())
 				throw StatusCodeExcept(413);
@@ -92,6 +93,8 @@ void Request::CheckRequest(){
 		}
 		else
 			throw StatusCodeExcept(400);
+		// ========================================>
+
 		// Upload
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
