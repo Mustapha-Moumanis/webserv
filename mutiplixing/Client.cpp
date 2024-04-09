@@ -14,14 +14,14 @@
 
 Client::Client() : status(1), Response(""), header(""), isThingsToRes(0), ifTimeOut(0) {
     time = clock();
-  
-    // fileName = "Data/" + getNewName() + ".txt";
-    // fsBody.open(fileName.c_str(), std::fstream::in | std::fstream::out | std::fstream::app);
+    dir = NULL;
 }
 
 Client::~Client() {
     if (ifs.is_open())
         ifs.close();
+    if (dir != NULL)
+        closedir(dir);
 }
 
 void Client::setServ(Server *serv) {
@@ -45,7 +45,7 @@ void Client::setHeader(std::string header) {
     this->header = header;
 }
 
-void Client::setThingsToRes(bool isThingsToRes) {
+void Client::setThingsToRes(int isThingsToRes) {
     this->isThingsToRes = isThingsToRes;
 }
 
@@ -62,7 +62,7 @@ clock_t Client::getTime(){
     return time;
 }
 
-bool Client::getThingsToRes() {
+int Client::getThingsToRes() {
     return isThingsToRes;
 }
 
@@ -90,6 +90,10 @@ std::ifstream &Client::getInFileStream() {
     return ifs;
 }
 
+DIR *Client::getDirPtr() {
+    return dir;
+}
+
 std::vector<Server *> &Client::getDoublicateServer() {
     return doublicateServer;
 }
@@ -99,18 +103,17 @@ void Client::responseFile(std::string header, std::string path, size_t pos) {
     ifs.seekg(pos, std::ios_base::beg);
     
     this->header = header;
-    isThingsToRes = 1;
+    isThingsToRes = _FILE;
 }
 
-std::string Client::generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType) {
-    std::string header;
-    header = "HTTP/1.1 " + Code + " " + Msg + "\r\n";
-    header += "Content-Type: " + mimeType + "\r\n\r\n";
-    return header;
+void Client::responseFolder(std::string header, std::string path) {
+	dir = opendir(path.c_str());
+
+    this->header = header;
+    isThingsToRes = _FOLDER;
 }
 
-std::string Client::generateResponse(int Code, std::string Msg, std::string mimeType) {
-    std::string resp;
+void Client::genStatusCodeResp(int Code, std::string Msg, std::string mimeType) {
     std::stringstream ss;
     std::string sCode;
     std::string errorPath;
@@ -118,48 +121,43 @@ std::string Client::generateResponse(int Code, std::string Msg, std::string mime
     ss << Code;
     ss >> sCode;
     
-    resp = generateHeaderResponse(sCode, Msg, mimeType);
+    Response = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
+    Response += "Content-Type: " + mimeType + "\r\n\r\n";
     if (Code == 204) 
-        return resp;
+        return ;
     if (isError(Code)) {
         if (location) {
             errorPath = location->getErrorPagesByKey(Code);
-            if (!errorPath.empty()){
-                responseFile(resp, errorPath, 0);
-                return "";
-            }
+            if (!errorPath.empty())
+                responseFile(Response, errorPath, 0);
         }
         else {
             errorPath = serv->getErrorPagesByKey(Code);
-            if (!errorPath.empty()){
-                responseFile(resp, errorPath, 0);
-                return "";
-            }
+            if (!errorPath.empty())
+                responseFile(Response, errorPath, 0);
         }
     }
         
-    resp += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
-    resp += sCode + " " + Msg;
-    resp += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
-    resp += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
-    resp += "</head>\n<body>\n<div class='container'>\n";
-    resp += "<h1>" + sCode + "</h1>\n";
-    resp += "<h3>" + Msg + "</h3>\n";
-    resp += "</div>\n</body>\n</html>";
-    return resp;
+    Response += "<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>";
+    Response += sCode + " " + Msg;
+    Response += "</title>\n<style>body {font-family: Arial, sans-serif;background-color: #f7f7f7;margin: 0;padding: 0;}";
+    Response += ".container {text-align: center;margin-top: 20vh;}h1 {font-size: 5em;color: #333;}h3 {font-size: 2em;color: #666;}</style>";
+    Response += "</head>\n<body>\n<div class='container'>\n";
+    Response += "<h1>" + sCode + "</h1>\n";
+    Response += "<h3>" + Msg + "</h3>\n";
+    Response += "</div>\n</body>\n</html>";
 }
 
-// std::string Client::generateDirResponse(int Code, std::string const Msg, std::string body) {
-//     std::string resp;
-//     std::stringstream ss;
-//     std::string sCode;
-//     ss << Code;
-//     ss >> sCode;
-    
-//     resp = generateHeaderResponse(sCode, Msg, "text/html");
-//     resp += body;
-//     return resp;
-// }
+void Client::genRediractionResp(int Code, std::string Msg, std::string path, std::string mimeType) {
+    std::stringstream ss;
+    std::string sCode;
+
+    ss << Code;
+    ss >> sCode;
+    Response = "HTTP/1.1 " + sCode + " " + Msg;
+    Response += "\r\nLocation: " + path + "\r\n";
+    Response += "Content-Type: " + mimeType + "\r\n\r\n";
+}
 
 void Client::SentRequest(std::string tmp){
     try {
@@ -169,33 +167,18 @@ void Client::SentRequest(std::string tmp){
         request.setRequest(tmp);
     }
     catch (const StatusCodeExcept &e) {
-        Response = generateResponse(e.getStatusCode(), e.what(), "text/html");
-        // std::cout << Response << std::endl;
+        genStatusCodeResp(e.getStatusCode(), e.what(), "text/html");
         setStatus(0);
     }
     catch (const rediractionExcept &e){
-        std::string resp;
-        std::stringstream ss;
-        std::string sCode;
-
-        ss << e.getStatusCode();
-        ss >> sCode;
-        Response += "HTTP/1.1 " + sCode;
-        Response += " ";
-        Response += e.what();
-        Response += "\r\nLocation: " + e.getURL() + "\r\n";
-        Response += "Content-Type: text/html\r\n\r\n";
+        genRediractionResp(e.getStatusCode(), e.what(), e.getURL(), "text/html");
         setStatus(0);
     }
     catch (const responseGetExcept &e){
-        if (e.getIsFile()) {
+        if (e.getIsFile() == _FILE)
             responseFile(e.getHeader(), e.getStock(), e.getPos());
-            // isThingsToRes = 1;
-        }
-        else {
-            std::cout << "is folder\n";
-            Response = e.getHeader() + e.getStock();
-        }
+        else
+            responseFolder(e.getHeader(), e.getStock());
         setStatus(0);
     }
 }

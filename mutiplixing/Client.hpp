@@ -33,10 +33,15 @@ class Client {
 		
 		// response atribuite
 		std::string Response;
-		
-		std::ifstream ifs;
 		std::string header;
-		bool isThingsToRes;
+		int isThingsToRes;
+		
+		// file response
+		std::ifstream ifs;
+
+		// folder response
+		DIR* dir;
+
 		// Timeout
 		clock_t time;
 		bool ifTimeOut;
@@ -51,28 +56,30 @@ class Client {
 		void setTime(clock_t time);
 		void SentRequest(std::string);
 		void setHeader(std::string header);
-		void setThingsToRes(bool isThingsToRes);
+		void setThingsToRes(int isThingsToRes);
 		void setDoublicateServer(std::vector<Server *> &vec);
 		
 		
 		Server *getServ();
 		bool getStatus();
 		clock_t getTime();
-		bool getThingsToRes();
+		int getThingsToRes();
 		bool getIfTimeOut();
 		Request &getRequest();
 		std::string getHeader();
 		std::string getResponse();
 		std::ifstream &getInFileStream();
+		DIR *getDirPtr();
 	
 		std::vector<Server *> &getDoublicateServer();
 		
-		std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);
-		std::string generateResponse(int Code, std::string const Msg, std::string mimeType);
-		std::string generateDirResponse(int Code, std::string const Msg, std::string body);
-
+		// std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);
+		void genStatusCodeResp(int Code, std::string const Msg, std::string mimeType);
+		void genRediractionResp(int Code, std::string Msg, std::string path, std::string mimeType);
+		// std::string generateDirResponse(int Code, std::string const Msg, std::string body);
 
 		void responseFile(std::string header, std::string path, size_t pos);
+		void responseFolder(std::string header, std::string path);
 };
 
 #endif

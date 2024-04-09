@@ -24,6 +24,7 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	HeaderIsDone = 0;
 	IsChunked = 0;
 	ftype = NULL;
+	parentDir = 0;
 }
 
 Request::~Request() {
@@ -209,8 +210,6 @@ void Request::matchingURL(std::string url) {
 	else
 		url = "/";
 
-	// this->url = url;
-	// reqURL = url;
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if (CompareURL(it1->getPath(), url)) {
 			if (it1->getPath().length() > res.length()) {

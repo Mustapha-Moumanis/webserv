@@ -65,14 +65,16 @@ class Request {
 		long long length;
 		bool IsChunked;
 		int	buffer;
+		bool parentDir;
 
 	public :
 		// Get 
 		void Get(void);
-		bool hasIndexFile(std::string url); // remove
+		// bool hasIndexFile(std::string url); // remove
 		void isDirHasIndexFile(void);
 		void generateDirAutoIndex(void);
 		std::string genGetDirHeader(int code, std::string mimeType);
+		std::string genDirItem(std::string name);
 
 		// Post
 		void Post(std::string);

@@ -148,9 +148,9 @@ void Webserv::multiplixing() {
 				}
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
 				{
-					// // response
+					// response
 					// std::cout << "------ response ------" << std::endl;
-					if (Clients[events[i].data.fd]->getThingsToRes()) {
+					if (Clients[events[i].data.fd]->getThingsToRes() == _FILE) {
 						// std::cout << "------ Things To response on Get ------" << std::endl;
 						response = Clients[events[i].data.fd]->getHeader();
 						if (!response.empty()) {
@@ -195,6 +195,57 @@ void Webserv::multiplixing() {
 								continue ;
 							}
 							
+						}
+					}
+					else if (Clients[events[i].data.fd]->getThingsToRes() == _FOLDER) {
+						response = Clients[events[i].data.fd]->getHeader();
+						if (!response.empty()) {
+							// get header from client 
+							Clients[events[i].data.fd]->setHeader("");
+							if(send(events[i].data.fd, response.c_str(), response.length(), 0) == -1) {
+								// std::cout << "Error: sending header response" << std::endl;
+								close(events[i].data.fd);
+								delete Clients[events[i].data.fd];
+								Clients.erase(events[i].data.fd);
+							}
+						}
+						else {
+							DIR *dir = Clients[events[i].data.fd]->getDirPtr();
+    						struct dirent* directoryEntries;
+							std::string name;
+							std::string buffer;
+							Request &req = Clients[events[i].data.fd]->getRequest();
+
+							for (int i = 0; i < 5; i++) {
+								std::string item;
+								directoryEntries = readdir(dir);
+								if (directoryEntries == NULL) {
+									buffer += "</body>\n</html>";
+									break;
+								}
+    						    name = directoryEntries->d_name;
+								item = req.genDirItem(name);
+								if (item.empty())
+									continue ;
+								// std::cout << "item : " << item << std::endl;
+								buffer += item;
+							}
+							if (!buffer.empty()) {
+								if (send(events[i].data.fd, buffer.c_str(), buffer.size(), 0) == -1) {
+									// std::cout << "Error: send field" << std::endl;
+									close(events[i].data.fd);
+									delete Clients[events[i].data.fd];
+									Clients.erase(events[i].data.fd);
+									continue ;
+								}
+							}
+							if (directoryEntries == NULL) {
+								// std::cout << "Success: File transmission complete" << std::endl;
+								close(events[i].data.fd);
+								delete Clients[events[i].data.fd];
+								Clients.erase(events[i].data.fd);
+								continue ;
+							}
 						}
 					}
 					else {

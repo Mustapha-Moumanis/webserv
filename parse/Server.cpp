@@ -23,8 +23,9 @@ Server::Server(){
 	clientMaxBodySize = 2147483648;
 	timeOut = 30;
 	realPath = "";
-	if (realpath("./", NULL))
-		realPath = realpath("./", NULL);
+	char actualpath [PATH_MAX + 1];
+	if (realpath("./", actualpath))
+		realPath = realpath("./", actualpath);
 	std::cout << realPath << std::endl;
 }
 

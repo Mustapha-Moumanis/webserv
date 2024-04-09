@@ -7,6 +7,9 @@
 #include <string>
 #include <map>
 
+#define _FILE 1
+#define _FOLDER 2
+
 bool isInformational(int code);
 bool isSuccessful(int code);
 bool isRedirection(int code);

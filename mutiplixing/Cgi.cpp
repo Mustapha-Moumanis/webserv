@@ -62,12 +62,12 @@ void Request::parssRspCGI(FILE *type){
 			header = "HTTP/1.1 200 OK\r\n";
 		header += str;
 		fclose(type);
-		throw responseGetExcept(header, "cgi.txt", 1, pos + 4);
+		throw responseGetExcept(header, "cgi.txt", _FILE, pos + 4);
 	}
 	else {
 		std::cout << "If no header" << std::endl;
 		fclose(type);
-		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", 1, 0);
+		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", _FILE, 0);
 	}
 }
 
