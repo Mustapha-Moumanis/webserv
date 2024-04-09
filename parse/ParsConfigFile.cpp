@@ -55,10 +55,10 @@ ParsConfigFile::ParsConfigFile(std::ifstream &fs, std::vector<Server *> &serv) :
 	}
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
-	for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
-		std::cout << "server : " << std::endl;
-		(*it)->printArg();
-	}
+	// for (std::vector<Server *>::iterator it = dataServers.begin(); it != dataServers.end(); it++) {
+	// 	std::cout << "server : " << std::endl;
+	// 	(*it)->printArg();
+	// }
 }
 
 ParsConfigFile::~ParsConfigFile() {}

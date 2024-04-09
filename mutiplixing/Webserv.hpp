@@ -47,6 +47,11 @@ class Webserv {
 		void initDefaultServer();
 		std::vector<Server *> &getDoublicateServer(std::string host);
 		Server *getDefaultServer(std::string host);
+
+		void requestPart(int fd);
+		bool responseFile(int fd);
+		bool responseFolder(int fd);
+		
 };
 
 #endif

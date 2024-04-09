@@ -33,6 +33,97 @@ Webserv::~Webserv(){
 	}
 }
 
+void Webserv::requestPart(int fd) {
+	char buffer[1024] = {0};
+
+	ssize_t valueRead = recv(fd, buffer, 1023, 0);
+	if (valueRead == -1) {
+		// std::cout << "filed : read " << std::endl;
+		close(fd);
+		delete Clients[fd];
+		Clients.erase(fd);
+		return ;
+	}
+	std::string tmp(buffer, valueRead);
+	Clients[fd]->SentRequest(tmp);
+				
+}
+
+bool Webserv::responseFile(int fd) {
+	response = Clients[fd]->getHeader();
+	if (!response.empty()) {
+		Clients[fd]->setHeader("");
+		if(send(fd, response.c_str(), response.length(), 0) == -1) {
+			// std::cout << "Error: sending header response" << std::endl;
+			return 0;
+		}
+	}
+	else {
+		std::ifstream &ifs = Clients[fd]->getInFileStream();
+
+		char buffer[1024] = {0};
+		size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
+
+		if (valueRead > 0) {
+			if (send(fd, buffer, valueRead, 0) == -1) {
+				// std::cout << "Error: send field" << std::endl;
+				return 0;
+			}
+			if (ifs.eof()) {
+				// std::cout << "Success: File transmission complete" << std::endl;
+				return 0;
+			}
+		}
+		else
+			return 0;
+	}
+	return 1;
+}
+
+bool Webserv::responseFolder(int fd) {
+	response = Clients[fd]->getHeader();
+	if (!response.empty()) {
+		// get header from client 
+		Clients[fd]->setHeader("");
+		if(send(fd, response.c_str(), response.length(), 0) == -1) {
+			// std::cout << "Error: sending header response" << std::endl;
+			return 0;
+		}
+	}
+	else {
+		DIR *dir = Clients[fd]->getDirPtr();
+		struct dirent* directoryEntries;
+		std::string name;
+		std::string buffer;
+		Request &req = Clients[fd]->getRequest();
+
+		for (int i = 0; i < 5; i++) {
+			std::string item;
+			directoryEntries = readdir(dir);
+			if (directoryEntries == NULL) {
+				buffer += "</body>\n</html>";
+				break;
+			}
+			name = directoryEntries->d_name;
+			item = req.genDirItem(name);
+			if (item.empty())
+				continue ;
+			buffer += item;
+		}
+		if (!buffer.empty()) {
+			if (send(fd, buffer.c_str(), buffer.size(), 0) == -1) {
+				// std::cout << "Error: send field" << std::endl;
+				return 0;
+			}
+		}
+		if (directoryEntries == NULL) {
+			// std::cout << "Success: File transmission complete" << std::endl;
+			return 0;
+		}
+	}
+	return 1;
+}
+
 void Webserv::multiplixing() {
 	std::cout << "________________________________________________      " << std::endl;
 	std::cout << "     _    _      _     _____                          " << std::endl;
@@ -131,127 +222,30 @@ void Webserv::multiplixing() {
 				// }
 				// else
 				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
-					// request
-					// std::cout << "------ request ------" << std::endl;
-					char buffer[1024] = {0};
-
-					ssize_t valueRead = recv(events[i].data.fd, buffer, 1023, 0);
-					if (valueRead == -1) {
-						std::cout << "filed : read " << std::endl;
-						close(events[i].data.fd);
-						delete Clients[events[i].data.fd];
-						Clients.erase(events[i].data.fd);
-						continue ;
-					}
-					std::string tmp(buffer, valueRead);
-					Clients[events[i].data.fd]->SentRequest(tmp);
+					// ------ request ------
+					requestPart(events[i].data.fd);
 				}
 				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
 				{
-					// response
-					// std::cout << "------ response ------" << std::endl;
+					// ------ response ------
 					if (Clients[events[i].data.fd]->getThingsToRes() == _FILE) {
-						// std::cout << "------ Things To response on Get ------" << std::endl;
-						response = Clients[events[i].data.fd]->getHeader();
-						if (!response.empty()) {
-							// get header from client 
-							Clients[events[i].data.fd]->setHeader("");
-							if(send(events[i].data.fd, response.c_str(), response.length(), 0) == -1) {
-								// std::cout << "Error: sending header response" << std::endl;
-								close(events[i].data.fd);
-								delete Clients[events[i].data.fd];
-								Clients.erase(events[i].data.fd);
-							}
-						}
-						else {
-							std::ifstream &ifs = Clients[events[i].data.fd]->getInFileStream();
-
-							char buffer[1024] = {0};
-							size_t valueRead = ifs.read(buffer, sizeof(buffer)).gcount();
-
-							if (valueRead > 0) {
-								// std::cout << ">>>>>> " << buffer << std::endl;
-								if (send(events[i].data.fd, buffer, valueRead, 0) == -1) {
-									// std::cout << "Error: send field" << std::endl;
-									close(events[i].data.fd);
-									delete Clients[events[i].data.fd];
-									Clients.erase(events[i].data.fd);
-									continue ;
-								}
-								// if (!ifs.is_open())
-									// std::cout << "Error: file is closed" << std::endl;
-								if (ifs.eof()) {
-									// std::cout << "Success: File transmission complete" << std::endl;
-									close(events[i].data.fd);
-									delete Clients[events[i].data.fd];
-									Clients.erase(events[i].data.fd);
-								}
-							}
-							else {
-								// std::cout << "filed : read " << std::endl; 
-								close(events[i].data.fd);
-								delete Clients[events[i].data.fd];
-								Clients.erase(events[i].data.fd);
-								continue ;
-							}
-							
+						// ------ response file ------
+						if (responseFile(events[i].data.fd) == 0) {
+							close(events[i].data.fd);
+							delete Clients[events[i].data.fd];
+							Clients.erase(events[i].data.fd);
 						}
 					}
 					else if (Clients[events[i].data.fd]->getThingsToRes() == _FOLDER) {
-						response = Clients[events[i].data.fd]->getHeader();
-						if (!response.empty()) {
-							// get header from client 
-							Clients[events[i].data.fd]->setHeader("");
-							if(send(events[i].data.fd, response.c_str(), response.length(), 0) == -1) {
-								// std::cout << "Error: sending header response" << std::endl;
-								close(events[i].data.fd);
-								delete Clients[events[i].data.fd];
-								Clients.erase(events[i].data.fd);
-							}
-						}
-						else {
-							DIR *dir = Clients[events[i].data.fd]->getDirPtr();
-    						struct dirent* directoryEntries;
-							std::string name;
-							std::string buffer;
-							Request &req = Clients[events[i].data.fd]->getRequest();
-
-							for (int i = 0; i < 5; i++) {
-								std::string item;
-								directoryEntries = readdir(dir);
-								if (directoryEntries == NULL) {
-									buffer += "</body>\n</html>";
-									break;
-								}
-    						    name = directoryEntries->d_name;
-								item = req.genDirItem(name);
-								if (item.empty())
-									continue ;
-								// std::cout << "item : " << item << std::endl;
-								buffer += item;
-							}
-							if (!buffer.empty()) {
-								if (send(events[i].data.fd, buffer.c_str(), buffer.size(), 0) == -1) {
-									// std::cout << "Error: send field" << std::endl;
-									close(events[i].data.fd);
-									delete Clients[events[i].data.fd];
-									Clients.erase(events[i].data.fd);
-									continue ;
-								}
-							}
-							if (directoryEntries == NULL) {
-								// std::cout << "Success: File transmission complete" << std::endl;
-								close(events[i].data.fd);
-								delete Clients[events[i].data.fd];
-								Clients.erase(events[i].data.fd);
-								continue ;
-							}
+						// ------ response folder ------
+						if (responseFolder(events[i].data.fd) == 0) {
+							close(events[i].data.fd);
+							delete Clients[events[i].data.fd];
+							Clients.erase(events[i].data.fd);
 						}
 					}
 					else {
 						response = Clients[events[i].data.fd]->getResponse();
-						if (response.empty())
-							response = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\n<title>200 suuuuu</title>\n<style>\nbody {\nfont-family: Arial, sans-serif;\nbackground-color: #f8f9fa;\ncolor: #212529;\nmargin: 0;\npadding: 0;\n}\n.container {\ntext-align: center;\nmargin-top: 20%;\n}\nh1 {\nfont-size: 3em;\n}\np {\nfont-size: 1.2em;\n}\n</style>\n</head>\n<body>\n<div class='container'>\n<h1>200 suuuuuuuuuu</h1>\n</div>\n</body>\n</html>";
 						send(events[i].data.fd, response.c_str(), response.length(), 0);
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
