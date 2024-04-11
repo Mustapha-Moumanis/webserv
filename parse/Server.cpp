@@ -26,7 +26,6 @@ Server::Server(){
 	char actualpath [PATH_MAX + 1];
 	if (realpath("./", actualpath))
 		realPath = realpath("./", actualpath);
-	std::cout << realPath << std::endl;
 }
 
 Server::~Server(){}
@@ -221,7 +220,7 @@ void Server::setTimeOut(std::string value) {
 	std::stringstream ss(value);
 	ss >> timeOut;
 	timeOut *= convert;
-	if (value.size() > 10) // max 20min
+	if (value.size() > 10)
 		throw std::runtime_error("time_out too long");
 }
 
@@ -498,28 +497,6 @@ void Server::initEmptyData() {
 		methods = "POST GET DELETE";
 	if (hostPort.empty())
 		initHostPort();
-	// if (uploadPath.empty())
-	// 	uploadPath = root;
-	// if (!index.empty()) {
-	// 	std::ifstream ifs;
-	// 	std::string path;
-	// 	for (std::vector<std::string>::iterator it = index.begin(); it != index.end(); it++) {
-	// 		if (root.at(root.length() - 1) != '/')
-	// 			path = root + "/" + *it;
-	// 		else
-	// 			path = root + *it;
-	// 		if (!isRegFile(path)) {
-	// 			it->erase();
-	// 			continue ;
-	// 		}
-	// 		ifs.open(path.c_str());
-	// 		if (!ifs.is_open()) {
-	// 			it->erase();
-	// 			continue ;
-	// 		}
-	// 		ifs.close();
-	// 	}
-	// }
 }
 
 void Server::checkArg() {
@@ -529,16 +506,6 @@ void Server::checkArg() {
 		it->checkLocation();
 	}
 }
-
-// void Server::checkArg() {
-//	 for (std::map<std::string, std::string>::iterator it = arg.begin() ; it != arg.end(); it++) {
-//		 if (it->second.empty())
-//			 throw std::runtime_error("importent data : port | servername ...");
-//	 }
-//	 for (std::vector<Location>::iterator it = locations.begin(); it != locations.end(); it++) {
-//		 it->checkLocation();
-// 	}
-// }
 
 void Server::printArg() {
 	std::cout << "	port : *" << getPort() << "*" << std::endl;

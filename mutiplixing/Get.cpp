@@ -99,14 +99,16 @@ std::string Request::genDirItem(std::string name) {
 	item = "<li class=\"collection-item\">\n<a href=\"";
 	item += reqURL + name;
 	item += "\">\n";
-	if (isDir(token))
+	if (name == "..")
+		item += REPLYICON;
+	else if (isDir(token))
 		item += FOLDERICON;
 	else
 		item += FILEICON;
 	item += "<h6 class = \"name\">";
 
 	if (name == "..") {
-		name = "[parent directory]";
+		name = "parent directory";
 		parentDir = 0;
 	}
 
@@ -125,7 +127,7 @@ void Request::generateDirAutoIndex() {
     body += "</title>\n<style>body{font-family:Arial,sans-serif;background:#f5f5f5}a{text-decoration:none;color:#333;display:flex;align-items:center}";
     body += "h3{color:#599ac2;font-size:32px;line-height: 1.5;margin:0;padding:0 2.5rem;background:#d2edf7bd;font-weight:600;letter-spacing:1px}";
     body += ".collection{padding:0}.collection-item{list-style-type:none;line-height:1.5rem;padding:10px 20px;margin:0;border-bottom:1px solid #e0e0e0}";
-    body += ".directory-icon{width:30px;min-width: 30px;margin-right:10px}.name{margin:0;font-size:16px}</style>";
+    body += ".directory-icon{height:30px;min-height: 30px;width:30px;min-width: 30px;margin-right:10px}.name{margin:0;font-size:16px}</style>";
     body += "</head>\n<body>\n<h3>index of ";
 	body += reqURL;
 	body += "</h3>";
