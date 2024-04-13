@@ -20,7 +20,6 @@ void Request::rediractionCGI(){
 		if (location->getRediractionStatusCode() != 0)
 			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
 		if (S_ISREG(buffer.st_mode)){
-			// ============= take IT
 			size_t found = url.find_last_of(".");
 			if (found != std::string::npos){
 				std::string extention = url.substr(found);
@@ -31,7 +30,6 @@ void Request::rediractionCGI(){
 					cgiPost(fileno(ftype), it->second);
 				}
 			}
-			// ===========================
 		}
 	}
 }
@@ -42,7 +40,7 @@ void Request::parssRspCGI(FILE *type){
 	int j = fread(buffer, sizeof(buffer[0]), 1024, type);
 	std::string str(buffer, j);
 	
-	std::cout << str << std::endl;
+	// std::cout << str << std::endl;
 	
 	size_t pos = str.find("\r\n\r\n");
 	if (pos != std::string::npos){
@@ -65,7 +63,7 @@ void Request::parssRspCGI(FILE *type){
 		throw responseGetExcept(header, "cgi.txt", _FILE, pos + 4);
 	}
 	else {
-		std::cout << "If no header" << std::endl;
+		// std::cout << "If no header" << std::endl;
 		fclose(type);
 		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", _FILE, 0);
 	}
@@ -144,10 +142,10 @@ void Request::cgiGet(std::string path, std::string url){
 		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
 
-	std::cout << script << std::endl;
-	std::cout << scriptFile << std::endl;
-	std::cout << query << std::endl;
-	std::cout << ContentType << std::endl;
+	// std::cout << script << std::endl;
+	// std::cout << scriptFile << std::endl;
+	// std::cout << query << std::endl;
+	// std::cout << ContentType << std::endl;
 	
 	char *envp[] = {
 		(char*) query.c_str(),

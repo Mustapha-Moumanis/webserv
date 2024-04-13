@@ -84,8 +84,6 @@ void Request::CheckRequest(){
 	std::map<std::string, std::string>::iterator it;
 	if (Method == "POST"){
 		path = this->location->getUploadPath();
-		std::cout << path << std::endl;
-		// check if path end with "/" or not |!|
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
 

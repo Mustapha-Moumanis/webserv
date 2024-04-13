@@ -4,7 +4,7 @@ server :
     server_name : mmoumani.42.fr1
     root: www
     # client_max_body_size: 10M
-    upload : on upload 
+    upload : on upload
     autoindex : on
     methods: POST GET
     # index : index.html index.htmld
