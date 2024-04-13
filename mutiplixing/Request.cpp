@@ -89,26 +89,23 @@ void Request::CheckRequest(){
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
 
-		// ========== Change this part =============> |!|
-		if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
+		if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
+			if (it->second != "chunked")
+				throw StatusCodeExcept(501);
+		}
+		else if ((it = HeadReq.find("Content-Length")) != HeadReq.end()){
 			if (it->second.find_first_not_of("0123456789") != std::string::npos)
 				throw StatusCodeExcept(411);
 			ContentLength = atol(it->second.c_str());
 			if (ContentLength > server->getClientMaxBodySize())
 				throw StatusCodeExcept(413);
 		}
-		else if ((it = HeadReq.find("Transfer-Encoding")) != HeadReq.end()){
-			if (it->second != "chunked")
-				throw StatusCodeExcept(501);
-		}
 		else
 			throw StatusCodeExcept(400);
-		// ========================================>
-
 		// Upload
 		if (this->location->getUpload() == "off" || path.empty())
 			throw StatusCodeExcept(403);
-		// if no bady in POST
+		// if no body in POST
 		if (body.empty())
 			throw StatusCodeExcept(204);
 	}
@@ -252,7 +249,7 @@ void Request::matchingURL(std::string url) {
 }
 
 void Request::setRequest(std::string req) {
-	// if request empty 500 |!|
+
     if (HeaderIsDone == 0){
 		if (!body.empty())
 			req = body + req;
@@ -267,15 +264,13 @@ void Request::setRequest(std::string req) {
 					break;
 				}
 				if (req.find(": ") == std::string::npos)
-					throw StatusCodeExcept(400);
+					break;			
 				std::string key = req.substr(0, req.find(": "));
 				req.erase(0, req.find(": ") + 2);
 				std::string val =  req.substr(0, req.find("\r\n"));
 				HeadReq.insert(std::pair<std::string,std::string>(key, val));
 				req.erase(0, req.find("\r\n") + 2);
 			}
-			if (HeadReq.empty())
-				throw StatusCodeExcept(400);
 			body = req;
 			HeaderIsDone = 1;
 			specificServ();
