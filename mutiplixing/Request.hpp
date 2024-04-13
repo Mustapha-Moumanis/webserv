@@ -36,6 +36,7 @@ class Request {
 		std::string url;
 		std::string Method;
 		int HeaderIsDone;
+		bool headFlag;
 
 	public :
 		Request();
@@ -43,6 +44,7 @@ class Request {
 	
 		void setServ(Server&);
 		Location *getLocation();
+		bool getHeadFlag();
 		void setRequest(std::string);
 		void CheckFirstLine(std::string);
 		void CheckRequest(void);

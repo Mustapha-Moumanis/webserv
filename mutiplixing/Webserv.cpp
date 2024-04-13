@@ -246,6 +246,7 @@ void Webserv::multiplixing() {
 					}
 					else {
 						response = Clients[events[i].data.fd]->getResponse();
+						
 						send(events[i].data.fd, response.c_str(), response.length(), 0);
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];

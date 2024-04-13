@@ -25,6 +25,7 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	IsChunked = 0;
 	ftype = NULL;
 	parentDir = 0;
+	headFlag = 0;
 }
 
 Request::~Request() {
@@ -34,6 +35,10 @@ Request::~Request() {
 
 Location *Request::getLocation() {
 	return location;
+}
+
+bool Request::getHeadFlag() {
+	return headFlag;
 }
 
 void Request::setServ(Server &serv) {
@@ -59,7 +64,11 @@ void Request::CheckFirstLine(std::string Fline){
 
     if (b.length() > 2048)
 		throw StatusCodeExcept(414);
-	if ((a != "GET" && a != "DELETE" && a != "POST") )
+	if (a == "HEAD") {
+		headFlag = 1;
+		throw StatusCodeExcept(501);
+	}
+	if ((a != "GET" && a != "DELETE" && a != "POST"))
 		throw StatusCodeExcept(501);
 	Method = a;
 	url = b;

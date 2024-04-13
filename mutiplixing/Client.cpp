@@ -123,7 +123,8 @@ void Client::genStatusCodeResp(int Code, std::string Msg, std::string mimeType) 
     
     Response = "HTTP/1.1 " + sCode + " " + Msg + "\r\n";
     Response += "Content-Type: " + mimeType + "\r\n\r\n";
-    if (Code == 204) 
+    
+    if (Code == 204 || (Code == 501 && request.getHeadFlag() == 1)) 
         return ;
     if (isError(Code)) {
         if (location) {
