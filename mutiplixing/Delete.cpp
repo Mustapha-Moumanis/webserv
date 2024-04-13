@@ -48,8 +48,6 @@ void Request::Delete(){
 	int st = stat(url.c_str(), &buffer);
 	if (st == -1)
 		throw StatusCodeExcept(404);
-	std::cout << url << std::endl;
-	std::cout << (server->getRealPath() + "/") << std::endl;
 	if (url == (server->getRealPath() + "/"))
 		throw StatusCodeExcept(403);
 	
