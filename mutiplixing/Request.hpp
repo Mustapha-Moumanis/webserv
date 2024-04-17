@@ -58,6 +58,7 @@ class Request {
 	private :
 		std::map<std::string, std::string> HeaderCgi;
 		FILE* ftype;
+		FILE *fCgi;
 		std::string contentType;
 		std::string nextchunk;
 		std::string fileName;

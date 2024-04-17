@@ -24,6 +24,7 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	HeaderIsDone = 0;
 	IsChunked = 0;
 	ftype = NULL;
+	fCgi = NULL;
 	parentDir = 0;
 	headFlag = 0;
 }
@@ -31,6 +32,8 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 Request::~Request() {
 	if (ftype != NULL)
 		fclose(ftype);
+	if (fCgi != NULL)
+		fclose(fCgi);
 }
 
 Location *Request::getLocation() {

@@ -40,8 +40,6 @@ void Request::parssRspCGI(FILE *type){
 	int j = fread(buffer, sizeof(buffer[0]), 1024, type);
 	std::string str(buffer, j);
 	
-	// std::cout << str << std::endl;
-	
 	size_t pos = str.find("\r\n\r\n");
 	if (pos != std::string::npos){
 		str = str.substr(0, pos + 4);
@@ -63,7 +61,6 @@ void Request::parssRspCGI(FILE *type){
 		throw responseGetExcept(header, "cgi.txt", _FILE, pos + 4);
 	}
 	else {
-		// std::cout << "If no header" << std::endl;
 		fclose(type);
 		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", _FILE, 0);
 	}
@@ -100,14 +97,14 @@ void Request::cgiPost(int fd, std::string path){
     };
 
 	
-	FILE *type = fopen("cgi.txt", "wb+");
-	if (type == NULL)
+	fCgi = fopen("cgi.txt", "wb+");
+	if (fCgi == NULL)
 		throw StatusCodeExcept(403);
-	int f = fileno(type);
+	int f = fileno(fCgi);
     pid_t p;
     p = fork();
     if (p < 0){
-		fclose(type);
+		fclose(fCgi);
       throw StatusCodeExcept(403);
 	}
     else if ( p == 0){
@@ -124,13 +121,13 @@ void Request::cgiPost(int fd, std::string path){
 		kill(p,9);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0){
-				fclose(type);
+				fclose(fCgi);
 				throw StatusCodeExcept(500);
 			}
 		}
 	}
-	fseek(type, 0, SEEK_SET);
-	parssRspCGI(type);
+	fseek(fCgi, 0, SEEK_SET);
+	parssRspCGI(fCgi);
 }
 
 void Request::cgiGet(std::string path, std::string url){
@@ -141,11 +138,6 @@ void Request::cgiGet(std::string path, std::string url){
 	if (!queryString.empty())
 		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
-
-	// std::cout << script << std::endl;
-	// std::cout << scriptFile << std::endl;
-	// std::cout << query << std::endl;
-	// std::cout << ContentType << std::endl;
 	
 	char *envp[] = {
 		(char*) query.c_str(),
@@ -164,10 +156,10 @@ void Request::cgiGet(std::string path, std::string url){
         NULL
     };
 
-	FILE *type = fopen("cgi.txt", "wb+");
-	if (type == NULL) 
+	fCgi = fopen("cgi.txt", "wb+");
+	if (fCgi == NULL) 
 		throw StatusCodeExcept(403);
-	int fd = fileno(type);
+	int fd = fileno(fCgi);
     pid_t p;
     p = fork();
     if (p < 0)
@@ -185,11 +177,11 @@ void Request::cgiGet(std::string path, std::string url){
 		kill(p,9);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0){
-				fclose(type);
+				fclose(fCgi);
 				throw StatusCodeExcept(500);
 			}
 		}
 	}
-	fseek(type, 0, SEEK_SET);
-	parssRspCGI(type);
+	fseek(fCgi, 0, SEEK_SET);
+	parssRspCGI(fCgi);
 }
