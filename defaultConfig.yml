@@ -9,7 +9,7 @@ server :
     methods: POST GET
     # index : index.html index.htmld
     # index : home.html index.htmld2 # is dir
-    time_out : 5s
+    time_out : 3s
     # error_pages : [[404 500 502 503 504, error_pages/custom_50x.html]]
     cgi_paths : [[.py, /usr/bin/python3], [.php, /usr/bin/php-cgi]]
 

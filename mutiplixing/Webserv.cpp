@@ -256,7 +256,7 @@ void Webserv::multiplixing() {
 				else {
 					clock_t time = Clients[events[i].data.fd]->getTime();
 					time = clock() - time;
- 					// printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
+ 					printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
 					if (((double)time)/CLOCKS_PER_SEC >= Clients[events[i].data.fd]->getServ()->getTimeOut()){
 						Clients[events[i].data.fd]->setIfTimeOut(1);
 						Clients[events[i].data.fd]->SentRequest("");

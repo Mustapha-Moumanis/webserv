@@ -14,6 +14,7 @@
 #include "Request.hpp"
 
 Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
+	dir = NULL;
 	location = NULL;
 	contentType = "";
 	nextchunk = "";
@@ -30,10 +31,13 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 }
 
 Request::~Request() {
+	std::cout << "hioiiiii "<< std::endl;
 	if (ftype != NULL)
 		fclose(ftype);
 	if (fCgi != NULL)
 		fclose(fCgi);
+	if (dir != NULL)
+        closedir(dir);
 }
 
 Location *Request::getLocation() {
@@ -58,7 +62,12 @@ void Request::setPtrTime(clock_t *time) {
 
 void Request::checkTimeOut() {
 	// check cgi if runing
-	throw StatusCodeExcept(408);
+	if (fCgi != NULL){
+		kill(p,9);
+		throw StatusCodeExcept(409);
+	}
+	else
+		throw StatusCodeExcept(408);
 }
 
 void Request::CheckFirstLine(std::string Fline){

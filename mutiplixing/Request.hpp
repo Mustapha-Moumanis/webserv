@@ -38,6 +38,7 @@ class Request {
 		int HeaderIsDone;
 		bool headFlag;
 		clock_t *ptrTime;
+		DIR* dir;
 
 	public :
 		Request();
@@ -61,6 +62,7 @@ class Request {
 		std::map<std::string, std::string> HeaderCgi;
 		FILE *ftype;
 		FILE *fCgi;
+		pid_t p;
 		std::string contentType;
 		std::string nextchunk;
 		std::string fileName;
@@ -96,7 +98,7 @@ class Request {
 		void cgiPost(int, std::string);
 		void cgiGet(std::string, std::string);
 		void rediractionCGI(void);
-		void parssRspCGI(FILE*);
+		void parssRspCGI();
 
 		std::string genGetFileHeader(int code, std::string url);
 };

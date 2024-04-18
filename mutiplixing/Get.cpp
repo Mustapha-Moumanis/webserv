@@ -60,7 +60,7 @@ std::string Request::genGetDirHeader(int code, std::string mimeType) {
 void Request::isDirHasIndexFile() {
 	std::vector<std::string> index = location->getIndex();
 	std::string token;
-	DIR* dir = opendir(url.c_str());
+	dir = opendir(url.c_str());
 	if (!dir)
 		throw StatusCodeExcept(403);
 

@@ -171,6 +171,8 @@ void Client::SentRequest(std::string tmp){
     }
     catch (const StatusCodeExcept &e) {
         genStatusCodeResp(e.getStatusCode(), e.what(), "text/html");
+        std::cout << "time resp : " << time << std::endl;
+
         setStatus(0);
     }
     catch (const rediractionExcept &e){
