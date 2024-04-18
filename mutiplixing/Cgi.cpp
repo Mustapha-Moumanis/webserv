@@ -79,6 +79,8 @@ void Request::cgiPost(int fd, std::string path){
 	ss >> len;
 	std::string ContentLength = "CONTENT_LENGTH=" + len;
 
+	// std::cout << "time post : "<< *ptrTime << std::endl;
+	
 	char *envp[] = {
 		(char*) ContentLength.c_str(),
 		(char*) ContentType.c_str(),
@@ -104,8 +106,8 @@ void Request::cgiPost(int fd, std::string path){
     pid_t p;
     p = fork();
     if (p < 0){
-		fclose(fCgi);
-      throw StatusCodeExcept(403);
+		// fclose(fCgi);
+      	throw StatusCodeExcept(403);
 	}
     else if ( p == 0){
         dup2(fd, 0);
@@ -121,7 +123,7 @@ void Request::cgiPost(int fd, std::string path){
 		kill(p,9);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0){
-				fclose(fCgi);
+				// fclose(fCgi);
 				throw StatusCodeExcept(500);
 			}
 		}
@@ -138,6 +140,8 @@ void Request::cgiGet(std::string path, std::string url){
 	if (!queryString.empty())
 		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
+	
+	// std::cout << "time Get : "<< *ptrTime << std::endl;
 	
 	char *envp[] = {
 		(char*) query.c_str(),
@@ -177,7 +181,7 @@ void Request::cgiGet(std::string path, std::string url){
 		kill(p,9);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0){
-				fclose(fCgi);
+				// fclose(fCgi);
 				throw StatusCodeExcept(500);
 			}
 		}

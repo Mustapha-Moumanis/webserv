@@ -37,6 +37,7 @@ class Request {
 		std::string Method;
 		int HeaderIsDone;
 		bool headFlag;
+		clock_t *ptrTime;
 
 	public :
 		Request();
@@ -54,10 +55,11 @@ class Request {
 		void setDoublicateServer(std::vector<Server *> &vec);
 		void specificServ(void);
 		void checkTimeOut(void);
+		void setPtrTime(clock_t *time);
 		
 	private :
 		std::map<std::string, std::string> HeaderCgi;
-		FILE* ftype;
+		FILE *ftype;
 		FILE *fCgi;
 		std::string contentType;
 		std::string nextchunk;

@@ -14,7 +14,9 @@
 
 Client::Client() : status(1), Response(""), header(""), isThingsToRes(0), ifTimeOut(0) {
     time = clock();
+    std::cout << "time 1 : " << time << std::endl;
     dir = NULL;
+    request.setPtrTime(&time);
 }
 
 Client::~Client() {

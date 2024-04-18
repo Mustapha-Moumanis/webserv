@@ -52,6 +52,10 @@ void Request::setDoublicateServer(std::vector<Server *> &vec) {
     doublicateServer = vec;
 }
 
+void Request::setPtrTime(clock_t *time) {
+	ptrTime = time;
+}
+
 void Request::checkTimeOut() {
 	// check cgi if runing
 	throw StatusCodeExcept(408);
@@ -289,10 +293,13 @@ void Request::setRequest(std::string req) {
 		}
 	}
 	if (Method == "POST"){
+		std::cout << "time post : "<< *ptrTime << std::endl;
 		Post(req);
 	}
-	else if (Method == "GET")
+	else if (Method == "GET") {
+		std::cout << "time Get : "<< *ptrTime << std::endl;
 		Get();
+	}
 	else
 		Delete();
 }
