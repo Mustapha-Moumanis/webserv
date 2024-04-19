@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/03 03:47:44 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 17:15:37 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,15 +253,10 @@ void Webserv::multiplixing() {
 						Clients.erase(events[i].data.fd);
 					}
 				}
-				else {
-					clock_t time = Clients[events[i].data.fd]->getTime();
-					time = clock() - time;
- 					printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
-					if (((double)time)/CLOCKS_PER_SEC >= Clients[events[i].data.fd]->getServ()->getTimeOut()){
-						Clients[events[i].data.fd]->setIfTimeOut(1);
-						Clients[events[i].data.fd]->SentRequest("");
-					}
-				}
+				else if (Clients[events[i].data.fd]->getIsCgi() == 1)
+					Clients[events[i].data.fd]->checkTimeOutOfCgi();
+				else
+					Clients[events[i].data.fd]->checkSimpleTimeOut();
 			}
 		}
 	}

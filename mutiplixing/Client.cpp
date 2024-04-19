@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:53 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/03 03:15:24 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 17:35:36 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 Client::Client() : status(1), Response(""), header(""), isThingsToRes(0), ifTimeOut(0) {
     time = clock();
-    std::cout << "time 1 : " << time << std::endl;
     dir = NULL;
+	isCgi = 0;
     request.setPtrTime(&time);
+	request.setPtrIsCgi(&isCgi);
 }
 
 Client::~Client() {
@@ -70,6 +71,10 @@ int Client::getThingsToRes() {
 
 bool Client::getIfTimeOut() {
     return ifTimeOut;
+}
+
+bool Client::getIsCgi() {
+	return isCgi;
 }
 
 Server *Client::getServ() {
@@ -162,17 +167,43 @@ void Client::genRediractionResp(int Code, std::string Msg, std::string path, std
     Response += "Content-Type: " + mimeType + "\r\n\r\n";
 }
 
+void Client::checkSimpleTimeOut(){
+	try {
+		request.checkTimeOut();
+	}
+	catch (const StatusCodeExcept &e) {
+		genStatusCodeResp(e.getStatusCode(), e.what(), "text/html");
+		setStatus(0);
+	}
+}
+
+void Client::checkTimeOutOfCgi(){
+	try {
+		request.checkCgiTimeOut();
+	}
+	catch (const StatusCodeExcept &e) {
+		genStatusCodeResp(e.getStatusCode(), e.what(), "text/html");
+		setStatus(0);
+	}
+    catch (const rediractionExcept &e){
+        genRediractionResp(e.getStatusCode(), e.what(), e.getURL(), "text/html");
+        setStatus(0);
+    }
+    catch (const responseGetExcept &e){
+        if (e.getIsFile() == _FILE)
+            responseFile(e.getHeader(), e.getStock(), e.getPos());
+        else
+            responseFolder(e.getHeader(), e.getStock());
+        setStatus(0);
+    }
+}
+
 void Client::SentRequest(std::string tmp){
     try {
-        if (ifTimeOut == 1){
-           request.checkTimeOut();
-        }
         request.setRequest(tmp);
     }
     catch (const StatusCodeExcept &e) {
         genStatusCodeResp(e.getStatusCode(), e.what(), "text/html");
-        std::cout << "time resp : " << time << std::endl;
-
         setStatus(0);
     }
     catch (const rediractionExcept &e){

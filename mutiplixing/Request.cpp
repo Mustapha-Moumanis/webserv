@@ -31,7 +31,7 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 }
 
 Request::~Request() {
-	std::cout << "hioiiiii "<< std::endl;
+
 	if (ftype != NULL)
 		fclose(ftype);
 	if (fCgi != NULL)
@@ -60,13 +60,37 @@ void Request::setPtrTime(clock_t *time) {
 	ptrTime = time;
 }
 
-void Request::checkTimeOut() {
-	// check cgi if runing
-	if (fCgi != NULL){
+void Request::setPtrIsCgi(bool *isCgi) {
+	ptrIsCgi = isCgi;
+}
+
+void Request::checkCgiTimeOut() {
+
+	int	status;
+	int j = waitpid(p, &status, WNOHANG);
+	if (j != 0) {
 		kill(p,9);
-		throw StatusCodeExcept(409);
+		waitpid(p, NULL, 0);
+		if (WIFEXITED(status)){
+			if (WEXITSTATUS(status) != 0)
+				throw StatusCodeExcept(500);
+		}
+		fseek(fCgi, 0, SEEK_SET);
+		parssRspCGI();
 	}
-	else
+	clock_t time = clock() - *ptrTime;
+	if (((double)time)/CLOCKS_PER_SEC >= server->getTimeOut()){
+		kill(p,9);
+		waitpid(p, NULL, 0);
+		throw StatusCodeExcept(504);
+	}
+}
+
+void Request::checkTimeOut() {
+
+	clock_t time = clock() - *ptrTime;
+	// printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
+	if (((double)time)/CLOCKS_PER_SEC >= server->getTimeOut())
 		throw StatusCodeExcept(408);
 }
 
@@ -301,14 +325,10 @@ void Request::setRequest(std::string req) {
 			return ;
 		}
 	}
-	if (Method == "POST"){
-		std::cout << "time post : "<< *ptrTime << std::endl;
+	if (Method == "POST")
 		Post(req);
-	}
-	else if (Method == "GET") {
-		std::cout << "time Get : "<< *ptrTime << std::endl;
+	else if (Method == "GET") 
 		Get();
-	}
 	else
 		Delete();
 }

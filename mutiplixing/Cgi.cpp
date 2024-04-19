@@ -6,33 +6,11 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/03 20:39:49 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 17:08:16 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
-void Request::rediractionCGI(){
-	
-	struct stat buffer;
-	int st;
-	if ((st = stat(url.c_str(), &buffer)) != -1){
-		if (location->getRediractionStatusCode() != 0)
-			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
-		if (S_ISREG(buffer.st_mode)){
-			size_t found = url.find_last_of(".");
-			if (found != std::string::npos){
-				std::string extention = url.substr(found);
-				std::map<std::string, std::string> cgiPath = location->getCgiPaths();
-				std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
-				if (it != cgiPath.end()){
-					fseek(ftype, 0, SEEK_SET);
-					cgiPost(fileno(ftype), it->second);
-				}
-			}
-		}
-	}
-}
 
 void Request::parssRspCGI(){
 
@@ -63,9 +41,9 @@ void Request::parssRspCGI(){
 		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", _FILE, 0);
 }
 
-
 void Request::cgiPost(int fd, std::string path){
 
+	*ptrIsCgi = 1;
 	*ptrTime = clock();
 
 	std::string script = "SCRIPT_NAME=" + url;
@@ -77,8 +55,6 @@ void Request::cgiPost(int fd, std::string path){
 	ss << this->length;
 	ss >> len;
 	std::string ContentLength = "CONTENT_LENGTH=" + len;
-
-	// std::cout << "time post : "<< *ptrTime << std::endl;
 	
 	char *envp[] = {
 		(char*) ContentLength.c_str(),
@@ -110,24 +86,26 @@ void Request::cgiPost(int fd, std::string path){
 		dup2(f, 1);
 		// dup2(f, 2);
        	execve(path.c_str(), argv, envp);
-		std::cerr << "Failed to execute PHP script" << std::endl;
+		std::cerr << "Failed to execute script" << std::endl;
 		exit (1);
     }
-	else {
-		int	status;
-		waitpid(p, &status, 0);
+	int	status;
+	int j = waitpid(p, &status, WNOHANG);
+	if (j != 0) {
 		kill(p,9);
+		waitpid(p, NULL, 0);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0)
 				throw StatusCodeExcept(500);
 		}
+		fseek(fCgi, 0, SEEK_SET);
+		parssRspCGI();
 	}
-	fseek(fCgi, 0, SEEK_SET);
-	parssRspCGI();
 }
 
 void Request::cgiGet(std::string path, std::string url){
 
+	*ptrIsCgi = 1;
 	*ptrTime = clock();
 
 	std::string script = "SCRIPT_NAME=" + url;
@@ -166,18 +144,19 @@ void Request::cgiGet(std::string path, std::string url){
 		dup2(fd, 1);
 		// dup2(fd, 2);
        	execve(path.c_str(), argv, envp);
-		std::cerr << "Failed to execute PHP script" << std::endl;
+		std::cerr << "Failed to execute script" << std::endl;
 		exit (1);
     }
-	else {
-		int	status;
-		waitpid(p, &status, 0);
+	int	status;
+	int j = waitpid(p, &status, WNOHANG);
+	if (j != 0) {
 		kill(p,9);
+		waitpid(p, NULL, 0);
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0)
 				throw StatusCodeExcept(500);
 		}
+		fseek(fCgi, 0, SEEK_SET);
+		parssRspCGI();
 	}
-	fseek(fCgi, 0, SEEK_SET);
-	parssRspCGI();
 }

@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/03 20:40:14 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 16:52:26 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Request {
 		int HeaderIsDone;
 		bool headFlag;
 		clock_t *ptrTime;
+		bool *ptrIsCgi;
 		DIR* dir;
 
 	public :
@@ -56,8 +57,10 @@ class Request {
 		void setDoublicateServer(std::vector<Server *> &vec);
 		void specificServ(void);
 		void checkTimeOut(void);
+		void checkCgiTimeOut(void);
 		void setPtrTime(clock_t *time);
-		
+		void setPtrIsCgi(bool *isCgi);
+
 	private :
 		std::map<std::string, std::string> HeaderCgi;
 		FILE *ftype;
@@ -97,7 +100,7 @@ class Request {
 		// CGI
 		void cgiPost(int, std::string);
 		void cgiGet(std::string, std::string);
-		void rediractionCGI(void);
+		std::string rediractionCGI(void);
 		void parssRspCGI();
 
 		std::string genGetFileHeader(int code, std::string url);

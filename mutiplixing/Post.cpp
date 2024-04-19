@@ -6,11 +6,34 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:41:29 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/02 21:30:45 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 17:37:09 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+
+std::string Request::rediractionCGI(){
+	
+	struct stat buffer;
+	int st;
+	if ((st = stat(url.c_str(), &buffer)) != -1){
+		if (location->getRediractionStatusCode() != 0)
+			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
+		if (S_ISREG(buffer.st_mode)){
+			size_t found = url.find_last_of(".");
+			if (found != std::string::npos){
+				std::string extention = url.substr(found);
+				std::map<std::string, std::string> cgiPath = location->getCgiPaths();
+				std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
+				if (it != cgiPath.end()){
+					fseek(ftype, 0, SEEK_SET);
+					return (it->second);
+				}
+			}
+		}
+	}
+	return ("");
+}
 
 int Request::setfirstBody(){
 	
@@ -142,9 +165,11 @@ void Request::Post(std::string req) {
 		check = postChunked(req);
 	else
 		check = postBinary(req);
-	// check if ther's cgi script
+
 	if (check == 201){
-		rediractionCGI();
-		throw StatusCodeExcept(201);
+		std::string cgi = rediractionCGI();
+		if (cgi == "")
+			throw StatusCodeExcept(201);
+		cgiPost(fileno(ftype), cgi);
 	}
 }

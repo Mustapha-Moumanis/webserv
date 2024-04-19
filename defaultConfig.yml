@@ -9,7 +9,7 @@ server :
     methods: POST GET
     # index : index.html index.htmld
     # index : home.html index.htmld2 # is dir
-    time_out : 3s
+    time_out : 5s
     # error_pages : [[404 500 502 503 504, error_pages/custom_50x.html]]
     cgi_paths : [[.py, /usr/bin/python3], [.php, /usr/bin/php-cgi]]
 
@@ -21,7 +21,7 @@ server :
         # - error_pages : [[404, error_pages/custom_40x.html]]
     location :
         - path:  /
-        # - index : script.py
+        - index : script.py
 
         # - methods:  POST
         # - return : 301  http://google.com
@@ -29,14 +29,17 @@ server :
 server : 
     server_name : mmoumani
     host: 127.0.3.1
-
+    autoindex : on
     port: 8080
     root: www
     index : congradulation 
+    location :
+        - path:  /
 
 server : 
     server_name : mmoumani.42.fr3
     host: 127.0.3.1
+    autoindex : on
 
     port: 8082
     root: www

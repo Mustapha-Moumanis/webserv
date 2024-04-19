@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/03 03:15:39 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/19 16:47:53 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class Client {
 		// Timeout
 		clock_t time;
 		bool ifTimeOut;
+		bool isCgi;
 
 	public :
 		Client();
@@ -65,6 +66,7 @@ class Client {
 		clock_t getTime();
 		int getThingsToRes();
 		bool getIfTimeOut();
+		bool getIsCgi();
 		Request &getRequest();
 		std::string getHeader();
 		std::string getResponse();
@@ -80,6 +82,9 @@ class Client {
 
 		void responseFile(std::string header, std::string path, size_t pos);
 		void responseFolder(std::string header, std::string path);
+
+		void checkSimpleTimeOut(void);
+		void checkTimeOutOfCgi(void);
 };
 
 #endif

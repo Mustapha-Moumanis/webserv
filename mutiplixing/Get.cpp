@@ -77,12 +77,13 @@ void Request::isDirHasIndexFile() {
 			std::string extention = "." + tmp;
 			std::map<std::string, std::string> cgiPath = location->getCgiPaths();
 			std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
-			if (it != cgiPath.end())
+			if (it != cgiPath.end()){
 				cgiGet(it->second, token);
+				return ;
+			}
 			if (MimeTypes::getType(tmp).empty())
 				throw StatusCodeExcept(415);
 		}
-
 		throw responseGetExcept(genGetFileHeader(200, token), token, _FILE, 0);
 	}
 }
@@ -148,6 +149,8 @@ void Request::Get(){
 		
 		// get index from configfile
 		isDirHasIndexFile();
+		if (*ptrIsCgi == 1)
+			return;
 
 		if (location->getAutoIndex() == "on") {
 			std::cout << "GET : is Dir" << std::endl;
@@ -157,7 +160,6 @@ void Request::Get(){
 			generateDirAutoIndex();
 		}
 		throw StatusCodeExcept(403); // Forbidden
-
 	}
 	else if (isRegFile(url)) {
 		std::cout << "GET : is reg file" << std::endl;
@@ -170,8 +172,10 @@ void Request::Get(){
 			std::string extention = "." + tmp;
 			std::map<std::string, std::string> cgiPath = location->getCgiPaths();
 			std::map<std::string, std::string>::iterator it = cgiPath.find(extention);
-			if (it != cgiPath.end())
+			if (it != cgiPath.end()){
 				cgiGet(it->second, url);
+				return ;
+			}
 			if (MimeTypes::getType(tmp).empty())
 				throw StatusCodeExcept(415);
 		}
