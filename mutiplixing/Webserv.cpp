@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 11:55:32 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/20 14:38:38 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Webserv::Webserv(std::ifstream &ifs) : response(""){
 	try {
 		ParsConfigFile PCF(ifs, dataServers);
+		ifs.close();
 		initDoublicateServer();
 		initDefaultServer();
 		multiplixing();

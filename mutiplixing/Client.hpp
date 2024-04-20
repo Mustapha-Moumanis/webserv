@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/19 16:47:53 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/20 14:38:11 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,8 @@ class Client {
 	
 		std::vector<Server *> &getDoublicateServer();
 		
-		// std::string generateHeaderResponse(std::string Code, std::string Msg, std::string mimeType);
 		void genStatusCodeResp(int Code, std::string const Msg, std::string mimeType);
 		void genRediractionResp(int Code, std::string Msg, std::string path, std::string mimeType);
-		// std::string generateDirResponse(int Code, std::string const Msg, std::string body);
 
 		void responseFile(std::string header, std::string path, size_t pos);
 		void responseFolder(std::string header, std::string path);

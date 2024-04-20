@@ -34,8 +34,10 @@ Request::~Request() {
 
 	if (ftype != NULL)
 		fclose(ftype);
-	if (fCgi != NULL)
+	if (fCgi != NULL){
+		std::remove("cgi.txt");	
 		fclose(fCgi);
+	}
 	if (dir != NULL)
         closedir(dir);
 	if (waitpid(p, NULL, WNOHANG) == 0){
@@ -98,8 +100,10 @@ void Request::checkTimeOut() {
 
 	clock_t time = clock() - *ptrTime;
 	// printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
-	if (((double)time)/CLOCKS_PER_SEC >= server->getTimeOut())
+	if (((double)time)/CLOCKS_PER_SEC >= server->getTimeOut()){
+		std::remove(fileName.c_str());	
 		throw StatusCodeExcept(408);
+	}
 }
 
 void Request::CheckFirstLine(std::string Fline){
@@ -245,8 +249,7 @@ void Request::parseURL(std::string &url) {
 
 void Request::matchingURL(std::string url) {
 	std::string res;
-	std::string res2;
-	std::string root = server->getRoot();
+	std::string root;
 
 	size_t pos = url.find("?");
 	if (pos != std::string::npos) {
@@ -255,11 +258,13 @@ void Request::matchingURL(std::string url) {
 	}
 
 	pos = url.find_first_not_of("/");
-	if (pos != std::string::npos)
-		url = url.substr(pos - 1);
-	else
-		url = "/";
-
+	if (pos != 0) {
+		if (pos != std::string::npos)
+			url = url.substr(pos - 1);
+		else
+			url = "/";
+	}
+	
 	for (std::vector<Location>::iterator it1 = server->getLocation().begin(); it1 != server->getLocation().end(); it1++) {
 		if (CompareURL(it1->getPath(), url)) {
 			if (it1->getPath().length() > res.length()) {
@@ -269,14 +274,15 @@ void Request::matchingURL(std::string url) {
 		}
 	}
 	if (!res.empty()) {
-		res2 = res;
+
+		root = location->getRoot();
+
 		if (!root.empty() && root[root.length() - 1] == '/')
 			root = root.substr(0, root.length() - 1);
 
-		if (!res.empty() && res[res.length() - 1] == '/') {
+		if (!res.empty() && res[res.length() - 1] == '/')
 			res = res.substr(0, res.length() - 1);
-			res2 = res;
-		}
+
 		pos = url.find("/", res.length());
 		if (pos != std::string::npos)
 			url.erase(0, pos);
@@ -286,7 +292,7 @@ void Request::matchingURL(std::string url) {
 		if (!url.empty())
 			parseURL(url);
 		this->url = root + url;
-		reqURL = res2 + url;
+		reqURL = res + url;
 	}
 	else
 		throw StatusCodeExcept(404);
@@ -308,10 +314,12 @@ void Request::setRequest(std::string req) {
 					break;
 				}
 				if (req.find(": ") == std::string::npos)
-					throw StatusCodeExcept(403);
+					throw StatusCodeExcept(400);
 				std::string key = req.substr(0, req.find(": "));
 				req.erase(0, req.find(": ") + 2);
 				std::string val =  req.substr(0, req.find("\r\n"));
+				if (val.empty())
+					throw StatusCodeExcept(400);
 				HeadReq.insert(std::pair<std::string,std::string>(key, val));
 				req.erase(0, req.find("\r\n") + 2);
 			}

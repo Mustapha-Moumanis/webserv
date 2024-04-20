@@ -21,7 +21,6 @@ server :
         # - error_pages : [[404, error_pages/custom_40x.html]]
     location :
         - path:  /
-        # - index : script.py
 
         # - methods:  POST
         # - return : 301  http://google.com

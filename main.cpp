@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/03/18 21:51:51 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/20 14:38:28 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ int main(int ac, char **av) {
                 std::cerr << file << " is not a regular file" << std::endl;
             else 
                 Webserv Webs(ifs);
-            ifs.close();
         }
     }
     else
