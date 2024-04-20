@@ -17,11 +17,11 @@ server :
         - path : /home
         - autoindex : ON
         - upload : on
-        # - index : index.html
+        # - index : post.php
         # - error_pages : [[404, error_pages/custom_40x.html]]
     location :
         - path:  /
-        - index : script.py
+        # - index : script.py
 
         # - methods:  POST
         # - return : 301  http://google.com

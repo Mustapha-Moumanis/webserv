@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:41:29 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/19 17:37:09 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/20 11:51:45 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ std::string Request::rediractionCGI(){
 		if (location->getRediractionStatusCode() != 0)
 			throw rediractionExcept(location->getRediractionStatusCode(), location->getRediractionURL());
 		if (S_ISREG(buffer.st_mode)){
+			if (access(url.c_str(), R_OK) != 0)
+				throw StatusCodeExcept(403);
 			size_t found = url.find_last_of(".");
 			if (found != std::string::npos){
 				std::string extention = url.substr(found);
@@ -171,5 +173,6 @@ void Request::Post(std::string req) {
 		if (cgi == "")
 			throw StatusCodeExcept(201);
 		cgiPost(fileno(ftype), cgi);
+		std::remove(fileName.c_str());
 	}
 }

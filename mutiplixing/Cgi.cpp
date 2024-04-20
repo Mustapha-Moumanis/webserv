@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/19 17:08:16 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/20 12:13:18 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void Request::parssRspCGI(){
 
 void Request::cgiPost(int fd, std::string path){
 
-	*ptrIsCgi = 1;
 	*ptrTime = clock();
 
 	std::string script = "SCRIPT_NAME=" + url;
@@ -101,13 +100,14 @@ void Request::cgiPost(int fd, std::string path){
 		fseek(fCgi, 0, SEEK_SET);
 		parssRspCGI();
 	}
+	else
+		*ptrIsCgi = 1;
 }
 
 void Request::cgiGet(std::string path, std::string url){
 
-	*ptrIsCgi = 1;
 	*ptrTime = clock();
-
+	
 	std::string script = "SCRIPT_NAME=" + url;
 	std::string scriptFile = "SCRIPT_FILENAME=" + url;
 	std::string ContentType = "CONTENT_TYPE=" + this->contentType;
@@ -159,4 +159,6 @@ void Request::cgiGet(std::string path, std::string url){
 		fseek(fCgi, 0, SEEK_SET);
 		parssRspCGI();
 	}
+	else
+		*ptrIsCgi = 1;
 }

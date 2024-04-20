@@ -1,5 +1,5 @@
 <?php
-    while(1);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // echo "under post";
     if (isset($_POST["name"]) && isset($_POST["email"])) {

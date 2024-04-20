@@ -5,7 +5,7 @@
 </head>
 <body>
     <?php
-        while (1);
+
     // Check if the variable exists in the URL
     // if (isset($_GET['variable'])) {
         // Retrieve the variable from the URL

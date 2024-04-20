@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/19 17:15:37 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/20 11:55:32 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,8 +193,8 @@ void Webserv::multiplixing() {
 					continue;
 				}
 				// std::cout << "\n------  wait for new connection  ------\n\n";
-				// event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-				event.events = EPOLLIN | EPOLLOUT;
+				event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+				// event.events = EPOLLIN | EPOLLOUT;
 				event.data.fd = newSocket;
 				
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, newSocket, &event) == -1) {
@@ -214,14 +214,18 @@ void Webserv::multiplixing() {
 				// Clients[events[i].data.fd]->setTime(clock());
 			}
 			else {
-				// if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
-				// 	std::cout << "EPOLL ERRORS" << std::endl;
-				// 	close(events[i].data.fd);
-				// 	delete Clients[events[i].data.fd];
-				// 	Clients.erase(events[i].data.fd);
-				// }
-				// else
-				if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
+				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
+					std::cout << "EPOLL ERRORS" << std::endl;
+					close(events[i].data.fd);
+					if (Clients[events[i].data.fd]){
+						delete Clients[events[i].data.fd];
+						Clients.erase(events[i].data.fd);
+					}
+				}
+				else if (Clients[events[i].data.fd]->getIsCgi() == 1){
+					Clients[events[i].data.fd]->checkTimeOutOfCgi();
+				}
+				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
 					// ------ request ------
 					requestPart(events[i].data.fd);
 				}
@@ -253,8 +257,6 @@ void Webserv::multiplixing() {
 						Clients.erase(events[i].data.fd);
 					}
 				}
-				else if (Clients[events[i].data.fd]->getIsCgi() == 1)
-					Clients[events[i].data.fd]->checkTimeOutOfCgi();
 				else
 					Clients[events[i].data.fd]->checkSimpleTimeOut();
 			}

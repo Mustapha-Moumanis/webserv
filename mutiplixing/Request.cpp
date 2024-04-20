@@ -38,6 +38,11 @@ Request::~Request() {
 		fclose(fCgi);
 	if (dir != NULL)
         closedir(dir);
+	if (waitpid(p, NULL, WNOHANG) == 0){
+		kill (p,9);
+		waitpid(p, NULL,0);
+	}
+	// *ptrIsCgi = 0;
 }
 
 Location *Request::getLocation() {
@@ -71,6 +76,7 @@ void Request::checkCgiTimeOut() {
 	if (j != 0) {
 		kill(p,9);
 		waitpid(p, NULL, 0);
+		*ptrIsCgi = 0;
 		if (WIFEXITED(status)){
 			if (WEXITSTATUS(status) != 0)
 				throw StatusCodeExcept(500);
@@ -79,9 +85,11 @@ void Request::checkCgiTimeOut() {
 		parssRspCGI();
 	}
 	clock_t time = clock() - *ptrTime;
+	// printf ("It took me %ld clicks (%f seconds).\n",time,((float)time)/CLOCKS_PER_SEC);
 	if (((double)time)/CLOCKS_PER_SEC >= server->getTimeOut()){
 		kill(p,9);
 		waitpid(p, NULL, 0);
+		*ptrIsCgi = 0;
 		throw StatusCodeExcept(504);
 	}
 }
@@ -112,8 +120,6 @@ void Request::CheckFirstLine(std::string Fline){
 		throw StatusCodeExcept(501);
 	Method = a;
 	url = b;
-	HeadReq.insert(std::pair<std::string,std::string>("Method", a)); // its will be removed
-	HeadReq.insert(std::pair<std::string,std::string>("Location",b)); // its will be removed
 
 	if (version != "HTTP/1.1")
 		throw StatusCodeExcept(505);
@@ -302,7 +308,7 @@ void Request::setRequest(std::string req) {
 					break;
 				}
 				if (req.find(": ") == std::string::npos)
-					break;			
+					throw StatusCodeExcept(403);
 				std::string key = req.substr(0, req.find(": "));
 				req.erase(0, req.find(": ") + 2);
 				std::string val =  req.substr(0, req.find("\r\n"));
@@ -327,7 +333,7 @@ void Request::setRequest(std::string req) {
 	}
 	if (Method == "POST")
 		Post(req);
-	else if (Method == "GET") 
+	else if (Method == "GET")
 		Get();
 	else
 		Delete();
