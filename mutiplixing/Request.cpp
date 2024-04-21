@@ -28,10 +28,11 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	fCgi = NULL;
 	parentDir = 0;
 	headFlag = 0;
+	p = 0;
 }
 
 Request::~Request() {
-	if (waitpid(p, NULL, WNOHANG) == 0){
+	if (p != 0 && waitpid(p, NULL, WNOHANG) == 0){
 		kill (p,9);
 		waitpid(p, NULL,0);
 	}
