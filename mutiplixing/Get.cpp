@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/20 14:36:39 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 14:36:40 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:11:24 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,6 @@ void Request::Get(){
 			return;
 
 		if (location->getAutoIndex() == "on") {
-			std::cout << "GET : is Dir" << std::endl;
 			// if (hasIndexFile(url)) // get index insind folder 
 			// 	throw StatusCodeExcept(200);
 			// else // list folders
@@ -174,7 +173,6 @@ void Request::Get(){
 		throw StatusCodeExcept(403); // Forbidden
 	}
 	else if (isRegFile(url)) {
-		std::cout << "GET : is reg file" << std::endl;
 		if (access(url.c_str(), R_OK) != 0)
 			throw StatusCodeExcept(403);
 

@@ -31,19 +31,18 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 }
 
 Request::~Request() {
-
-	if (ftype != NULL)
-		fclose(ftype);
-	if (fCgi != NULL){
-		std::remove("cgi.txt");	
-		fclose(fCgi);
-	}
-	if (dir != NULL)
-        closedir(dir);
 	if (waitpid(p, NULL, WNOHANG) == 0){
 		kill (p,9);
 		waitpid(p, NULL,0);
 	}
+	if (ftype != NULL)
+		fclose(ftype);
+	if (fCgi != NULL){
+		std::remove("cgi.txt");
+		fclose(fCgi);
+	}
+	if (dir != NULL)
+        closedir(dir);
 	// *ptrIsCgi = 0;
 }
 
@@ -303,41 +302,38 @@ void Request::setRequest(std::string req) {
     if (HeaderIsDone == 0){
 		if (!body.empty())
 			req = body + req;
-	
 		size_t pos = req.find("\r\n\r\n");
-		if (pos != std::string::npos){
-			CheckFirstLine(req.substr(0, req.find("\r\n")));
-			req.erase(0, req.find("\r\n") + 2);
-			while (404) {
-				if (req.substr(0, req.find("\r\n")) == ""){
-					req.erase(0, req.find("\r\n") + 2);
-					break;
-				}
-				if (req.find(": ") == std::string::npos)
-					throw StatusCodeExcept(400);
-				std::string key = req.substr(0, req.find(": "));
-				req.erase(0, req.find(": ") + 2);
-				std::string val =  req.substr(0, req.find("\r\n"));
-				if (val.empty())
-					throw StatusCodeExcept(400);
-				HeadReq.insert(std::pair<std::string,std::string>(key, val));
-				req.erase(0, req.find("\r\n") + 2);
-			}
-			body = req;
-			HeaderIsDone = 1;
-			specificServ();
-			matchingURL(url);
-			if (this->location->getRediractionStatusCode() != 0) {
-				throw rediractionExcept(this->location->getRediractionStatusCode(), this->location->getRediractionURL());
-			}
-			if (this->location->getMethods().find(Method) == std::string::npos)
-				throw StatusCodeExcept(405);
-			CheckRequest();
-		}
-		else {
+		if (pos == std::string::npos){
 			body = req;
 			return ;
 		}
+		CheckFirstLine(req.substr(0, req.find("\r\n")));
+		req.erase(0, req.find("\r\n") + 2);
+		while (404) {
+			if (req.substr(0, req.find("\r\n")) == ""){
+				req.erase(0, req.find("\r\n") + 2);
+				break;
+			}
+			if (req.find(": ") == std::string::npos)
+				throw StatusCodeExcept(400);
+			std::string key = req.substr(0, req.find(": "));
+			req.erase(0, req.find(": ") + 2);
+			std::string val =  req.substr(0, req.find("\r\n"));
+			if (val.empty())
+				throw StatusCodeExcept(400);
+			HeadReq.insert(std::pair<std::string,std::string>(key, val));
+			req.erase(0, req.find("\r\n") + 2);
+		}
+		body = req;
+		HeaderIsDone = 1;
+		specificServ();
+		matchingURL(url);
+		if (this->location->getRediractionStatusCode() != 0) {
+			throw rediractionExcept(this->location->getRediractionStatusCode(), this->location->getRediractionURL());
+		}
+		if (this->location->getMethods().find(Method) == std::string::npos)
+			throw StatusCodeExcept(405);
+		CheckRequest();
 	}
 	if (Method == "POST")
 		Post(req);

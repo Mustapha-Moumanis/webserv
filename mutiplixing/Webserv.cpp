@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 14:38:38 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:09:23 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,6 @@ void Webserv::multiplixing() {
 		
 		// start TCP Socket //
 		struct sockaddr_in addr;
-		
 		memset((char *)&addr, 0, sizeof(addr));
 		
 		addr.sin_family = AF_INET;
@@ -182,24 +181,21 @@ void Webserv::multiplixing() {
 
 	int numEvents;
 	while (404) {
-		// add pip ignord get problem program exit when i refresh page |!|
-		signal(SIGPIPE, SIG_IGN);
-		if ((numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1)) == -1)
+		numEvents = epoll_wait(epfd, events, MAX_EVENTS, -1);
+		if (numEvents < 0)
 			throw std::runtime_error("epoll wait field");
 		for (int i = 0; i < numEvents; i++) {
 			if (std::find(ServsFD.begin(), ServsFD.end(), events[i].data.fd) != ServsFD.end()){
 				int newSocket = accept(events[i].data.fd, NULL, NULL);
-				if (newSocket == -1) {
-					perror("accept");
-					continue;
+				if (newSocket < 0) {
+					std::cout << "accept field" << std::endl;
+					continue ;
 				}
-				// std::cout << "\n------  wait for new connection  ------\n\n";
 				event.events = EPOLLIN | EPOLLOUT | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-				// event.events = EPOLLIN | EPOLLOUT;
 				event.data.fd = newSocket;
 				
 				if (epoll_ctl(epfd, EPOLL_CTL_ADD, newSocket, &event) == -1) {
-					perror("epoll_ctl");
+					std::cout << "epoll_ctl field" << std::endl;
 					close(newSocket);
 					continue ;
 				}
@@ -212,29 +208,22 @@ void Webserv::multiplixing() {
 					Clients[newSocket]->setDoublicateServer(servVec);
 				
 				Clients[newSocket]->setServ(serv);
-				// Clients[events[i].data.fd]->setTime(clock());
 			}
+			else if (Clients.find(events[i].data.fd) == Clients.end())
+				continue ;
 			else {
-				if ((events[i].events & EPOLLHUP) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLERR)){
-					std::cout << "EPOLL ERRORS" << std::endl;
+				if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLRDHUP) || (events[i].events & EPOLLHUP)){
 					close(events[i].data.fd);
-					if (Clients[events[i].data.fd]){
-						delete Clients[events[i].data.fd];
-						Clients.erase(events[i].data.fd);
-					}
+					delete Clients[events[i].data.fd];
+					Clients.erase(events[i].data.fd);
 				}
-				else if (Clients[events[i].data.fd]->getIsCgi() == 1){
+				else if (Clients[events[i].data.fd]->getIsCgi() == 1)
 					Clients[events[i].data.fd]->checkTimeOutOfCgi();
-				}
 				else if ((events[i].events & EPOLLIN) && Clients[events[i].data.fd]->getStatus() == 1) {
-					// ------ request ------
 					requestPart(events[i].data.fd);
 				}
-				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0)
-				{
-					// ------ response ------
+				else if ((events[i].events & EPOLLOUT) && Clients[events[i].data.fd]->getStatus() == 0) {
 					if (Clients[events[i].data.fd]->getThingsToRes() == _FILE) {
-						// ------ response file ------
 						if (responseFile(events[i].data.fd) == 0) {
 							close(events[i].data.fd);
 							delete Clients[events[i].data.fd];
@@ -242,7 +231,6 @@ void Webserv::multiplixing() {
 						}
 					}
 					else if (Clients[events[i].data.fd]->getThingsToRes() == _FOLDER) {
-						// ------ response folder ------
 						if (responseFolder(events[i].data.fd) == 0) {
 							close(events[i].data.fd);
 							delete Clients[events[i].data.fd];
@@ -251,7 +239,6 @@ void Webserv::multiplixing() {
 					}
 					else {
 						response = Clients[events[i].data.fd]->getResponse();
-						
 						send(events[i].data.fd, response.c_str(), response.length(), 0);
 						close(events[i].data.fd);
 						delete Clients[events[i].data.fd];
@@ -277,9 +264,6 @@ void Webserv::initDoublicateServer() {
 		else
 			doublicateServer[token].push_back(*it);
 	}
-	// for (std::map<std::string, std::vector<Server *> >::iterator it = doublicateServer.begin(); it != doublicateServer.end(); it++) {
-	// 	std::cout << (*it).first << std::endl;
-	// }
 }
 
 void Webserv::initDefaultServer() {

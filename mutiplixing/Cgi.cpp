@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/20 12:13:18 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/21 17:11:11 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ void Request::cgiPost(int fd, std::string path){
         NULL
     };
 
-
 	fCgi = fopen("cgi.txt", "wb+");
 	if (fCgi == NULL)
 		throw StatusCodeExcept(403);
@@ -83,7 +82,6 @@ void Request::cgiPost(int fd, std::string path){
     else if ( p == 0){
         dup2(fd, 0);
 		dup2(f, 1);
-		// dup2(f, 2);
        	execve(path.c_str(), argv, envp);
 		std::cerr << "Failed to execute script" << std::endl;
 		exit (1);
@@ -114,8 +112,6 @@ void Request::cgiGet(std::string path, std::string url){
 	if (!queryString.empty())
 		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
-	
-	
 	char *envp[] = {
 		(char*) query.c_str(),
 		(char*) ContentType.c_str(),
@@ -142,7 +138,6 @@ void Request::cgiGet(std::string path, std::string url){
       throw StatusCodeExcept(403);
     else if ( p == 0){
 		dup2(fd, 1);
-		// dup2(fd, 2);
        	execve(path.c_str(), argv, envp);
 		std::cerr << "Failed to execute script" << std::endl;
 		exit (1);

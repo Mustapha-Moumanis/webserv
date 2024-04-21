@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 14:38:28 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:09:38 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mutiplixing/Webserv.hpp"
  
 int main(int ac, char **av) {
+
     if (ac <= 2) {
         std::string file = "defaultConfig.yml";
         if (av[1])
@@ -23,7 +24,7 @@ int main(int ac, char **av) {
         else {
             if (!isRegFile(file))
                 std::cerr << file << " is not a regular file" << std::endl;
-            else 
+            else
                 Webserv Webs(ifs);
         }
     }
