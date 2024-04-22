@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:37:16 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/21 17:09:38 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/22 17:00:41 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,10 @@ int main(int ac, char **av) {
         else {
             if (!isRegFile(file))
                 std::cerr << file << " is not a regular file" << std::endl;
-            else
+            else {
+                signal(SIGPIPE, SIG_IGN);
                 Webserv Webs(ifs);
+            }
         }
     }
     else

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 14:58:56 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 14:38:11 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/22 16:57:26 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <fstream>
 #include <dirent.h>
 #include <cctype>
-#include <time.h>
+#include <ctime>
 #include "StatusCodeExcept.hpp"
 #include "rediractionExcept.hpp"
 #include "responseGetExcept.hpp"

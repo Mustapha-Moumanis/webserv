@@ -21,6 +21,8 @@ Request::Request() : body(""), queryString(""), url(""), Method(""), length(0){
 	fileName = "";
 	type = "";
 	path = "";
+	cookies = "";
+	fileCgiName = "";
 	ContentLength = 0;
 	HeaderIsDone = 0;
 	IsChunked = 0;
@@ -39,12 +41,11 @@ Request::~Request() {
 	if (ftype != NULL)
 		fclose(ftype);
 	if (fCgi != NULL){
-		std::remove("cgi.txt");
+		std::remove(fileCgiName.c_str());
 		fclose(fCgi);
 	}
 	if (dir != NULL)
         closedir(dir);
-	// *ptrIsCgi = 0;
 }
 
 Location *Request::getLocation() {
@@ -169,6 +170,9 @@ void Request::CheckRequest(){
 		if (!it->second.empty())
 			contentType = it->second;
 	}
+	it = HeadReq.find("Cookie");
+	if (it != HeadReq.end())
+		cookies = it->second;
 }
 
 bool Request::CompareURL(std::string s1, std::string s2) {

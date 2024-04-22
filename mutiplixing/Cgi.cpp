@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
+/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 00:25:46 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/21 18:18:03 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/22 16:34:12 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,10 @@ void Request::parssRspCGI(){
 		if (header.empty())
 			header = "HTTP/1.1 200 OK\r\n";
 		header += str;
-		throw responseGetExcept(header, "cgi.txt", _FILE, pos + 4);
+		throw responseGetExcept(header, fileCgiName, _FILE, pos + 4);
 	}
 	else 
-		throw responseGetExcept(genGetDirHeader(200, "text/html"), "cgi.txt", _FILE, 0);
+		throw responseGetExcept(genGetDirHeader(200, "text/html"), fileCgiName, _FILE, 0);
 }
 
 void Request::cgiPost(int fd, std::string path){
@@ -55,6 +55,10 @@ void Request::cgiPost(int fd, std::string path){
 	ss >> len;
 	std::string ContentLength = "CONTENT_LENGTH=" + len;
 	
+	std::string cookie = "HTTP_COOKIE=";
+	if (!cookies.empty())
+		cookie += cookies;
+
 	char *envp[] = {
 		(char*) ContentLength.c_str(),
 		(char*) ContentType.c_str(),
@@ -72,7 +76,8 @@ void Request::cgiPost(int fd, std::string path){
         NULL
     };
 
-	fCgi = fopen("cgi.txt", "wb+");
+	fileCgiName = getNewName() + "Cgi.txt";
+	fCgi = fopen(fileCgiName.c_str(), "wb+");
 	if (fCgi == NULL)
 		throw StatusCodeExcept(403);
 	int f = fileno(fCgi);
@@ -109,14 +114,21 @@ void Request::cgiGet(std::string path, std::string url){
 	std::string script = "SCRIPT_NAME=" + url;
 	std::string scriptFile = "SCRIPT_FILENAME=" + url;
 	std::string ContentType = "CONTENT_TYPE=" + this->contentType;
+
 	if (!queryString.empty())
 		queryString = queryString.substr(1);
 	std::string query = "QUERY_STRING=" + queryString;
+
+	std::string cookie = "HTTP_COOKIE=";
+	if (!cookies.empty())
+		cookie += cookies;
+
 	char *envp[] = {
 		(char*) query.c_str(),
 		(char*) ContentType.c_str(),
 		(char*) script.c_str(),
 		(char*) scriptFile.c_str(),
+		(char*) cookie.c_str(),
 		(char*) "REQUEST_METHOD=GET",
 		(char*) "REDIRECT_STATUS=true",
 		(char*) "SERVER_PROTOCOL=HTTP/1.1",
@@ -129,7 +141,8 @@ void Request::cgiGet(std::string path, std::string url){
         NULL
     };
 
-	fCgi = fopen("cgi.txt", "wb+");
+	fileCgiName = getNewName() + "Cgi.txt";
+	fCgi = fopen(fileCgiName.c_str(), "wb+");
 	if (fCgi == NULL) 
 		throw StatusCodeExcept(403);
 	int fd = fileno(fCgi);

@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 14:36:33 by shilal            #+#    #+#             */
-/*   Updated: 2024/04/19 16:52:26 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/22 16:29:42 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ class Request {
 		std::string fileName;
 		std::string type;
 		std::string path;
+		std::string cookies;
+		std::string fileCgiName;
 		long long ContentLength;
 		long long length;
 		bool IsChunked;

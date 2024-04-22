@@ -6,7 +6,7 @@
 /*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:38 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/03 01:15:33 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/22 16:58:23 by shilal           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdlib>
-#include <stdlib.h>
+#include <cstdlib>
 #include <map>
-#include <signal.h>
+#include <csignal>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/epoll.h>
