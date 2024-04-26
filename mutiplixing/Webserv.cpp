@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 16:38:21 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/21 18:18:49 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/26 23:20:15 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,27 +148,23 @@ void Webserv::multiplixing() {
 		tmpFD = socket(AF_INET, SOCK_STREAM, 0);
 		if (tmpFD == -1)
 			throw std::runtime_error("cannot create a socket");
-		
-		
-		// start TCP Socket //
+
 		struct sockaddr_in addr;
-		memset((char *)&addr, 0, sizeof(addr));
+		memset(&addr, 0, sizeof(addr));
 		
 		addr.sin_family = AF_INET;
 		addr.sin_addr.s_addr = inet_addr(dataServers[i]->getHost().c_str());
 		addr.sin_port = htons(dataServers[i]->getPort());
 
-		int level = 1;
-		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &level, sizeof(int));
+		int enableOpt = 1;
+		setsockopt(tmpFD, SOL_SOCKET, SO_REUSEADDR, &enableOpt, sizeof(int));
 		
 		if (bind(tmpFD, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 			throw std::runtime_error("bind faild");
 		
 		if (listen(tmpFD, 3) == -1)
 			throw std::runtime_error("listen faild");
-		
-		// end TCP Socket //
-		
+
 		event.events = EPOLLIN;
 		event.data.fd = tmpFD;
 		

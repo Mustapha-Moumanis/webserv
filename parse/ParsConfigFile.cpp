@@ -6,7 +6,7 @@
 /*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/21 14:08:58 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/20 14:44:00 by mmoumani         ###   ########.fr       */
+/*   Updated: 2024/04/26 22:31:21 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,11 @@ ParsConfigFile::ParsConfigFile(std::ifstream &fs, std::vector<Server *> &serv) :
 	}
 	for (std::vector<Server *>::iterator it1 = dataServers.begin(); it1 != dataServers.end(); it1++) {
 		(*it1)->checkArg();
-	// 	// check doublicate 
-	// 	for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
-	// 		if ((*it1)->getPort() == (*it2)->getPort())
-	// 			throw std::runtime_error("doublicate post");
-	// 	}
+		// check doublicate 
+		for (std::vector<Server *>::iterator it2 = it1 + 1; it2 < dataServers.end(); it2++) {
+			if ((*it1)->getPort() == (*it2)->getPort())
+				throw std::runtime_error("doublicate post");
+		}
 	}
 	if (dataServers.empty())
 		throw std::runtime_error("No server available");
@@ -84,27 +84,6 @@ void ParsConfigFile::getKeyValue(std::string line) {
 	else
 		value = s1;
 }
-
-// void ParsConfigFile::getLocaKeyValue(std::string line) {
-// 	std::stringstream ss;
-// 	std::string s1;
-// 	key = "";
-// 	value = "";
-	
-// 	if (line.find(":") == std::string::npos || line.at(0) != '-')
-// 		throw std::runtime_error("invalid line : " + line);
-	
-// 	ss << ;
-// 	getline(ss, key, ':');
-// 	key = key.substr(0, key.find(" "));
-// 	ss >> s1;
-
-//	getline(ss, value, '\0');
-//	if (!value.empty())
-//		value = s1 + " " + value;
-//	else
-//		value = s1;
-// }
 
 void ParsConfigFile::setServValue(Server &serv, std::string key, std::string value) {
 	if (key == "server_name")

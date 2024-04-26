@@ -1,15 +1,15 @@
 server :
     port:  8080
-    host: 127.0.0.1
+    host: 10.14.3.9
     server_name : mmoumani.42.fr1
     root: www
     # client_max_body_size: 10M
     upload : on upload
     autoindex : on
-    methods: POST GET
+    methods: POST GET DELETE
     # index : index.html index.htmld
     # index : home.html index.htmld2 # is dir
-    time_out : 5s
+    # time_out : 5s
     # error_pages : [[404 500 502 503 504, error_pages/custom_50x.html]]
     cgi_paths : [[.py, /usr/bin/python3], [.php, /usr/bin/php-cgi]]
 
@@ -19,17 +19,21 @@ server :
         - upload : on
         # - index : post.php
         # - error_pages : [[404, error_pages/custom_40x.html]]
+    location:   
+        - path : /upload
+        - root : upload
+        - autoindex : ON
+        - upload : on
     location :
         - path:  /
-
+        - return : 302 http://10.14.3.9:8080/home/
         # - methods:  POST
-        # - return : 301  http://google.com
 
 server : 
     server_name : mmoumani
     host: 127.0.3.1
     autoindex : on
-    port: 8080
+    port: 8081
     root: www
     index : congradulation 
     location :

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 21:31:17 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/19 17:48:12 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/26 22:47:20 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Server::Server(){
 	uploadPath = "";
 	autoIndex = "off";
 	clientMaxBodySize = 2147483648;
-	timeOut = 60;
+	timeOut = 30;
 	realPath = "";
 	char actualpath [PATH_MAX + 1];
 	if (realpath("./", actualpath))

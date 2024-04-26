@@ -3,35 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: shilal <shilal@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mmoumani <mmoumani@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/20 14:36:39 by mmoumani          #+#    #+#             */
-/*   Updated: 2024/04/21 17:11:24 by shilal           ###   ########.fr       */
+/*   Updated: 2024/04/26 23:17:52 by mmoumani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
-// bool Request::hasIndexFile(std::string url) { // remove
-// 	struct dirent* directoryEntries;
-	
-// 	DIR* dir = opendir(url.c_str());
-// 	if (!dir)
-// 		throw StatusCodeExcept(403);
-// 	while ((directoryEntries = readdir(dir))){
-// 		std::string name = directoryEntries->d_name;
-// 		if (name != "." && name != "..") {
-// 			if (name.substr(0, name.find('.')) == "index") {
-// 				url += name;
-// 				std::cout << ">> " << url << std::endl;
-// 				closedir(dir);
-// 				return 1;
-// 			}
-// 		}
-// 	}
-// 	closedir(dir);
-// 	return 0;
-// }
 
 std::string Request::genGetFileHeader(int code, std::string url) {
 	std::stringstream ss;
@@ -144,7 +123,7 @@ void Request::generateDirAutoIndex() {
     body += "</head>\n<body>\n<h3>index of ";
 	body += reqURL;
 	body += "</h3>";
-	if (url != server->getRoot() + "/") {
+	if (url != location->getRoot() + "/") {
 		parentDir = 1;
 		body += genDirItem("..");
 	}
@@ -164,13 +143,9 @@ void Request::Get(){
 		if (*ptrIsCgi == 1)
 			return;
 
-		if (location->getAutoIndex() == "on") {
-			// if (hasIndexFile(url)) // get index insind folder 
-			// 	throw StatusCodeExcept(200);
-			// else // list folders
+		if (location->getAutoIndex() == "on")
 			generateDirAutoIndex();
-		}
-		throw StatusCodeExcept(403); // Forbidden
+		throw StatusCodeExcept(403);
 	}
 	else if (isRegFile(url)) {
 		if (access(url.c_str(), R_OK) != 0)
